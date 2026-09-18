@@ -123,6 +123,44 @@ def free_space(bank, protect_tail):
     return (start, end) if end - start >= 64 else (end, end)
 
 
+def validate_refs(rom, game, strings):
+    """Drop pointer candidates that are not part of a pointer table.
+
+    The dump finds references by byte pattern, and machine code or music data sometimes
+    contains four bytes that happen to equal a far pointer to a string. Rewriting those
+    corrupts the game, so a slot is only trusted when
+    - another slot 4, 8 or 12 bytes away also points at the start of a known string, or
+    - it lies in a text bank directly in front of text (linked dialogue record) or right
+      after the end of a string.
+    """
+    starts = set()
+    for s in strings:
+        cfg = game.TEXT_BANKS[s["bank"]]
+        base = cfg["base"] if cfg["base"] is not None else rom.linear_base(s["bank"])
+        starts.add(base + s["offset"] - s.get("header", 0))
+    text_start = {(s["bank"], s["offset"]) for s in strings}
+
+    def strong(bank, o):
+        if o < 0 or o + 4 > len(bank):
+            return False
+        off, seg = struct.unpack_from("<HH", bank, o)
+        return off < 16 and seg * 16 + off in starts
+
+    dropped = 0
+    for s in strings:
+        keep = []
+        for rb, ro in s["refs"]:
+            bank = rom.bank(rb)
+            ok = any(strong(bank, ro + d) for d in (-12, -8, -4, 4, 8, 12))
+            if not ok and rb in game.TEXT_BANKS:
+                ok = (rb, ro + 4) in text_start or END in bank[max(0, ro - 2):ro]
+            if ok:
+                keep.append([rb, ro])
+        dropped += len(s["refs"]) - len(keep)
+        s["refs"] = keep
+    return dropped
+
+
 class Space:
     """Free ROM space: unused tails of the linear banks plus the old spans of moved strings.
 
@@ -134,10 +172,16 @@ class Space:
         self.rom = rom
         self.first_linear = rom.nbanks - 12
         self.regions = []                       # [bank, start, end]
+        self.tails = {}
         for bn in range(self.first_linear, rom.nbanks):
             fs, fe = free_space(rom.bank(bn), bn == rom.nbanks - 1)
             if fe > fs:
                 self.regions.append([bn, fs, fe])
+                self.tails[bn] = (fs, fe)
+
+    def was_free(self, pos):
+        fs, fe = self.tails.get(pos >> 16, (0, 0))
+        return fs <= (pos & 0xFFFF) < fe
 
     def release(self, bank, start, end):
         for r in self.regions:
@@ -208,7 +252,9 @@ def main():
              "skipped untranslated": 0, "skipped overlap": 0, "skipped round-trip": 0, "failed": 0}
     notes = []
     by_bank = {}
-    for s in load_strings(dump):
+    all_strings = load_strings(dump)
+    stats["pointer candidates rejected"] = validate_refs(rom, game, all_strings)
+    for s in all_strings:
         by_bank.setdefault(s["bank"], []).append(s)
 
     moving, placed = [], []
@@ -314,6 +360,19 @@ def main():
         o = patch["bank"] * 0x10000 + patch["offset"]
         data[o:o + len(patch["data"])] = patch["data"]
         notes.append(f"binary patch: {patch['why']}")
+
+    allowed = set()
+    for st in all_strings:
+        for rb, ro in st["refs"]:
+            allowed.update(range(rb * 0x10000 + ro, rb * 0x10000 + ro + 4))
+    for patch in getattr(game, "BINARY_PATCHES", []):
+        o = patch["bank"] * 0x10000 + patch["offset"]
+        allowed.update(range(o, o + len(patch["data"])))
+    stray = [i for i in range(len(data)) if data[i] != rom.data[i] and (i >> 16) not in game.TEXT_BANKS
+             and i not in allowed and not space.was_free(i)]
+    stats["stray changes outside text"] = len(stray)
+    if stray:
+        notes.append("STRAY CHANGES at " + ", ".join(f"{i >> 16}:{i & 0xFFFF:04X}" for i in stray[:20]))
 
     data[-2:] = struct.pack("<H", sum(data[:-2]) & 0xFFFF)
 

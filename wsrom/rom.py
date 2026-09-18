@@ -51,3 +51,12 @@ def far_ptr(buf, off, base):
         return -1
     lin = s * 16 + o - base
     return lin if 0 <= lin < BANK else -1
+
+
+def default_dump_dir(rom_path):
+    """<rom folder>/<rom name>, or the same folder name one level up when the ROMs were
+    moved into a sub-folder next to their dumps."""
+    rom_path = Path(rom_path)
+    here = rom_path.with_suffix("")
+    up = rom_path.parent.parent / rom_path.stem
+    return up if up.is_dir() and not here.is_dir() else here

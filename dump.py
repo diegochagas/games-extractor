@@ -15,7 +15,7 @@ from games import anode_tamer, brave_tamer, d1_tamers, tag_tamers
 from games.common import CONTROLS, table_file
 from wsrom import archive, gfx, text
 from wsrom.codecs import tiles_2bpp
-from wsrom.rom import Rom
+from wsrom.rom import Rom, default_dump_dir
 
 GAMES = [d1_tamers, tag_tamers, anode_tamer, brave_tamer]
 
@@ -220,7 +220,7 @@ def main():
     game = next((g for g in GAMES if g.matches(rom.header())), None)
     if game is None:
         sys.exit("Unsupported ROM: no game definition matches its header.")
-    out = Path(args.out) if args.out else rom.path.with_suffix("")
+    out = Path(args.out) if args.out else default_dump_dir(rom.path)
     out.mkdir(parents=True, exist_ok=True)
 
     dump_info(rom, game, out)

@@ -25,7 +25,7 @@ from pathlib import Path
 from dump import GAMES
 from games.common import CONTROLS
 from translate import Lookup, apply_rules, japanese, load_rules, load_strings
-from wsrom.rom import Rom
+from wsrom.rom import Rom, default_dump_dir
 
 import json
 
@@ -188,7 +188,7 @@ def main():
     game = next((g for g in GAMES if g.matches(rom.header())), None)
     if game is None:
         sys.exit("Unsupported ROM.")
-    dump = Path(args.dump) if args.dump else rom.path.with_suffix("")
+    dump = Path(args.dump) if args.dump else default_dump_dir(rom.path)
     data = bytearray(rom.data)
     enc = Encoder(game)
     rules = load_rules()

@@ -1,0 +1,6 @@
+# ROMs and dumps never go into git
+*.ws
+*.wsc
+*.sav
+dumps/
+__pycache__/

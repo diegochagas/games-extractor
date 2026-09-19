@@ -1,0 +1,41 @@
+{
+ "D-1 Tamers": {
+  "cutscenes": [
+   ["bank22", "Digimon silhouettes (the 'who is it?' reveal shots) and the white/black D-3 flash frames."],
+   ["bank24 - bank28", "Story locations and events: the D-1 tower and the floating islands of each field, plus explosion and impact frames."],
+   ["bank46, bank49", "Opening and title: the Digimon Link System logo, the title screen, the bedroom and computer opening scene, full-screen Digimon illustrations."],
+   ["bank00", "The 11 isometric battle arenas (desert, forest, sea, snow, city...) - backgrounds, not cutscenes."]
+  ],
+  "banks": {"0":"Battle arena backgrounds, battle HUD","3":"Overworld/character sprites","4":"Overworld sprites","5":"Overworld sprites","6":"Digimon sprites","7":"Digimon sprites","8":"Digimon sprites","9":"Digimon sprites","10":"Digimon sprites","11":"Digimon battle portraits","12":"Digimon battle portraits","13":"Digimon battle portraits","14":"Digimon battle portraits","15":"Digimon battle portraits","16":"Digimon battle portraits","17":"Digimon battle portraits","18":"Digimon battle portraits","19":"Digimon battle portraits","20":"Digimon battle portraits","21":"Digimon battle portraits","22":"Silhouettes, D-3 flashes, battle effects","24":"Story locations and effects","25":"Story locations","26":"Story locations","27":"Story locations","28":"Story locations and effects","29":"Menu buttons and small sprites","30":"Sprites","31":"Sprites","32":"Digimon portraits (mono palette)","33":"Digimon portraits (mono palette)","34":"Digimon portraits (mono palette)","35":"Digimon portraits (mono palette)","36":"Digimon portraits (mono palette)","37":"Digimon portraits (mono palette)","38":"Digimon portraits","39":"Menu buttons and icons","40":"Digimon battle portraits","41":"UI, effects","42":"Rooms and shops","43":"Rooms, shops, windows","44":"Link screens and UI","45":"UI and backgrounds","46":"Title, opening scenes, illustrations","47":"Sprites","49":"Menus, info screens, opening","50":"Sprites","51":"Sprites"}
+ },
+ "Tag Tamers": {
+  "cutscenes": [
+   ["bank14", "Boss scene (Millenniummon on its pedestal) and the explosion / impact frames (14/9AD6, 14/B082, 14/CDB0)."],
+   ["bank09", "Dark silhouette / vortex frame."],
+   ["bank12, bank18", "Story locations: the globe (12/6BC8), the tower and cliff areas."],
+   ["bank13", "Digimon Link System logo."],
+   ["bank16", "Battle arenas - backgrounds, not cutscenes."]
+  ],
+  "banks": {}
+ },
+ "Anode Tamer": {
+  "cutscenes": [
+   ["bank11 - bank14", "The illustrated story: the boy at his computer, Agumon, the Digital World, the fight with the crab Digimon, the Digivice, farewells. This is the main cutscene art of the game."],
+   ["bank15", "Sunset over the town and the house (end of the prologue)."],
+   ["bank20", "Ending art (the girl illustrations and the sunset)."],
+   ["bank40, bank47", "Title screens (DIGIMON logo with Anode/Cathode Tamer menu)."],
+   ["bank16 - bank19, bank43 - bank46", "Isometric battle arenas - backgrounds, not cutscenes."]
+  ],
+  "banks": {}
+ },
+ "Brave Tamer": {
+  "cutscenes": [
+   ["bank04 - bank05", "The sepia flashback cutscenes (the opening story) and the silhouettes (Digi-Egg, the two children)."],
+   ["bank37, bank43", "Digimon silhouettes (reveal shots)."],
+   ["bank41", "Grid / speed-line effect frames used in transitions."],
+   ["bank50 - bank51", "Title screen, GAME OVER screen, the ending pyramid and link screens."],
+   ["bank27 - bank28, bank32 - bank36", "Field and map backgrounds - not cutscenes."]
+  ],
+  "banks": {}
+ }
+}

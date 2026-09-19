@@ -24,7 +24,8 @@ from pathlib import Path
 
 from dump import GAMES
 from games.common import CONTROLS
-from translate import Lookup, apply_rules, japanese, load_rules, load_strings
+import fit
+from translate import Lookup, apply_rules, japanese, load_fitted, load_rules, load_strings
 from wsrom.rom import Rom, default_dump_dir
 
 import json
@@ -248,6 +249,8 @@ def main():
     look = Lookup({jp[k]: v for k, v in en.items() if k in jp})
 
     space = Space(rom)
+    fitted = load_fitted(dump)
+
     stats = {"in place": 0, "relocated": 0, "short form": 0, "left original": 0, "kept short copy (no space)": 0, "unchanged": 0, "skipped junk": 0,
              "skipped untranslated": 0, "skipped overlap": 0, "skipped round-trip": 0, "failed": 0}
     notes = []
@@ -262,7 +265,9 @@ def main():
         cfg = game.TEXT_BANKS[bank_no]
         bstart = bank_no * 0x10000
         last_end = -1
-        for s in sorted(strings, key=lambda x: x["offset"]):
+        strings = sorted(strings, key=lambda x: x["offset"])
+        boxes = dict(zip((s["offset"] for s in strings), fit.limits_for([s["text"] for s in strings])))
+        for s in strings:
             raw = bytes.fromhex(s["hex"])
             off = s["offset"]
             if off < last_end:
@@ -277,6 +282,16 @@ def main():
                     stats["skipped junk"] += 1
                     continue
                 new = apply_rules(new, rules)
+                # the text box was sized for the Japanese text: overflowing it corrupts the screen
+                w, n = boxes[s["offset"]]
+                for cand in fitted.get(s["text"], ()):
+                    if fit.fit_text(cand, s["text"], w, n)[1] == "ok":
+                        new = apply_rules(cand, rules)
+                        break
+                new, how = fit.fit_text(new, s["text"], w, n)
+                stats["box: " + how] = stats.get("box: " + how, 0) + 1
+                if how == "truncated":
+                    notes.append(f"bank {bank_no} @{s['offset']:04X}: TRUNCATED to {boxes[s['offset']]} -> {new!r}")
             else:
                 new = apply_rules(s["text"], rules)
                 if new == s["text"]:

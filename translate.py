@@ -95,6 +95,67 @@ def export_missing(dump):
     print(f"{len(items)} new strings -> chunk_{n:02d}.json")
 
 
+def fit_export(dump):
+    """Translations that overflow their text box even after re-wrapping -> translation/fit/fit_NN.json."""
+    import fit
+    d = dump / "translation" / "chunks"
+    jp, en = {}, {}
+    for f in sorted(d.glob("chunk_*.json")):
+        if f.name.endswith(".en.json"):
+            en.update(json.loads(f.read_text(encoding="utf-8")))
+        else:
+            jp.update({it["k"]: it["jp"] for it in json.loads(f.read_text(encoding="utf-8"))})
+    look = Lookup({jp[k]: v for k, v in en.items() if k in jp})
+    rules = load_rules()
+    banks = {}
+    for s in load_strings(dump):
+        banks.setdefault(s["bank"], []).append(s)
+    todo = {}
+    for bank, strings in banks.items():
+        strings.sort(key=lambda x: x["offset"])
+        for s, (w, n) in zip(strings, fit.limits_for([x["text"] for x in strings])):
+            if not japanese(s["text"]):
+                continue
+            tr = look.get(s["text"])
+            if tr is None or tr.strip() == "[junk]":
+                continue
+            tr = apply_rules(tr, rules)
+            if fit.fit_text(tr, s["text"], w, n)[1] != "truncated":
+                continue
+            prefix = tr[0] if tr[0] == s["text"][0] and not tr[0].isascii() else ""
+            key = (s["text"], w, n)
+            todo.setdefault(key, {"jp": s["text"], "en": tr, "width": w, "lines": n, "prefix": prefix})
+    out = dump / "translation" / "fit"
+    out.mkdir(exist_ok=True)
+    done = load_fitted(dump)
+    items = [dict(v, k="%05d" % i) for i, ((jp, w, n), v) in enumerate(todo.items())
+             if not any(fit.fit_text(c, jp, w, n)[1] == "ok" for c in done.get(jp, ()))]
+    start = 1 + max([int(f.name[4:6]) for f in out.glob("fit_*.json") if not f.name.endswith(".en.json")] + [-1])
+    for n in range(0, len(items), 240):
+        part = items[n:n + 240]
+        for j, it in enumerate(part):
+            it["k"] = "%02d-%03d" % (start + n // 240, j)
+        (out / ("fit_%02d.json" % (start + n // 240))).write_text(json.dumps(part, ensure_ascii=False, indent=0), encoding="utf-8")
+    print(f"{len(items)} strings need condensing -> {(len(items) + 239) // 240} chunk(s) in {out}")
+
+
+def load_fitted(dump):
+    """Japanese text -> already condensed English variants (a narrower one still fits a wider box)."""
+    out = dump / "translation" / "fit"
+    done = {}
+    if not out.exists():
+        return done
+    for f in sorted(out.glob("fit_*.en.json")):
+        src_file = out / f.name.replace(".en.json", ".json")
+        if not src_file.exists():
+            continue
+        src = {it["k"]: it for it in json.loads(src_file.read_text(encoding="utf-8"))}
+        for k, v in json.loads(f.read_text(encoding="utf-8")).items():
+            if k in src:
+                done.setdefault(src[k]["jp"], []).append(v)
+    return done
+
+
 def merge(dump):
     d = dump / "translation" / "chunks"
     jp, en = {}, {}
@@ -219,6 +280,6 @@ def rename(dump):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3 or sys.argv[1] not in ("export", "export-missing", "merge", "normalize", "rename"):
+    if len(sys.argv) != 3 or sys.argv[1] not in ("export", "export-missing", "fit-export", "merge", "normalize", "rename"):
         sys.exit(__doc__)
-    {"export": export, "export-missing": export_missing, "merge": merge, "normalize": normalize, "rename": rename}[sys.argv[1]](Path(sys.argv[2]))
+    {"export": export, "export-missing": export_missing, "fit-export": fit_export, "merge": merge, "normalize": normalize, "rename": rename}[sys.argv[1]](Path(sys.argv[2]))

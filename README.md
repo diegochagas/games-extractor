@@ -69,3 +69,21 @@ locations (see `games/d1_tamers.py`), then list it in `dump.py`.
 - Text: one byte per character, `FF` end, `FE` newline, `FD` space, `FA` placeholder.
   Glyphs are drawn into tile RAM from a 8x16 font (`857F:000E`) or a 16x16 DigiCode font
   (`8773:000E`); renderer at `AB0F:02F6`.
+
+## Testing a build locally
+
+`testrom.py` drives the same libretro core the RomM web player uses (Beetle/Mednafen WonderSwan),
+headless, and saves screenshots, so a build can be verified without an emulator GUI:
+
+```bash
+python3 testrom.py ROM --core /path/to/mednafen_wswan_libretro.so \
+    --script "240,300:start,150:a,120:a" --out shots
+```
+
+Get the core with `apt-get download libretro-beetle-wswan` and unpack it with `dpkg-deb -x`.
+
+**Text box size (measured with a ruler string in the emulator): the portrait dialogue box holds
+exactly 20 characters x 2 lines.** Writing past that overwrites tile RAM: the background turns into
+rows of garbage and the game hangs. `fit.py` derives each string's box from the Japanese text and
+`build.py` never writes anything wider or taller; strings that cannot be re-wrapped are condensed by
+hand (see `docs/FIT_INSTRUCTIONS.md`, `translation/fit/`) and checked by `check_fit.py`.

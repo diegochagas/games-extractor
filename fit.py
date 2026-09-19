@@ -32,13 +32,29 @@ def limits_for(jp_strings, window=12):
     return out
 
 
+def header_len(jp, en):
+    """Length of the non-displayed header the translation copied from the Japanese.
+
+    Records start with a speaker/portrait byte, and a string the dump began a little early
+    also carries pointer-table bytes. None of that is drawn, so it must not count towards the
+    box width. Translators copy it verbatim, so it is the common prefix of both texts, minus
+    any ASCII letters at its end (those belong to the English sentence).
+    """
+    n = 0
+    while n < min(len(jp), len(en)) and jp[n] == en[n]:
+        n += 1
+    # Only trust the run up to its last kana: a header always ends in one. Digits and letters
+    # after that (a "02 " list index, a digit speaker byte) may well be drawn, and counting a
+    # drawn character as hidden would let the line overflow the box.
+    while n and en[n - 1].isascii():
+        n -= 1
+    return 0 if n >= len(en) else n
+
+
 def fit_text(en, jp, width, lines):
     """English fitted to the box: (text, how) with how in ok / rewrapped / truncated."""
-    prefix = ""
-    body = en
-    # speaker byte (copied unchanged from the Japanese) is not drawn
-    if en and jp and en[0] == jp[0] and not en[0].isascii():
-        prefix, body = en[0], en[1:]
+    k = header_len(jp, en)
+    prefix, body = en[:k], en[k:]
     if all(vis(l) <= width for l in body.split("\n")) and body.count("\n") < lines:
         return en, "ok"
     wrapped = reflow(body, width, lines)

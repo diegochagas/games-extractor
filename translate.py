@@ -129,7 +129,7 @@ def fit_export(dump):
     out.mkdir(exist_ok=True)
     done = load_fitted(dump)
     items = [dict(v, k="%05d" % i) for i, ((jp, w, n), v) in enumerate(todo.items())
-             if not any(fit.fit_text(c, jp, w, n)[1] == "ok" for c in done.get(jp, ()))]
+             if not any(fit.fit_text(apply_rules(c, rules), jp, w, n)[1] == "ok" for c in done.get(jp, ()))]
     start = 1 + max([int(f.name[4:6]) for f in out.glob("fit_*.json") if not f.name.endswith(".en.json")] + [-1])
     for n in range(0, len(items), 240):
         part = items[n:n + 240]

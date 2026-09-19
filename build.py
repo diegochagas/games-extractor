@@ -285,8 +285,9 @@ def main():
                 # the text box was sized for the Japanese text: overflowing it corrupts the screen
                 w, n = boxes[s["offset"]]
                 for cand in fitted.get(s["text"], ()):
+                    cand = apply_rules(cand, rules)   # the glossary may make it longer again
                     if fit.fit_text(cand, s["text"], w, n)[1] == "ok":
-                        new = apply_rules(cand, rules)
+                        new = cand
                         break
                 new, how = fit.fit_text(new, s["text"], w, n)
                 stats["box: " + how] = stats.get("box: " + how, 0) + 1

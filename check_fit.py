@@ -21,7 +21,8 @@ for it in chunk:
         print(k, f"must start with the prefix {prefix!r}")
         bad += 1
         continue
-    body = en[len(prefix):]
+    # the hidden header can be longer than the prefix the chunk names (pointer-table bytes)
+    body = en[max(len(prefix), fit.header_len(it["jp"], en)):]
     lines = body.split("\n")
     probs = []
     if len(lines) > it["lines"]:

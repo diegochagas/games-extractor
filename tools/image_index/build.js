@@ -6,7 +6,11 @@ const {
   BorderStyle, LevelFormat, PageOrientation, Header,
 } = require('docx');
 
-const data = JSON.parse(fs.readFileSync('data.json', 'utf8'));
+// usage: node build.js OUT.docx [game short name]  (no name = all games in one document)
+const only = process.argv[3];
+const data = JSON.parse(fs.readFileSync('data.json', 'utf8')).filter(g => !only || g.short === only);
+if (!data.length) { console.error('unknown game: ' + only); process.exit(1); }
+const single = data.length === 1;
 const notes = JSON.parse(fs.readFileSync('notes.json', 'utf8'));
 const FONT = 'Calibri';
 const W = 9026;                       // A4 content width with 1" margins
@@ -40,10 +44,10 @@ const count = (items, f) => items.filter(f).length;
 
 const children = [];
 // ---------- cover ----------
-children.push(new Paragraph({ spacing: { before: 2400, after: 200 }, children: [new TextRun({ text: 'Digimon WonderSwan games', font: FONT, size: 52, bold: true })] }));
+children.push(new Paragraph({ spacing: { before: 2400, after: 200 }, children: [new TextRun({ text: single ? `Digimon ${data[0].short}` : 'Digimon WonderSwan games', font: FONT, size: 52, bold: true })] }));
 children.push(new Paragraph({ spacing: { after: 600 }, children: [new TextRun({ text: 'Image index: where every extracted image is, and what it is', font: FONT, size: 30, color: '404040' })] }));
 children.push(p('Generated on 2026-09-19 from the asset dumps made by wonderswan-romhack (dump.py). Every image listed here is a PNG on disk, extracted read-only from the original ROMs.'));
-children.push(p('Games covered: Digimon Adventure 02 - D-1 Tamers, Digimon Adventure 02 - Tag Tamers, Digimon Anode Tamer - Veedramon Version, Digimon Tamers - Brave Tamer.'));
+children.push(p((single ? 'Game: ' : 'Games covered: ') + data.map(g => g.folder.split('/').pop()).join(', ') + '.'));
 children.push(new Paragraph({ children: [new PageBreak()] }));
 children.push(new Paragraph({ spacing: { after: 200 }, children: [new TextRun({ text: 'Contents', font: FONT, size: 34, bold: true, color: '1F3864' })] }));
 for (const line of ['How to read this document: folders, file names, image types', 'Summary: image counts per game',
@@ -55,7 +59,7 @@ children.push(new Paragraph({ children: [new PageBreak()] }));
 // ---------- how to read ----------
 children.push(h1('How to read this document'));
 children.push(h2('Where the files are'));
-children.push(p('Each game has its own dump folder in Downloads. All images are under its images folder, one sub-folder per ROM bank:'));
+children.push(p(single ? 'All images are under the images folder of this game\'s dump folder, one sub-folder per ROM bank:' : 'Each game has its own dump folder in Downloads. All images are under its images folder, one sub-folder per ROM bank:'));
 for (const g of data) children.push(bullet([bold(g.short + ': '), mono(g.folder + '/images/', 17)]));
 children.push(p('Every image folder also has a _fullscreen_overview.png contact sheet (all full-screen pictures with their labels) and a manifest.json with the raw data of every block in every bank.', { spacing: { before: 120, after: 100 } }));
 children.push(h2('File names'));
@@ -78,7 +82,7 @@ for (const g of data) {
   sumRows.push([g.short, g.system, count(it, i => i.type === 'picture'), count(it, i => i.full), count(it, i => i.type === 'sprite'), count(it, i => i.type === 'tilesheet'), it.length]);
 }
 const tot = k => data.reduce((a, g) => a + count(g.items, k), 0);
-sumRows.push(['All four', '', tot(i => i.type === 'picture'), tot(i => i.full), tot(i => i.type === 'sprite'), tot(i => i.type === 'tilesheet'), tot(() => true)]);
+if (!single) sumRows.push(['All four', '', tot(i => i.type === 'picture'), tot(i => i.full), tot(i => i.type === 'sprite'), tot(i => i.type === 'tilesheet'), tot(() => true)]);
 children.push(p('Full-screen pictures are a subset of pictures.', { size: 18 }));
 children.push(table([1900, 1900, 1000, 1150, 1150, 1000, 926], sumRows, { size: 19 }));
 
@@ -151,7 +155,7 @@ for (const g of data) {
 }
 
 const doc = new Document({
-  creator: 'wonderswan-romhack', title: 'Digimon WonderSwan games - image index',
+  creator: 'wonderswan-romhack', title: single ? `Digimon ${data[0].short} - image index` : 'Digimon WonderSwan games - image index',
   styles: {
     default: { document: { run: { font: FONT, size: 21 } } },
     paragraphStyles: [
@@ -166,7 +170,7 @@ const doc = new Document({
   sections: [{
     properties: { page: { size: { width: 11906, height: 16838 }, margin: { top: 1440, right: 1440, bottom: 1440, left: 1440 } } },
     footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [
-      new TextRun({ text: 'Digimon WonderSwan image index  -  page ', font: FONT, size: 16, color: '808080' }),
+      new TextRun({ text: (single ? `Digimon ${data[0].short}` : 'Digimon WonderSwan') + ' image index  -  page ', font: FONT, size: 16, color: '808080' }),
       new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: '808080' })] })] }) },
     children,
   }],

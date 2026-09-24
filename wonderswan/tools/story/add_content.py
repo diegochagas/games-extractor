@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Append sections (headings, paragraphs, images, image grids, tables) to an existing .docx without any library.
 
-    add_content.py BOOK.docx SPEC.json [--out OUT.docx] [--before "Heading 1 text"]
+    add_content.py BOOK.docx SPEC.json [--out OUT.docx | --in-place] [--before "Heading 1 text"]
+
+The result goes to ~/Downloads/<book file name> ($STORY_OUTPUT_DIR replaces ~/Downloads, --out names
+the file), so it can be checked before it replaces anything; --in-place rewrites the book itself.
 
 SPEC.json = list of blocks, in order:
   {"h1": "title"}                      Heading 1
@@ -24,7 +27,7 @@ SPEC.json may also be a list of insertions: [{"before": "heading text" | null, "
 ("after_para" inserts right after the first paragraph whose text starts with that string; the anchors are searched in the
 document as it is at that moment, so later insertions can anchor on earlier ones).
 Images are resized (nearest neighbour, keeping the pixel look) to at most 2x their width and stored as PNG.
-Keeps a BOOK.docx.bak copy when writing in place.
+With --in-place a BOOK.docx.bak copy of the original is kept next to it.
 """
 import io, json, os, re, shutil, sys, zipfile
 from xml.sax.saxutils import escape
@@ -196,7 +199,16 @@ class Doc:
 def main():
     a = sys.argv[1:]
     book, spec = a[0], a[1]
-    out = a[a.index("--out") + 1] if "--out" in a else book
+    if "--out" in a:
+        out = a[a.index("--out") + 1]
+    elif "--in-place" in a:
+        out = book
+    else:
+        root = os.path.expanduser(os.environ.get("STORY_OUTPUT_DIR", "~/Downloads"))
+        os.makedirs(root, exist_ok=True)
+        out = os.path.join(root, os.path.basename(book))
+        if os.path.abspath(out) == os.path.abspath(book):
+            raise SystemExit("the book already sits in the output folder; use --out or --in-place")
     before = a[a.index("--before") + 1] if "--before" in a else None
     spec_data = json.load(open(spec, encoding="utf-8"))
     d = Doc(book)

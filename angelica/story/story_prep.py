@@ -3,8 +3,9 @@
 """Monta story.json para o documento 'Saint Seiya Online - Story' a partir do dump em ~/Downloads/Seiya."""
 import os, sys, re, json, csv, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import story_notes as NOTES  # research-notes + Baidu Baike texts for volumes 01 and 05
 from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS, PRESS_NOTES, DA_NOTES, LIB_OFFICIAL, SITE_ART_NOTES, FANDOM_NOTES, SITE_INTROS, CHAPTER_SUMMARIES
-OUT = os.path.expanduser("~/Downloads/Seiya"); T = OUT + "/text"
+OUT = os.path.abspath(os.path.expanduser(sys.argv[2] if len(sys.argv) > 2 else os.environ.get("SSO_DUMP", "~/Downloads/Seiya"))); T = OUT + "/text"  # usage: story_prep.py WORK [DUMP]
 GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Nextcloud/Pictures/Saint Seiya/Saint Seiya Online"))  # saída de angelica/render/organize.py
 WORK = sys.argv[1] if len(sys.argv) > 1 else "."
 
@@ -196,7 +197,8 @@ for label, keys in KEYS:
     coverage.append({"item": label, "found": bool(hits), "detail": "; ".join(hits)[:500]})
 data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests, "tests_q": tests_q, "stats": qstats, "duplicates": [{"id": i, "name": clean(byid[i].get("name")), "of": o} for i, o in sorted(dup_of.items())],
         "pb_chars": pb_chars, "bios_common": bios_common, "pb_texts": pb_texts, "cards": cards, "unmapped_cards": unmapped, "portraits": portraits,
-        "gallery": gallery, "gallery_folders": gallery_folders, "npc_models": npc_models, "site_saints": site_saints, "boss_voices": boss_voices, "press_notes": PRESS_NOTES, "da_notes": DA_NOTES, "lib_official": LIB_OFFICIAL, "fandom_notes": FANDOM_NOTES, "chapter_summaries": CHAPTER_SUMMARIES, "site_intros": SITE_INTROS,
+        "gallery": gallery, "gallery_folders": gallery_folders, "npc_models": npc_models, "site_saints": site_saints, "boss_voices": boss_voices, "press_notes": {**PRESS_NOTES, **NOTES.PRESS_NOTES_EXTRA}, "da_notes": {**DA_NOTES, **NOTES.DA_NOTES_EXTRA}, "press_tables": NOTES.PRESS_TABLES, "other_sources": NOTES.OTHER_SOURCES,
+        "game_info": {k.lower(): getattr(NOTES, k) for k in ("GAME_FACTS", "LAUNCH_BR", "SETTING", "ARCS", "ARCS_IMAGE", "CLASSES_INTRO", "CLASSES", "CLASSES_PROGRESSION", "CLASSES_IMAGE", "SYSTEMS", "DUNGEONS", "REQUIREMENTS", "REVIEWS")}, "lib_official": LIB_OFFICIAL, "fandom_notes": FANDOM_NOTES, "chapter_summaries": CHAPTER_SUMMARIES, "site_intros": SITE_INTROS,
         "sites": (json.load(open(OUT + "/web/sites/sources.json", encoding="utf-8")) if os.path.exists(OUT + "/web/sites/sources.json") else {}),
         "deviantart": (json.load(open(OUT + "/web/deviantart/cerberus-rack-saint-seiya-online.json", encoding="utf-8")) if os.path.exists(OUT + "/web/deviantart/cerberus-rack-saint-seiya-online.json") else []), "bg": {f.split(".")[0]: "images/surfaces/background/" + f for f in os.listdir(OUT + "/images/surfaces/background") if f.startswith("loading")},
         "worldmaps": {f.split(".")[0]: "images/surfaces/maps/worldmaps/" + f for f in os.listdir(OUT + "/images/surfaces/maps/worldmaps")},

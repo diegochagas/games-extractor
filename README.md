@@ -11,6 +11,10 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 
 Both were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
 
+## Builds
+
+Every build writes to `~/Downloads` and nowhere else; the results are checked there and moved by hand. `angelica/build.sh DUMP_DIR [--story-only]` builds the Saint Seiya Online gallery and the 13 story volumes into `~/Downloads/Saint Seiya Online/` (`Imagens`, `Vídeos`, `Música`, `Documentos`; see the script header for the environment variables).
+
 ## Document format
 
 The books and image indexes are delivered as LibreOffice `.odt`: the generators write `.docx`, and the `docx-odt-convert` skill of the [comic-skills](https://github.com/diegochagas/comic-skills) repo converts them (`python3 docx-odt-convert/scripts/convert.py <folder> --to odt --output <dest>`), updating the table of contents so it shows page numbers.

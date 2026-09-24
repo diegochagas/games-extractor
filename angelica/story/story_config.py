@@ -416,14 +416,16 @@ FANDOM_NOTES = {
 # resumos de uma linha de cada capítulo (título H1 -> resumo), usados na lista "Conteúdo deste volume" de cada volume
 CHAPTER_SUMMARIES = {
  "Sobre este livro": "O que é Saint Seiya Online, de onde vieram os arquivos e como o livro foi montado.",
+ "O jogo em resumo": "A ficha do jogo (desenvolvedora, motor, licença, fontes da história, datas de lançamento e encerramento na China e no Brasil), o lançamento brasileiro, a ambientação e os arcos da história.",
  "O mundo do jogo": "As regiões do jogo (do Álbum), a tabela de todos os mapas do cliente, os 22 capítulos da missão principal com seus títulos, as telas de carregamento e os quadrinhos.",
+ "Classes e sistemas": "As sete classes do herói com papel, estilo e técnicas; a progressão das Armaduras; os sistemas do jogo (Armadura, Relíquia, Equipamento, Caixa Mágica, Alma, Reputação, Conquistas, Álbum, Títulos, Cosmo); cinco dungeons; os requisitos de 2013 e o que disseram as análises.",
  "Personagens": "As fichas do Álbum (cartão, retrato, dados e biografia) com os modelos 3D de cada personagem; os personagens criados para o jogo; deuses e Guerreiros Deuses; e os personagens que o site Saint Seiya Cloths liga ao jogo, com o NPC e o modelo correspondentes.",
  "Armaduras": "Cada Armadura do Álbum (Bronze, Prata, Ouro, Divinas, Escamas e Sapuris) com o cartão, o totem em forma de objeto e todos os conjuntos jogáveis renderizados (masculino e feminino); as urnas; as 23 classes de Sapuris e as missões de obtenção com diálogos.",
  "Galeria de modelos 3D": "Todos os modelos do cliente renderizados de frente, por facção e tipo: Cavaleiros, Espectros, Marinas, Guerreiros Deuses, Servos de Lamech, Olimpianos, NPCs, pets, monstros, relíquias, efeitos, cenários, objetos das cinemáticas e as Armaduras em forma de objeto.",
  "Vídeos do jogo": "Os 20 vídeos do cliente (abertura, logotipo, introdução, apresentações de classe e lutas em quadrinhos), com um quadro de cada um.",
  "Músicas": "As 129 faixas da trilha sonora com nome original, tradução e duração.",
  "Vozes": "Os gritos de técnica do herói (vozes masculina e feminina) e as falas dubladas dos chefes.",
- "Arte conceitual e material oficial": "Toda a arte oficial reunida: folhas de modelo das Armaduras (série 圣衣设定), arte e capturas oficiais da biblioteca e dos sites, pinturas de cenário e papéis de parede; o que os sites contam e as descrições do Saint Seiya Wiki.",
+ "Arte conceitual e material oficial": "Toda a arte oficial reunida: folhas de modelo das Armaduras (série 圣衣设定), arte e capturas oficiais da biblioteca e dos sites, pinturas de cenário e papéis de parede; o que os sites e as outras fontes (Baidu Baike, Wikipédia, UPC Games, Diego Maryo, Anime United) contam e as descrições do Saint Seiya Wiki.",
  "A cobertura do CavZodiaco.com.br": "As 75 matérias do site sobre o jogo, de 2008 a 2020, com um resumo e as imagens de cada uma.",
  "A galeria \"Saint Seiya Online\" de Cerberus-rack (DeviantArt)": "Os 62 desenhos do artista com as observações sobre nomes, estrelas e criaturas dos Espectros do jogo (links e resumos).",
  "A história": "Como ler as missões: descrição, falas do NPC, escolhas do herói e fala de conclusão; textos em tradução automática marcados em vermelho.",
@@ -440,5 +442,5 @@ CHAPTER_SUMMARIES = {
  "Apêndice F: falas soltas dos NPCs": "As frases dos NPCs ao serem clicados e os balões de cinemáticas e eventos.",
  "Apêndice G: missões de teste dos desenvolvedores": "As 546 missões de teste deixadas no cliente, com explicação e texto integral, e os números de cobertura.",
  "Apêndice H: missões duplicadas": "As missões que são cópias exatas de outra, com o id da original.",
- "Apêndice E: cobertura das Notas de Pesquisa": "Confronto entre as Notas de Pesquisa e o documento Surplices de Diego e o que existe nos arquivos do cliente.",
+ "Apêndice E: cobertura das Notas de Pesquisa": "Confronto entre o que as Notas de Pesquisa e a lista de Surplices de Diego (hoje incorporadas aos volumes 01, 03 e 05) citavam e o que existe nos arquivos do cliente.",
 }

@@ -3,13 +3,16 @@
 after the "Sumário" table of contents of a story .docx, so the summary page has
 content even where the TOC field was never updated (LibreOffice, mobile viewers).
 
-    add_summaries.py BOOK.docx SUMMARIES.json [--out OUT.docx]
+    add_summaries.py BOOK.docx SUMMARIES.json [--out OUT.docx | --in-place]
 
 SUMMARIES.json = {"<Heading 1 text>": "<summary>", ...}. Heading 2 titles under
-each chapter are listed in a smaller line. The file is rewritten in place unless
---out is given; a copy of the original is kept next to it as BOOK.docx.bak.
+each chapter are listed in a smaller line. The result goes to ~/Downloads/<book
+file name> ($STORY_OUTPUT_DIR replaces ~/Downloads, --out names the file) so it
+can be checked before it replaces anything; --in-place rewrites the book itself
+and keeps a copy of the original next to it as BOOK.docx.bak.
 """
 import json
+import os
 import re
 import shutil
 import sys
@@ -28,7 +31,16 @@ def para(runs, before=60, after=20, indent=0):
 def main(argv):
     src = argv[0]
     summaries = json.load(open(argv[1], encoding="utf-8"))
-    out = argv[argv.index("--out") + 1] if "--out" in argv else src
+    if "--out" in argv:
+        out = argv[argv.index("--out") + 1]
+    elif "--in-place" in argv:
+        out = src
+    else:
+        root = os.path.expanduser(os.environ.get("STORY_OUTPUT_DIR", "~/Downloads"))
+        os.makedirs(root, exist_ok=True)
+        out = os.path.join(root, os.path.basename(src))
+        if os.path.abspath(out) == os.path.abspath(src):
+            print("the book already sits in the output folder; use --out or --in-place"); return 2
     zin = zipfile.ZipFile(src)
     doc = zin.read("word/document.xml").decode("utf-8")
     paras = list(re.finditer(r"<w:p[ >].*?</w:p>", doc, re.S))

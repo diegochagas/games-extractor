@@ -76,9 +76,24 @@ startDoc('01', 'O jogo e o mundo');
 c.push(H1('Sobre este livro'));
 c.push(P('Saint Seiya Online (圣斗士星矢Online) é o MMORPG 3D da Perfect World, licenciado pela Shueisha e supervisionado por Masami Kurumada, lançado na China em 2013 e no Brasil e na América Latina em setembro de 2017 (Ongame / SEGA), em português e espanhol. A versão chinesa encerrou em 2018 e a brasileira em junho de 2020; hoje sobrevive no servidor de fãs Seiya Reborn, de onde vieram os arquivos usados neste livro.'));
 c.push(P('Este documento reúne tudo o que o cliente do jogo guarda sobre a história: as quatro sagas da missão principal (Santuário, Poseidon, Hades: Cruzada ao Submundo e Hades: Inferno) com todas as missões e diálogos, as histórias secundárias de cada região, as trinta e oito "histórias" que o Professor Kurumada pede ao herói para investigar, a enciclopédia de personagens e Armaduras do próprio jogo (o Álbum), os mapas, as cinemáticas e os títulos. Os textos são os da localização oficial em português; quando o jogo só tinha tradução automática para um trecho (conteúdo antigo que a versão brasileira nunca revisou), isso está marcado em vermelho e um resumo em português correto precede o trecho.'));
-c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na pasta "Saint Seiya Online - Galeria de Imagens", organizada como o volume 04.'));
+c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na galeria de imagens "Saint Seiya Online", organizada como o volume 04. As Notas de Pesquisa e a lista de Surplices de Diego, que existiam como documentos separados, foram incorporadas a este livro: a ficha, o lançamento, os arcos e as classes estão neste volume, as classes de Sapuris com as correções no volume 03 e as fontes, as matérias e a galeria do DeviantArt no volume 05.'));
 c.push(IMG(D.bg.loading18, 620, 480)); c.push(cap('Tela de carregamento: o Santuário sob o céu estrelado'));
 c.push(PB());
+// ---------- o jogo em resumo (Notas de Pesquisa + Baidu Baike, story_notes.py) ----------
+const GI = D.game_info || {};
+if (GI.game_facts) {
+  c.push(H1('O jogo em resumo'));
+  c.push(H2('Ficha do jogo'));
+  c.push(table([2600, W - 2600], GI.game_facts.map(([k, v]) => [k, v]), { head: false, size: 17 }));
+  c.push(H2('O lançamento no Brasil'));
+  for (const t of GI.launch_br || []) c.push(P(t));
+  c.push(H2('A ambientação'));
+  for (const t of GI.setting || []) c.push(P(t));
+  c.push(H2('Os arcos da história'));
+  for (const t of GI.arcs || []) c.push(P(t));
+  if (GI.arcs_image) { const im = IMG(GI.arcs_image[0], 600, 440); if (im) { c.push(im); c.push(cap(GI.arcs_image[1])); } }
+  c.push(PB());
+}
 // ---------- o mundo ----------
 c.push(H1('O mundo do jogo'));
 c.push(P('O jogador cria um aspirante a Cavaleiro escolhendo uma de cinco constelações de Bronze (Pégaso, Dragão, Cisne, Andrômeda e Fênix; mais tarde o jogo acrescentou Lira, Tornado e, para as facções de Poseidon e Hades, Dragão Marinho e Wyrm). O mesmo herói pode vestir dezenas de Armaduras de Bronze, Prata e Ouro, Escamas e Sapuris ao longo do jogo. A história segue os arcos do mangá clássico, mas vista pelos olhos desse novo Cavaleiro, que convive com Seiya, Shiryu, Hyoga, Shun e Ikki e carrega um segredo próprio: o sangue de Rodório, o primeiro Cavaleiro de Pégaso.'));
@@ -99,6 +114,29 @@ c.push(cap('Telas de carregamento do jogo'));
 c.push(H2('Os quadrinhos das telas de carregamento'));
 c.push(P('Oito telas de carregamento reproduzem páginas de quadrinhos com os momentos clássicos da série; o Álbum do jogo também tem uma seção "Quadrinhos" (Volume I e II).'));
 for (let i = 1; i <= 8; i++) { const f = D.bg['loading_comic_0' + i]; const im = IMG(f, 600, 480); if (im) { c.push(im); c.push(cap(`Quadrinhos da tela de carregamento ${i}`)); } }
+// ---------- classes e sistemas (story_notes.py) ----------
+if (GI.classes) {
+  c.push(PB()); c.push(H1('Classes e sistemas'));
+  c.push(H2('As classes do herói'));
+  c.push(P(GI.classes_intro));
+  for (const k of GI.classes) {
+    c.push(H3(`${k.name} (${k.zh})`));
+    c.push(P([run('Alcance: ', { bold: true }), run(k.range + '.  '), run('Papel: ', { bold: true }), run(k.role + '.')]));
+    c.push(P(k.text));
+    c.push(table([3000, 1500, W - 4500], [['Técnica', 'Original', 'Efeito'], ...k.skills.map(([pt, zh, e]) => [pt, zh, e])], { size: 16 }));
+  }
+  c.push(P(GI.classes_progression));
+  if (GI.classes_image) { const im = IMG(GI.classes_image[0], 360, 440); if (im) { c.push(im); c.push(cap(GI.classes_image[1])); } }
+  c.push(H2('Os sistemas do jogo'));
+  c.push(P('Os sistemas descritos pela Baidu Baike, com os nomes da versão brasileira:'));
+  c.push(table([1800, 900, W - 2700], [['Sistema', 'Original', 'Como funciona'], ...GI.systems.map(([n, zh, t]) => [n, zh, t])], { size: 16 }));
+  c.push(H2('Cinco dungeons'));
+  c.push(table([2000, 2600, W - 4600], [['Dungeon', 'Grupo, nível e horário', 'O que acontece'], ...GI.dungeons.map(([n, zh, g, t]) => [`${n} (${zh})`, g, t])], { size: 16 }));
+  c.push(H2('Requisitos do sistema (2013)'));
+  c.push(table([2200, (W - 2200) / 2, (W - 2200) / 2], GI.requirements, { size: 16 }));
+  c.push(H2('O que disseram as análises'));
+  for (const [src, t] of GI.reviews || []) c.push(P([run(src + ' ', { bold: true }), run(t)]));
+}
 startDoc('02', 'Personagens');
 // ---------- personagens ----------
 c.push(H1('Personagens'));
@@ -273,11 +311,14 @@ for (const g of ['Folhas de modelo e arte das Armaduras', 'Capturas, banners e m
 }
 c.push(H2('O que dizem os sites'));
 for (const [key, src] of Object.entries(D.sites || {})) { c.push(P([run(src.title, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(src.note, { size: 18 })])); const intro = (D.site_intros || {})[key]; if (intro) c.push(P([run(intro, { size: 18 })])); c.push(P([run(src.url, { size: 14, color: '7F7F7F' })])); }
+c.push(H2('Outras fontes'));
+c.push(P('Enciclopédias, notícias e blogs consultados nas Notas de Pesquisa de Diego (sem imagens do jogo para reproduzir aqui), com um resumo do que cada um traz:'));
+for (const [title, url, note] of D.other_sources || []) { c.push(P([run(title, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(note, { size: 18 })])); c.push(P([run(url, { size: 14, color: '7F7F7F' })])); }
 c.push(H2('As Armaduras exclusivas do jogo segundo o Saint Seiya Wiki'));
 for (const [t, txt] of Object.entries(D.fandom_notes || {})) { c.push(P([run(t, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(txt, { size: 18 })])); }
 c.push(H1('A cobertura do CavZodiaco.com.br'));
 c.push(P('O site brasileiro CavZodiaco.com.br acompanhou o jogo de 2008 (anúncio da SEGA) a 2020 (encerramento no Brasil). Abaixo, cada matéria encontrada na busca do site por "saint seiya online", em ordem cronológica, com um resumo meu e as imagens que a matéria publicou (as imagens estão na pasta "Imprensa (CavZodiaco)" da galeria, uma subpasta por matéria; o texto integral fica no site, no endereço indicado).'));
-for (const a of G2.filter(x => x.kind === 'press')) { c.push(H3(`${a.date} · ${a.pt}`)); const note = (D.press_notes || {})[a.date]; if (note) c.push(P([run(note, { size: 18 })])); c.push(P([run(a.url, { size: 14, color: '7F7F7F' })])); for (const g of chunk(a.files.thumbs || a.files.images || [], 5)) { const r = imgRow(g.map(f => ({ file: f })), 150, 130); if (r) c.push(r); } }
+for (const a of G2.filter(x => x.kind === 'press')) { c.push(H3(`${a.date} · ${a.pt}`)); const note = (D.press_notes || {})[a.date]; if (note) c.push(P([run(note, { size: 18 })])); const pt = (D.press_tables || {})[a.date]; if (pt) c.push(table([2300, 3400, W - 5700], pt, { size: 15 })); c.push(P([run(a.url, { size: 14, color: '7F7F7F' })])); for (const g of chunk(a.files.thumbs || a.files.images || [], 5)) { const r = imgRow(g.map(f => ({ file: f })), 150, 130); if (r) c.push(r); } }
 c.push(H1('A galeria "Saint Seiya Online" de Cerberus-rack (DeviantArt)'));
 c.push(P('O artista Cerberus-rack mantém no DeviantArt uma galeria com 62 desenhos dos personagens e Armaduras do jogo, feitos enquanto o jogava, com observações sobre nomes, estrelas e criaturas que o jogo revela. Como são obras do artista, as imagens ficam no DeviantArt (endereço em cada item); abaixo, o título, a data e um resumo meu de cada descrição, em ordem cronológica.'));
 for (const d of [...(D.deviantart || [])].sort((a, b) => new Date(a.date) - new Date(b.date))) { const id = (d.url.match(/-(\d+)$/) || [])[1]; const note = (D.da_notes || {})[id]; c.push(P([run(d.title, { bold: true, size: 19 }), run('  ' + new Date(d.date).toISOString().slice(0, 10), { size: 15, color: '7F7F7F' })], { spacing: { before: 100, after: 20 }, keepNext: true })); if (note) c.push(P([run(note, { size: 18 })], { spacing: { after: 20 } })); c.push(P([run(d.url, { size: 14, color: '7F7F7F' })])); }
@@ -326,7 +367,7 @@ c.push(PB()); c.push(H1('Apêndice H: missões duplicadas'));
 c.push(P('O cliente repete muitas missões com ids diferentes e texto idêntico (por exemplo, a mesma etapa oferecida a cada facção ou a cada classe). Para não repetir páginas inteiras, cada cópia aparece aqui apenas com o id, o nome e o id da missão original cujo texto ela reproduz.'));
 c.push(table([1300, W - 3900, 2600], [['Missão', 'Nome', 'Cópia exata da missão'], ...D.duplicates.map(d => [String(d.id), d.name || '(sem nome)', String(d.of)])], { size: 14 }));
 c.push(PB()); c.push(H1('Apêndice E: cobertura das Notas de Pesquisa'));
-c.push(P('Confronto entre o que o documento "Saint Seiya Online - Notas de Pesquisa" e o "Surplices - Saint Seiya Online" citam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português).'));
+c.push(P('Confronto entre o que os documentos "Saint Seiya Online - Notas de Pesquisa" e "Surplices - Saint Seiya Online" de Diego citavam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português). O conteúdo desses dois documentos foi incorporado ao livro: a ficha, o lançamento, os arcos e as classes no volume 01, as 23 classes de Sapuris com as correções no volume 03 e as fontes, as matérias do CavZodiaco e a galeria do DeviantArt no volume 05.'));
 c.push(table([3000, 900, W - 3900], [['Item das notas', 'No jogo?', 'Onde aparece'], ...D.coverage.map(x => [x.item, x.found ? 'sim' : 'não', x.detail])], { size: 14 }));
 c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${new Set(playerSets.map(x => x.zh)).size} conjuntos jogáveis (Armaduras, Escamas e Sapuris) e ${npcRendersAll.length} modelos de NPC foram renderizados em 3D a partir dos arquivos do cliente.`));
 const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } }, paragraphStyles: [  // outline levels so LibreOffice's table of contents finds the headings

@@ -1,6 +1,10 @@
-# ROMs and dumps never go into git
+# game files and dumps never go into git
 *.ws
 *.wsc
 *.sav
+*.pck
+*.pkx
+*.data
 dumps/
 __pycache__/
+node_modules/

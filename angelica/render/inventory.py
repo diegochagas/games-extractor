@@ -31,11 +31,13 @@ GENDERS = {"男": "male", "女": "female"}
 class TextureIndex:
     def __init__(self, images_root):
         self.by_name = defaultdict(list)
+        self.by_stem_nogender = defaultdict(list)
         for root, _dirs, files in os.walk(images_root):
             for f in files:
                 if f.lower().endswith(".png"):
                     key = f[:-4].lower()
                     self.by_name[key].append(os.path.join(root, f))
+                    self.by_stem_nogender[os.path.splitext(key)[0].replace("男", "").replace("女", "")].append(os.path.join(root, f))
 
     def find(self, name, near):
         """PNG for texture `name`, preferring the candidate closest to `near`."""
@@ -43,6 +45,10 @@ class TextureIndex:
         if not cands:
             stem = os.path.splitext(name)[0].lower()
             cands = [p for k, v in self.by_name.items() if os.path.splitext(k)[0] == stem for p in v]
+        if not cands:
+            # NPC meshes sometimes name the player textures without the gender character (白银天琴座神圣衣圣衣DF1 -> ...神圣衣男圣衣df1)
+            key = os.path.splitext(name)[0].lower().replace("男", "").replace("女", "")
+            cands = self.by_stem_nogender.get(key, [])
         if not cands:
             return None
         near_parts = near.lower().split(os.sep)
@@ -118,6 +124,24 @@ def npc_jobs(models, images_models, tex_index):
                     "name": os.path.splitext(f)[0],
                     "parts": parts,
                 })
+    # .ski files that no .smd of their folder references (variant meshes such as 珍妮冥衣版.ski)
+    referenced = {p["ski"] for j in jobs for p in j["parts"]}
+    for root, _dirs, files in os.walk(npcs):
+        for f in sorted(files):
+            if not f.lower().endswith(".ski"):
+                continue
+            s = os.path.join(root, f)
+            if s in referenced:
+                continue
+            rel = os.path.relpath(root, npcs)
+            part, err = texture_map(s, tex_index, os.path.join(images_models, os.path.relpath(s, models)))
+            if err or not part["meshes"]:
+                continue
+            jobs.append({
+                "id": "npcs/" + os.path.join(rel, os.path.splitext(f)[0]).replace(os.sep, "/"),
+                "category": "npc", "group": rel.split(os.sep)[0], "folder": rel.replace(os.sep, "/"),
+                "name": os.path.splitext(f)[0], "parts": [part], "orphan": True,
+            })
     return jobs
 
 
@@ -137,6 +161,26 @@ def player_jobs(models, images_models, tex_index):
             continue
         files = set(os.listdir(cloth_dir))
         sets = sorted(f[:-len(zh + ".ski")] for f in files if f.endswith(zh + ".ski"))
+        # sets of the later "new class" naming: 新职业_<name>_<sex>_<version>.ski + 新职业_<name>_<sex>_<version>_头盔.ski
+        import re as _re
+        for f in sorted(files):
+            m = _re.match(r"^(新职业_.+?)_%s_([^_]+)\.ski$" % zh, f)
+            if not m:
+                continue
+            name = "%s_%s" % (m.group(1), m.group(2))
+            skis = list(base) + [default_hair, os.path.join(cloth_dir, f)]
+            helmet = os.path.join(cloth_dir, f[:-4] + "_头盔.ski")
+            if os.path.exists(helmet):
+                skis.append(helmet)
+            parts = []
+            for s in skis:
+                if not os.path.exists(s):
+                    continue
+                part, err = texture_map(s, tex_index, os.path.join(images_models, os.path.relpath(s, models)))
+                if not err:
+                    parts.append(part)
+            jobs.append({"id": "players/%s/%s" % (gender, name), "category": "player", "group": gender,
+                         "folder": "players/圣衣/" + zh, "name": name, "pieces": ["头盔"] if os.path.exists(helmet) else [], "parts": parts})
         for name in sets:
             skis = list(base)
             hair = None

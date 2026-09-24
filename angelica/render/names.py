@@ -290,6 +290,7 @@ GLOSSARY = [
     ("鲁邦", "Lupin", "Lupin"), ("鲁琪", "Luise", "Luise"), ("泰勒", "Taylor", "Taylor"), ("高龙巴", "Colomba", "Colomba"), ("奥古斯塔", "Augusto", "Augusto"), ("达里乌斯", "Darius", "Darius"), ("希尔汗", "Sher-Khan", "Sher-Khan"),
     ("尼亚", "Nya", "Nya"), ("云峰", "Jaffet", "Jaffet"), ("卡夫卡", "Kafka", "Kafka"), ("史东", "Stone", "Stone"), ("伊索尔", "Isolde", "Isolde"), ("贝努", "Bennu", "Bennu"),
     ("过场动画", "Cutscene", "Cinemática"), ("级别活动", "Level Event", "Evento de nível"), ("大厅", "Hall", "Salão"), ("战斗", "Battle", "Batalha"),
+    ("新职业", "New Class", "Nova classe"), ("埃兰", "Ellan", "Ellan"), ("冥衣版", "Surplice Version", "versão Sapuris"), ("无出生动作", "", ""), ("燃烧", "Burning", "em chamas"),
     ("通用", "Generic", "Genérico"), ("新", "New", "Novo"), ("旧", "Old", "Velho"), ("大", "Big", "Grande"), ("小", "Small", "Pequeno"), ("高级", "Advanced", "Avançado"),
     ("中级", "Intermediate", "Intermediário"), ("初级", "Basic", "Básico"), ("低级", "Low", "Baixo"), ("级", "Level", "Nível"), ("红色", "Red", "Vermelho"), ("蓝色", "Blue", "Azul"),
     ("黄色", "Yellow", "Amarelo"), ("绿色", "Green", "Verde"), ("紫色", "Purple", "Roxo"), ("青色", "Cyan", "Ciano"), ("粉色", "Pink", "Rosa"), ("白色", "White", "Branco"),

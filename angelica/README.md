@@ -65,8 +65,12 @@ its bind pose (T pose) with Blender, front / side / back, transparent background
 - `../npc_models.py DUMP CLIENT/element/data` – links every NPC/monster id of the language files
   to its `.ecm` model (`path.data` id table + `elements.data` records) and to the render job, so the
   story book can show the real model of characters that use a generic NPC body.
-- `../web/cavzodiaco.py OUT` and `../web/wanmei_wayback.py OUT` – collect the CavZodiaco.com.br
-  coverage (articles + images) and the official site's galleries from the Wayback Machine.
+- `../web/cavzodiaco.py OUT`, `../web/wanmei_wayback.py OUT` and `../web/deviantart_rss.py USER FOLDER OUT`
+  – collect the CavZodiaco.com.br coverage (articles + images), the official site's galleries from the
+  Wayback Machine and a DeviantArt gallery's metadata (Cerberus-rack's Saint Seiya Online drawings).
+- `inventory.py` also picks up `.ski` meshes that no `.smd` references (variant models such as
+  June's Surplice version, Dohko's god cloth) and the later "新职业_<name>_<sex>_<version>" class
+  sets (Ellan of Tornado).
 
 ```bash
 python3 render/inventory.py OUT OUT/text/render_jobs.json

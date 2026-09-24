@@ -25,7 +25,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 sys.path.insert(0, os.path.join(os.path.dirname(HERE), "story"))
 from names import translate, slug, load_game_names  # noqa: E402
-from story_config import CARDS, PORTRAITS  # noqa: E402
+from story_config import CARDS, PORTRAITS, LIB_OFFICIAL  # noqa: E402
 
 VIEWS = ["front", "side", "back"]
 
@@ -209,6 +209,7 @@ def main():
     ap.add_argument("--renders", default="renders")
     ap.add_argument("--names", default="text/names_zh_en_pt.json")
     ap.add_argument("--concept-dir", help="folder with extra concept-art files (e.g. the xzsds scans)")
+    ap.add_argument("--library", help="root of the Saint Seiya Cloth Schemes library (official game images listed in story_config.LIB_OFFICIAL)")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
     out = os.path.abspath(a.out)
@@ -402,6 +403,17 @@ def main():
             copy(os.path.join(src_dir, f), os.path.join(out, rel))
             index.append({"kind": "concept-art", "zh": "", "en": f, "pt": pt, "note": note, "folder": folder, "folder_key": "concept-art", "base": base,
                           "files": {"image": rel}, "source": f})
+
+    if a.library:
+        for rel_src, (pt, note, key) in LIB_OFFICIAL.items():
+            src = os.path.join(a.library, rel_src)
+            if not os.path.exists(src):
+                continue
+            base = namer.take(folder, "biblioteca-" + slug(pt), "lib:" + rel_src)
+            rel = "%s/%s%s" % (folder, base, os.path.splitext(rel_src)[1].lower())
+            copy(src, os.path.join(out, rel))
+            index.append({"kind": "concept-art", "zh": "", "en": rel_src, "pt": pt, "note": note + " (biblioteca Saint Seiya Cloth Schemes)", "site_key": key,
+                          "folder": folder, "folder_key": "concept-art", "base": base, "files": {"image": rel}, "source": rel_src})
 
     # 7. press coverage (CavZodiaco articles collected by angelica/web/cavzodiaco.py)
     pj = os.path.join(dump, "web/cavzodiaco/articles.json")

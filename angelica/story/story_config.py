@@ -244,6 +244,10 @@ LIB_OFFICIAL = {
  "zeus-olympians/aphrodite_sso.png": ("Afrodite, a deusa (captura do jogo)", "captura de tela do jogo", "Aphrodite"),
  "zeus-olympians/aphrodite_sketonline.webp": ("Afrodite, a deusa: folha de modelo oficial", "arte oficial do jogo (folha de modelo com vistas e roupa)", "Aphrodite"),
  "athena-saints/tornado-ellan-god_Saint-Seiya-Online-2.jpg": ("Ellan de Tornado com a Armadura Divina: arte oficial", "arte promocional oficial do jogo", "Ellan"),
+ "athena-saints/lyra-orphee-god.png": ("Orfeu de Lira com a Armadura Divina: arte oficial", "arte oficial do jogo (com o logotipo)", "Orphée"),
+ "athena-saints/aries-mu-god-online.jpg": ("Mu de Áries com a Armadura Divina: arte promocional oficial", "arte promocional oficial do jogo (© Perfect World / SEGA)", "Aries"),
+ "athena-saints/leo-aiolia-god-online.jpg": ("Aiolia de Leão com a Armadura Divina: arte promocional oficial", "arte promocional oficial do jogo (© Perfect World / SEGA)", "Leo"),
+ "athena-saints/pegasus-rodorio.jpg": ("Rodório, o primeiro Cavaleiro de Pégaso (capturas do jogo)", "capturas de tela do jogo", "Rodorio"),
 }
 
 # resumos (meus) das descrições da galeria "Saint Seiya Online" de Cerberus-rack no DeviantArt, pelo id da deviation

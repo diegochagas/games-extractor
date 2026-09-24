@@ -247,17 +247,20 @@ c.push(table([4200, 3000, W - 7200], [['Técnica (pt)', 'Nome original', 'Duraç
 c.push(H2('Falas dos chefes'));
 c.push(table([3200, 3200, W - 6400], [['Personagem (pt)', 'Nome no arquivo', 'Arquivos'], ...(D.boss_voices || []).map(b => [b.pt || '', b.zh, b.files.length + ' (' + b.files.slice(0, 3).join(', ') + (b.files.length > 3 ? '...' : '') + ')'])], { size: 14 }));
 c.push(H1('Arte conceitual e material oficial'));
-c.push(P('As três folhas de arte conceitual (圣衣设定, "xzsds") guardadas na biblioteca Saint Seiya Cloth Schemes vêm do site oficial chinês seiya.wanmei.com; a identificação abaixo foi feita comparando cada desenho com os modelos 3D do jogo. Em seguida, o que a Wayback Machine guardou das galerias do site oficial (arte original, papéis de parede e capturas de tela). Tudo está na pasta "Arte conceitual oficial" da galeria.'));
-for (const a of G2.filter(x => x.kind === 'concept-art')) { const im = IMG(a.files.image, 620, 460); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.note ? ' — ' + a.note : ''))); }
-c.push(H1('Arte conceitual e material de outros sites'));
-c.push(P('Imagens e informações reunidas em outros sites sobre o jogo, por fonte. As imagens repetidas em mais de um site foram guardadas uma vez, na melhor resolução encontrada; os endereços originais estão em cada fonte. Tudo está na pasta "Arte conceitual dos sites" da galeria.'));
-for (const [key, src] of Object.entries(D.sites || {})) {
-  c.push(H2(src.title)); c.push(P([run(src.note, { size: 19 })])); c.push(P([run(src.url, { size: 14, color: '7F7F7F' })]));
-  const intro = (D.site_intros || {})[key]; if (intro) c.push(P([run(intro, { size: 18 })]));
-  const items = G2.filter(x => x.kind === 'site-art' && x.site === key);
-  for (const a of items) { const im = IMG(a.files.image, 600, 440); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.note ? ' — ' + a.note : ''))); }
-  if (key === 'fandom') { for (const [t, txt] of Object.entries(D.fandom_notes || {})) { c.push(P([run(t, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(txt, { size: 18 })])); } }
+c.push(P('Toda a arte oficial do jogo reunida de várias fontes: as folhas de modelo das Armaduras (série 圣衣设定 do site oficial seiya.wanmei.com, publicada pelo 17173 em 2013; três delas estão na biblioteca Saint Seiya Cloth Schemes), a arte e as capturas oficiais guardadas na biblioteca e nos sites de notícias, e as pinturas de cenário e papéis de parede do site oficial (via Wayback Machine). As imagens repetidas em mais de uma fonte foram guardadas uma vez, na melhor resolução; a fonte está em cada legenda e a lista de fontes fica no fim da seção. Tudo está nas pastas "Arte conceitual oficial" e "Arte conceitual dos sites" da galeria.'));
+const ART = G2.filter(x => x.kind === 'concept-art' || x.kind === 'site-art');
+const artGroup = a => { const t = (a.pt || '') + ' ' + (a.note || ''); if (/Folha de modelo|Folha de personagem|Armadura|arte oficial|Arte promocional|Totem|totem/i.test(t) && !/Captura|Papel de parede|cenário/i.test(a.pt)) return 'Folhas de modelo e arte das Armaduras'; if (/Papel de parede/i.test(t)) return 'Papéis de parede oficiais'; if (/cenário|Cachoeira|Vulcão|Montanhas|Templo|Relógio|Castelo|Coliseu/i.test(t) && /Arte conceitual oficial/.test(a.pt)) return 'Pinturas de cenário'; return 'Capturas, banners e material promocional'; };
+const srcOf = a => a.kind === 'site-art' ? ((D.sites || {})[a.site] || {}).title || a.site : (a.note || '');
+const groupsArt = new Map(); for (const a of ART) { const g = artGroup(a); if (!groupsArt.has(g)) groupsArt.set(g, []); groupsArt.get(g).push(a); }
+for (const g of ['Folhas de modelo e arte das Armaduras', 'Capturas, banners e material promocional', 'Pinturas de cenário', 'Papéis de parede oficiais']) {
+  const items = (groupsArt.get(g) || []).sort((x, y) => x.pt.localeCompare(y.pt)); if (!items.length) continue;
+  c.push(H2(`${g} (${items.length})`));
+  for (const a of items) { const im = IMG(a.files.image, 600, 440); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.kind === 'site-art' ? (a.note ? ' — ' + a.note : '') + ' [' + srcOf(a).split(' — ')[0] + ']' : (a.note ? ' — ' + a.note : '')))); }
 }
+c.push(H2('O que dizem os sites'));
+for (const [key, src] of Object.entries(D.sites || {})) { c.push(P([run(src.title, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(src.note, { size: 18 })])); const intro = (D.site_intros || {})[key]; if (intro) c.push(P([run(intro, { size: 18 })])); c.push(P([run(src.url, { size: 14, color: '7F7F7F' })])); }
+c.push(H2('As Armaduras exclusivas do jogo segundo o Saint Seiya Wiki'));
+for (const [t, txt] of Object.entries(D.fandom_notes || {})) { c.push(P([run(t, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(txt, { size: 18 })])); }
 c.push(H1('A cobertura do CavZodiaco.com.br'));
 c.push(P('O site brasileiro CavZodiaco.com.br acompanhou o jogo de 2008 (anúncio da SEGA) a 2020 (encerramento no Brasil). Abaixo, cada matéria encontrada na busca do site por "saint seiya online", em ordem cronológica, com um resumo meu e as imagens que a matéria publicou (as imagens estão na pasta "Imprensa (CavZodiaco)" da galeria, uma subpasta por matéria; o texto integral fica no site, no endereço indicado).'));
 for (const a of G2.filter(x => x.kind === 'press')) { c.push(H3(`${a.date} · ${a.pt}`)); const note = (D.press_notes || {})[a.date]; if (note) c.push(P([run(note, { size: 18 })])); c.push(P([run(a.url, { size: 14, color: '7F7F7F' })])); for (const g of chunk(a.files.thumbs || a.files.images || [], 5)) { const r = imgRow(g.map(f => ({ file: f })), 150, 130); if (r) c.push(r); } }

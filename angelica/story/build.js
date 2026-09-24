@@ -47,14 +47,14 @@ c.push(new Paragraph({ spacing: { before: 2000, after: 200 }, children: [run('Sa
 c.push(new Paragraph({ spacing: { after: 300 }, children: [run('A história completa, ilustrada com as imagens do jogo', { size: 30, color: '404040' })] }));
 c.push(P('Saint Seiya Online (圣斗士星矢Online) é o MMORPG 3D da Perfect World, licenciado pela Shueisha e supervisionado por Masami Kurumada, lançado na China em 2013 e no Brasil e na América Latina em setembro de 2017 (Ongame / SEGA), em português e espanhol. A versão chinesa encerrou em 2018 e a brasileira em junho de 2020; hoje sobrevive no servidor de fãs Seiya Reborn, de onde vieram os arquivos usados neste livro.'));
 c.push(P('Este documento reúne tudo o que o cliente do jogo guarda sobre a história: as quatro sagas da missão principal (Santuário, Poseidon, Hades: Cruzada ao Submundo e Hades: Inferno) com todas as missões e diálogos, as histórias secundárias de cada região, as trinta e oito "histórias" que o Professor Kurumada pede ao herói para investigar, a enciclopédia de personagens e Armaduras do próprio jogo (o Álbum), os mapas, as cinemáticas e os títulos. Os textos são os da localização oficial em português; quando o jogo só tinha tradução automática para um trecho (conteúdo antigo que a versão brasileira nunca revisou), isso está marcado em vermelho e um resumo em português correto precede o trecho.'));
-c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). As capturas de tela do personagem vestindo cada Armadura e os renders das Armaduras vêm das pastas Saints e Cloths de Diego Chagas.'));
+c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na pasta "Saint Seiya Online Cloth Schemes".'));
 c.push(IMG(IMGROOT + 'images/surfaces/background/loading18.jpg.png', 620, 480)); c.push(cap('Tela de carregamento: o Santuário sob o céu estrelado'));
 c.push(PB());
 c.push(new Paragraph({ spacing: { after: 200 }, children: [run('Sumário', { size: 34, bold: true, color: '1F3864' })] }));
 c.push(P([run('(No Word, clique com o botão direito no sumário abaixo e escolha "Atualizar campo" para ver as páginas.)', { size: 16, italics: true, color: '7F7F7F' })]));
 c.push(new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-2' }));
 c.push(P([run('Conteúdo', { bold: true, size: 24 })], { spacing: { before: 200 } }));
-for (const line of ['O mundo do jogo: as regiões, os mapas, os capítulos e as telas de carregamento', 'Personagens: o Álbum do jogo e os personagens criados para o jogo', 'Armaduras: Bronze, Prata, Ouro, Divinas, Escamas e Sapuris, com renders e capturas', ...D.parts.map(p => p.title + ': ' + p.sections.map(s => s.title.split(':')[0]).join(', ')), 'As histórias dos personagens (Professor Kurumada): ' + D.char_stories.map(s => s.character).join(', '), 'Histórias secundárias por região', 'Apêndices: diálogos das dungeons, cinemáticas e legendas, títulos, outras missões e eventos (com diálogos), falas soltas dos NPCs, cobertura das Notas de Pesquisa']) c.push(bullet([line]));
+for (const line of ['O mundo do jogo: as regiões, os mapas, os capítulos e as telas de carregamento', 'Personagens: o Álbum do jogo e os personagens criados para o jogo', 'Armaduras: Bronze, Prata, Ouro, Divinas, Escamas e Sapuris, com os renders 3D dos modelos do jogo', 'Galeria de modelos 3D: todos os NPCs, monstros e objetos do cliente, por facção', ...D.parts.map(p => p.title + ': ' + p.sections.map(s => s.title.split(':')[0]).join(', ')), 'As histórias dos personagens (Professor Kurumada): ' + D.char_stories.map(s => s.character).join(', '), 'Histórias secundárias por região', 'Apêndices: diálogos das dungeons, cinemáticas e legendas, títulos, outras missões e eventos (com diálogos), falas soltas dos NPCs, cobertura das Notas de Pesquisa']) c.push(bullet([line]));
 c.push(PB());
 // ---------- o mundo ----------
 c.push(H1('O mundo do jogo'));
@@ -83,9 +83,20 @@ c.push(P('As fichas abaixo são as do Álbum do próprio jogo (a seção "Person
 const portraitOf = (name) => { const map = { 'Saori Kido': 'Saori Kido', 'Julian Solo': 'Julian Solo', 'Máscara da Morte': null, 'Deus · Seiya': 'Seiya', 'Deus · Shiryu': 'Shiryu', 'Deus · Hyoga': 'Hyoga', 'Deus · Shun': 'Shun', 'Deus · Ikki': 'Ikki', 'Pégasus Negro': 'Pégaso Negro', 'Mino': null, 'Sorento': 'Sorento', 'Grande Mestre': 'Grande Mestre' }; const k = map[name] === undefined ? name : map[name]; return k && D.portraits[k] ? IMGROOT + D.portraits[k] : null; };
 const cardOf = (name) => { const alias = { 'Saori Kido': 'Athena (Saori Kido)', 'Julian Solo': 'Julian Solo (Poseidon)', 'Mu': 'Mu de Áries', 'Aldebaran': 'Aldebaran de Touro', 'Saga': 'Saga de Gêmeos', 'Máscara da Morte': 'Máscara da Morte de Câncer', 'Aioria': 'Aioria de Leão', 'Shaka': 'Shaka de Virgem', 'Dohko': 'Dohko de Libra', 'Miro': 'Miro de Escorpião', 'Aioros': 'Aioros de Sagitário', 'Shura': 'Shura de Capricórnio', 'Camus': 'Camus de Aquário', 'Afrodite': 'Afrodite de Peixes', 'Orfeu': 'Orfeu de Lira', 'Marin': 'Marin de Águia', 'Shina': 'Shina de Cobra', 'Deus · Seiya': 'Seiya de Pégaso', 'Deus · Shiryu': 'Shiryu de Dragão', 'Deus · Hyoga': 'Hyoga de Cisne', 'Deus · Shun': 'Shun de Andrômeda', 'Deus · Ikki': 'Ikki de Fênix', 'Nachi': 'Nachi de Lobo', 'Geki': 'Geki de Urso', 'Ichi': 'Ichi de Hidra', 'Jabu': 'Jabu de Unicórnio', 'Pégasus Negro': 'Pégaso Negro', 'Kanon': 'Kanon de Dragão Marinho', 'Krishna': 'Krishna de Crisaor', 'Sorento': 'Sorento de Sirene', 'Radamanthys': 'Radamanthys de Wyvern', 'Minos': 'Minos de Griffon', 'Sirene': 'Sirene (Escama)', 'Cérbero': 'Cérbero' }; const k = alias[name] || name; const card = D.cards.find(x => x.pt === k); return card ? IMGROOT + card.file : null; };
 const groupTitle = { ouro: 'Cavaleiros de Ouro', bronze: 'Cavaleiros de Bronze', prata: 'Cavaleiros de Prata', marina: 'Generais Marinas', espectro: 'Espectros e o Submundo', negro: 'Cavaleiros Negros', outros: 'Outros personagens' };
+const G = D.gallery || [];
+const playerSets = G.filter(x => x.kind === 'render' && x.category === 'player');
+const npcRendersAll = G.filter(x => x.kind === 'render' && x.category === 'npc');
+const VIEW_PT = { front: 'frente', side: 'lado', back: 'costas' };
 const shownChars = new Set();
+const CHAR_ZH = { 'Saori Kido': ['城户纱织', '城户沙织', '婴儿沙织', '雅典娜神圣衣'], 'Julian Solo': ['朱利安'], 'Hades': ['冥王哈迪斯'], 'Mu': ['白羊座穆'], 'Aldebaran': ['阿鲁迪巴', '黄金圣斗士金牛座'], 'Saga': ['撒加'], 'Máscara da Morte': ['迪斯马斯克'], 'Aioria': ['艾欧里亚'], 'Shaka': ['沙加'], 'Dohko': ['童虎'], 'Miro': ['米罗'], 'Aioros': ['艾欧罗斯', '射手座便装'], 'Shura': ['修罗'], 'Camus': ['卡妙'], 'Afrodite': ['阿布罗狄'], 'Shion': ['史昂'], 'Orfeu': ['奥路菲'], 'Marin': ['魔铃'], 'Shina': ['莎尔娜'], 'Deus · Seiya': ['星矢'], 'Deus · Shiryu': ['紫龙'], 'Deus · Hyoga': ['冰河'], 'Deus · Shun': ['瞬'], 'Deus · Ikki': ['一辉'], 'Nachi': ['那智'], 'Geki': ['檄'], 'Ban': ['幼狮座蛮'], 'Ichi': ['水蛇座市'], 'Jabu': ['邪武'], 'June': ['珍妮'], 'Pégasus Negro': ['黑暗天马'], 'Dragão Negro': ['黑暗天龙'], 'Cisne Negro': ['黑暗白鸟'], 'Andrômeda Negro': ['黑暗仙女'], 'Jango': ['强戈'], 'Mino': ['美惠'], 'Cássios': ['卡西欧士'], 'Kiki': ['贵鬼'], 'Shunrei': ['春丽'], 'Esmeralda': ['艾丝美拉达'], 'Guilty': ['基鲁提'], 'Kanon': ['加隆'], 'Krishna': ['克修拉'], 'Sorento': ['苏兰特', '海魔女鳞衣'], 'Thetis': ['美人鱼'], 'Radamanthys': ['拉达曼提斯'], 'Aiacos': ['艾亚哥斯', '天雄星'], 'Minos': ['米洛斯', '天贵星'], 'Pandora': ['潘多拉'],
+  'Rodório': ['初代天马英灵'], 'Lei-Hu': ['雷虎'], 'Sher-Khan': ['希尔汗'], 'Aiya e Eide': ['艾德', '艾亚'], 'Alex': ['阿历克斯'], 'Nya e Jaffet': ['尼亚', '云峰'], 'Li-Yun': ['李云'], 'Colomba, Darius e Augusto': ['高龙巴', '奥古斯塔', '达里乌斯'], 'Sillas': ['撒里诺'], 'Lamech': ['拉蒙斯'], 'Alexer e Natássia': ['亚雷库萨', '娜塔莎'], 'Valquíria': ['瓦尔基里'], 'Acer e Taylor': ['学员枫', '泰勒'], 'Julian (Castelo de Hades)': ['尤里安'], 'Perséfone': ['冥后'], 'Zeros, Lupin e Luise': ['赛洛斯', '鲁邦', '鲁琪'], 'Kafka, Moe, Larry, Curly, Steven, Stone, Gerald, Isolde': ['地伏星', '天暗星', '天阴星', '天异星', '天杀星', '地明星', '地囚星', '地恶星'], 'Wyrm': ['天威星'],
+  'Poseidon': ['波塞冬'], 'Thanatos': ['死神'], 'Hypnos': ['睡神'], 'Eurídice': ['尤丽缇丝'], 'Loki': ['洛基'], 'Apolo': ['阿波罗'], 'Eros': ['爱洛斯'], 'Afrodite (deusa)': ['阿芙洛狄忒'], 'Siegfried': ['齐格弗里德'], 'Hagen': ['哈根'], 'Alberich': ['阿鲁贝利亚'], 'Fenrir': ['菲利路'], 'Syd': ['希度'], 'Mime': ['米伊美'], 'Mitsumasa Kido': ['城户光政'], 'Seika': ['星华'], 'Isaac': ['艾尔扎克'], 'Baian': ['拜安'], 'Myu': ['地妖星缪'], 'Lune': ['路尼'], 'Rock': ['洛克'], 'Iwan': ['伊万'], 'Laimi': ['莱米'], 'Io de Skilla': ['六圣兽'], 'Kasa': ['北海巨妖'], 'Julian Solo (Poseidon)': ['海皇波塞冬'], 'Sirene (Sorento)': ['苏兰特便装'] };
+const NPC_SKIP = ['翅膀', '锁链', '雕像', '雪人'];
+function npcRenders(keys, max = 8) { if (!keys || !keys.length) return []; const out = []; for (const it of npcRendersAll) { if (NPC_SKIP.some(k => it.zh.includes(k))) continue; if (keys.some(k => it.zh.includes(k))) out.push(it); } return out.slice(0, max); }
+function renderRows(items, maxW = 130, maxH = 190) { const files = []; items.forEach((it, i) => { const views = i === 0 ? ['front', 'side', 'back'] : ['front']; for (const v of views) if (it.files[v]) files.push({ file: it.files[v], label: it.pt + (v === 'front' ? '' : ' (' + VIEW_PT[v] + ')') }); }); return chunk(files, 6).map(g => imgRow(g, maxW, maxH)).filter(Boolean); }
 function charEntry(name, stats, bio, extra) {
   c.push(H3(name)); const row = imgRow([{ file: cardOf(name), label: 'Cartão do Álbum' }, { file: portraitOf(name), label: 'Retrato' }].filter(x => x.file), 170, 240); if (row) c.push(row);
+  c.push(...renderRows(npcRenders(CHAR_ZH[name])));
   if (stats && stats.length) c.push(P([run(stats.join('  ·  '), { size: 17, color: '595959' })]));
   if (bio) c.push(P(bio)); if (extra) c.push(P([run(extra, { italics: true, size: 19 })]));
 }
@@ -115,42 +126,54 @@ const originals = [
  ['Wyrm', 'A classe de Espectro jogável: Estrela Celeste do Prestígio, com uma Sapuris própria (V1 azul-prata, V2 e Divina dourada) distinta da Wyvern de Radamanthys.'],
 ];
 const origPorts = { 'Rodório': ['Rodório'], 'Lei-Hu': ['Lei-Hu', 'Lei-Hu (mutado)'], 'Aiya e Eide': ['Eide', 'Eide (mutado)', 'Aiya'], 'Alex': ['Alex', 'Alex (Sapuris)'], 'Li-Yun': ['Li-Yun'], 'Sillas': ['Sillas'], 'Lamech': ['Lamech'], 'Alexer e Natássia': ['Alexer', 'Natássia'], 'Valquíria': ['Valquíria', 'Valquíria (guerreira)'], 'Acer e Taylor': ['Acer', 'Acer (máscara)'], 'Julian (Castelo de Hades)': ['Julian (Castelo de Hades)'], 'Perséfone': ['Perséfone'], 'Zeros, Lupin e Luise': ['Zeros'], 'Kafka, Moe, Larry, Curly, Steven, Stone, Gerald, Isolde': ['Gerald'], 'Wyrm': [] };
-for (const [n, t] of originals) { c.push(H3(n)); const ks = origPorts[n] || []; const row = imgRow(ks.filter(k => D.portraits[k]).map(k => ({ file: IMGROOT + D.portraits[k], label: k })), 120, 120); if (row) c.push(row); else c.push(P([run('(sem retrato próprio: este personagem usa um modelo genérico de NPC e o jogo não desenhou um rosto para ele)', { size: 15, italics: true, color: '7F7F7F' })])); c.push(P(t)); }
+for (const [n, t] of originals) { c.push(H3(n)); const ks = origPorts[n] || []; const row = imgRow(ks.filter(k => D.portraits[k]).map(k => ({ file: IMGROOT + D.portraits[k], label: k })), 120, 120); const rr = renderRows(npcRenders(CHAR_ZH[n])); if (row) c.push(row); else if (!rr.length) c.push(P([run('(sem retrato nem modelo próprio: este personagem usa um modelo genérico de NPC e o jogo não desenhou um rosto para ele)', { size: 15, italics: true, color: '7F7F7F' })])); else c.push(P([run('(sem retrato próprio: o jogo não desenhou um rosto para as caixas de diálogo; abaixo, o modelo 3D)', { size: 15, italics: true, color: '7F7F7F' })])); c.push(...rr); c.push(P(t)); }
 c.push(H2('Deuses, Guerreiros Deuses e outros retratos'));
 const extraPorts = ['Poseidon', 'Thanatos', 'Hypnos', 'Eurídice', 'Loki', 'Apolo', 'Eros', 'Afrodite (deusa)', 'Siegfried', 'Hagen', 'Alberich', 'Fenrir', 'Syd', 'Mime', 'Sísifo', 'Mitsumasa Kido', 'Seika', 'Isaac', 'Baian', 'Myu', 'Lune', 'Rock', 'Iwan', 'Laimi', 'Io de Skilla', 'Kasa', 'Julian Solo (Poseidon)', 'Sirene (Sorento)', 'Kanon (Sapuris)', 'Seiya (Sagitário)', 'Shina (Armadura)', 'Athena (Armadura Divina)', 'Saori (vestido)', 'Shion (alma)', 'Shion ressuscitado', 'Ikki criança', 'Seiya criança', 'Pandora criança', 'Julian Solo (mendigo)', 'Máscara da Morte ressuscitado', 'Shura ressuscitado', 'Camus ressuscitado', 'Afrodite ressuscitado'].map(k => ({ file: D.portraits[k] ? IMGROOT + D.portraits[k] : null, label: k })).filter(x => x.file);
 for (const g of chunk(extraPorts, 6)) { const r = imgRow(g, 120, 120); if (r) c.push(r); }
+c.push(H3('Modelos 3D dos deuses, Guerreiros Deuses e outros'));
+for (const k of extraPorts.map(x => x.label)) { const rs = npcRenders(CHAR_ZH[k], 4); if (!rs.length) continue; c.push(P([run(k, { bold: true, size: 19 })], { spacing: { before: 100, after: 40 }, keepNext: true })); c.push(...renderRows(rs)); }
 c.push(PB());
 // ---------- armaduras ----------
 c.push(H1('Armaduras'));
-c.push(P('O Álbum do jogo cataloga as Armaduras de Bronze, Prata, Ouro e Divinas, as Escamas e as Sapuris. Para cada uma mostramos o cartão do Álbum, o render da Armadura da biblioteca de Diego (pasta Cloths, masculino e feminino) e as capturas de tela do personagem de Diego vestindo essa Armadura (pasta Saints). A identificação das capturas foi feita visualmente e pode conter enganos, sobretudo entre as Armaduras de Prata originais do jogo e as versões Sapuris (roxas) das Armaduras de Bronze.'));
+c.push(P('O Álbum do jogo cataloga as Armaduras de Bronze, Prata, Ouro e Divinas, as Escamas e as Sapuris. Para cada uma mostramos o cartão do Álbum e os renders 3D dos conjuntos que o jogador veste no jogo (modelos .ski do cliente renderizados no Blender em pose T: frente, lado e costas, nas versões masculina e feminina). Os nomes são a tradução do nome interno de cada conjunto; "nível 1" e "nível 2" são as versões V1 e V2 do jogo, "dourada" a variante de ouro.'));
 const groupsA = [['arm_bronze', 'Armaduras de Bronze'], ['arm_prata', 'Armaduras de Prata'], ['arm_ouro', 'Armaduras de Ouro'], ['arm_divina', 'Armaduras Divinas'], ['escama', 'Escamas'], ['sapuris', 'Sapuris']];
 const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-function shotsFor(pt, group) {
-  const base = norm(pt.replace(/\s*\(.*\)$/, '')); const out = [];
-  for (const [lab, files] of Object.entries(D.shots_by)) { const l = norm(lab); const isSap = l.startsWith('sapuris'), isOuro = l.startsWith('ouro'), isDiv = /divina/.test(l), isNegro = /negro|cavaleiro negro/.test(l);
-    const mention = l.includes(base) || (base === 'pegaso' && l.includes('pegasus'));
-    if (!mention) continue;
-    if (group === 'sapuris' && !isSap) continue; if (group === 'arm_ouro' && !isOuro) continue; if (group === 'arm_divina' && !isDiv) continue;
-    if ((group === 'arm_bronze' || group === 'arm_prata') && (isSap || isOuro || isDiv || isNegro)) continue;
-    out.push(...files.map(f => ({ ...f, label: lab }))); }
+function setsFor(card) {
+  const zh = card.zh, g = card.group; let key = zh;
+  if (g === 'arm_ouro') key = zh.replace('圣衣', ''); else if (g === 'arm_divina') key = zh.replace(/^神/, ''); else if (g === 'escama') key = zh.replace(/座$/, '');
+  const base = key.replace(/座$/, '');
+  return playerSets.filter(s => { const n = s.zh; if (!n.includes(base)) return false;
+    if (g === 'arm_bronze') return !n.includes('冥') && !n.includes('黑暗') && !n.includes('神圣衣') && !n.includes('白银');
+    if (g === 'arm_prata') return !n.includes('冥') && !n.includes('黑暗');
+    if (g === 'arm_ouro') return n === base + '座' || n === base + '初始装';
+    if (g === 'arm_divina') return n.includes('神圣衣') && !n.includes('冥');
+    if (g === 'escama') return n.includes('海斗士') || n.includes('鳞衣') || n.includes('海龙');
+    if (g === 'sapuris') return n.includes('冥');
+    return false; });
+}
+function bySet(items) { const m = new Map(); for (const it of items) { if (!m.has(it.zh)) m.set(it.zh, []); m.get(it.zh).push(it); } return m; }
+function setRows(items) { // one row per cloth set: male front/side/back + female front/side/back
+  const out = [];
+  for (const [zh, its] of bySet(items)) {
+    out.push(P([run(its[0].pt, { bold: true, size: 19 }), run('  ' + zh, { size: 14, color: '7F7F7F' })], { spacing: { before: 120, after: 40 }, keepNext: true }));
+    const files = [];
+    for (const sex of ['male', 'female']) { const it = its.find(x => x.sex === sex); if (!it) continue; for (const v of ['front', 'side', 'back']) if (it.files[v]) files.push({ file: it.files[v], label: (sex === 'male' ? 'masc. ' : 'fem. ') + VIEW_PT[v] }); }
+    const r = imgRow(files, 140, 200); if (r) out.push(r);
+  }
   return out;
 }
-function rendersFor(pt) { const base = norm(pt.replace(/\s*\(.*\)$/, '')); const out = []; for (const [k, files] of Object.entries(D.renders)) { if (norm(k).startsWith(base)) out.push(...files.map(f => ({ ...f, label: k + ' ' + f.sex }))); } return out; }
+const usedSets = new Set();
 for (const [g, title] of groupsA) {
   c.push(H2(title)); const items = D.cards.filter(k => k.group === g);
   for (const k of items) {
     c.push(H3(k.pt)); const t = D.pb_texts[k.pt] || D.pb_texts[k.pt.replace(/ \(.*$/, '')]; if (t) c.push(P(t));
-    const r1 = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }, ...rendersFor(k.pt).slice(0, 4).map(x => ({ file: x.file, label: x.label }))], 150, 200); if (r1) c.push(r1);
-    const sh = shotsFor(k.pt, g); for (const grp of chunk(sh.slice(0, 12), 6)) { const r = imgRow(grp.map(x => ({ file: x.file, label: x.label + ' (' + x.sex + ')' })), 140, 200); if (r) c.push(r); }
+    const r1 = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }], 150, 200); if (r1) c.push(r1);
+    const sets = setsFor(k); sets.forEach(x => usedSets.add(x.zh)); c.push(...setRows(sets));
   }
 }
-c.push(H2('Renders e capturas sem cartão no Álbum'));
-const cardPts = new Set(D.cards.map(k => norm(k.pt.replace(/\s*\(.*\)$/, ''))));
-const extraR = Object.entries(D.renders).filter(([k]) => ![...cardPts].some(p => norm(k).startsWith(p)));
-for (const [k, files] of extraR) { c.push(H3(k)); const r = imgRow(files.map(f => ({ file: f.file, label: f.sex })), 150, 200); if (r) c.push(r); }
-c.push(H3('Capturas de tela classificadas como Cavaleiros Negros, Divinas ou não identificadas'));
-const leftovers = Object.entries(D.shots_by).filter(([lab]) => /negro|nao identificada|não identificada|divina|variante|prata \(|^prata$|^ouro \(|holog/i.test(lab));
-for (const [lab, files] of leftovers) { c.push(P([run(lab, { bold: true })])); for (const grp of chunk(files, 6)) { const r = imgRow(grp.map(x => ({ file: x.file, label: x.sex })), 140, 200); if (r) c.push(r); } }
+c.push(H2('Conjuntos jogáveis sem cartão no Álbum'));
+c.push(P('Os demais conjuntos de Armadura, Escama e Sapuris que existem nos arquivos do cliente (equipamentos iniciais, roupas de treino, versões de transição, Armaduras de Prata sem cartão, as Sapuris das classes jogáveis, os servos de Lamech e conjuntos de eventos).'));
+c.push(...setRows(playerSets.filter(x => !usedSets.has(x.zh))));
 c.push(H2('As 23 classes de Sapuris (Espectros jogáveis)'));
 c.push(P('Tela de seleção de classe do jogo e a correspondência com as Estrelas Malignas, com as correções de Diego para a localização em português (do documento "Surplices - Saint Seiya Online"):'));
 c.push(table([1900, 1300, 2600, W - 5800], [['Sapuris / classe', 'Estrela (chinês)', 'Português (localizado)', 'Correção / observação'],
@@ -158,6 +181,9 @@ c.push(table([1900, 1300, 2600, W - 5800], [['Sapuris / classe', 'Estrela (chin�
 c.push(H2('Como as Armaduras são obtidas no jogo'));
 c.push(P('As missões de obtenção de Armaduras (Artesão de Bronze Joseph, Artesão de Prata Altai, o Álbum de Ouro de Athena e as Sapuris entregues por Pandora), sem repetição:'));
 for (const [k, title] of [['bronze', 'Armaduras de Bronze'], ['prata', 'Armaduras de Prata'], ['ouro', 'Armaduras de Ouro'], ['sapuris', 'Sapuris']]) { c.push(H3(title)); const seenN = new Set(); for (const q of D.cloth_quests[k]) { if (seenN.has(q.name)) continue; seenN.add(q.name); c.push(bullet([run(q.name, { bold: true }), run(q.descript ? ' — ' + q.descript.slice(0, 220) : '', { size: 18 })])); } }
+c.push(PB()); c.push(H1('Galeria de modelos 3D'));
+c.push(P('Todos os modelos da pasta models/npcs do cliente (personagens, NPCs, monstros, pets, relíquias, efeitos de habilidades, cenários e objetos das cinemáticas), renderizados de frente em pose T. Os arquivos completos (frente, lado e costas, 1000 px) estão na pasta "Saint Seiya Online Cloth Schemes", organizada por facção como a biblioteca Saint Seiya Cloth Schemes; a legenda é a tradução do nome interno em chinês (nomes entre parênteses ou em pinyin quando o jogo não dá um nome).'));
+for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = npcRendersAll.filter(x => x.folder === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt })), 110, 150); if (r) c.push(r); } }
 c.push(PB());
 // ---------- a história ----------
 c.push(H1('A história'));
@@ -197,7 +223,7 @@ for (const t of D.npc_lines) c.push(P([run(t, { size: 17 })], { spacing: { after
 c.push(PB()); c.push(H1('Apêndice E: cobertura das Notas de Pesquisa'));
 c.push(P('Confronto entre o que o documento "Saint Seiya Online - Notas de Pesquisa" e o "Surplices - Saint Seiya Online" citam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português).'));
 c.push(table([3000, 900, W - 3900], [['Item das notas', 'No jogo?', 'Onde aparece'], ...D.coverage.map(x => [x.item, x.found ? 'sim' : 'não', x.detail])], { size: 14 }));
-c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${Object.keys(D.renders).length} Armaduras da pasta Cloths e ${Object.values(D.shots_by).reduce((a, b) => a + b.length, 0)} capturas da pasta Saints foram associadas a ${Object.keys(D.shots_by).length} rótulos.`));
+c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${new Set(playerSets.map(x => x.zh)).size} conjuntos jogáveis (Armaduras, Escamas e Sapuris) e ${npcRendersAll.length} modelos de NPC foram renderizados em 3D a partir dos arquivos do cliente.`));
 const doc = new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } } },
   numbering: { config: [{ reference: 'bul', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 540, hanging: 300 } } } }] }] },
   sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 1417 } } }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: '808080' })] })] }) }, children: c.filter(Boolean) }] });

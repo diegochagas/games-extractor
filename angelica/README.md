@@ -2,7 +2,7 @@
 
 Used on the Seiya Reborn client (`C:\Seiya\element`, build 290). Everything runs on Linux with
 Python 3 (Pillow, numpy), ffprobe for the media index and Node + `npm install docx@8` for the Word
-documents. The full dump these tools produced lives in `~/Downloads/Seiya/` (see its README.md).
+documents, and Blender 4.2 LTS for the 3D renders. The full dump these tools produced lives in `~/Downloads/Seiya/` (see its README.md).
 
 ## Archive format
 
@@ -34,8 +34,42 @@ cd story && python3 story_prep.py WORK && python3 cache_images.py WORK && node b
 `story/story_config.py` holds the narrative structure (quest-id ranges per chapter, hand-written
 pt-BR intros, region images); `labels.py` translates the Chinese folder names.
 
+## 3D renders (`render/`)
+
+The characters are Angelica skinned meshes; `render/` parses them and renders every character in
+its bind pose (T pose) with Blender, front / side / back, transparent background:
+
+- `ski.py` – `.ski` reader (MOXBIKSA v101: header counts, bone names, GBK texture names,
+  `MATERIAL:` blocks, then per mesh 48-byte vertices `pos3f weights3f bones4B normal3f uv2f`,
+  u16 indices, 16-byte tangents). Vertices are already in model space (bind pose), so the meshes of
+  one character can be drawn together without the skeleton. `smd.py` reads the `.smd` descriptors
+  (skeleton + list of `.ski` files).
+- `inventory.py DUMP OUT.json` – builds the job list: one job per NPC `.smd` (deduplicated) and one
+  per player cloth set (`players/圣衣/<sex>/<set><sex>.ski` + the eight `<set>圣衣<piece>_动画.ski`
+  pieces + base head, pupils and class hair from `players/形象/<sex>`), with every texture resolved
+  to the converted PNG next to the model.
+- `blender_render.py` – runs inside Blender (`blender -b --python blender_render.py -- JOBS OUT`):
+  builds the meshes (engine is left-handed Y-up, characters face +Z; Blender vertex = (-x, -z, y)),
+  fixes the winding against the stored normals, one Principled material per texture with alpha
+  cut-out, orthographic cameras, Cycles. `RENDER_DEVICE=GPU` uses OptiX/CUDA; denoising is off by
+  default because OIDN reloads its kernels every frame in background mode (12 s per view).
+- `render_all.py JOBS OUT --workers N` – runs several Blender processes over the job list, players
+  first, skipping jobs that already have `job.json`.
+- `names.py` – Chinese asset name → English file name / Portuguese caption (game text first, then a
+  glossary of constellations, characters and common words, pinyin as last resort).
+- `organize.py DUMP GALLERY` – copies the renders plus the album cards, portraits, world maps and
+  loading screens into a gallery with one folder per faction (like the Cloth Schemes library) and
+  writes `index.json` / `text/gallery_index.json`, which `story/story_prep.py` picks up so the story
+  book shows the renders.
+
+```bash
+python3 render/inventory.py OUT OUT/text/render_jobs.json
+RENDER_DEVICE=GPU python3 render/render_all.py OUT/text/render_jobs.json OUT/renders --blender /opt/blender/blender --workers 2
+python3 render/organize.py OUT "GALLERY DIR"
+```
+
 ## Not done
 
-3D meshes (`.ski` skin meshes, `.bon` skeletons, `.smd`, `.ecm` model descriptions, `.stck`
-animations) are extracted but not parsed or rendered; `tasks.data*` (quest tree with NPC ids and
-prerequisites) and `elements.data` are only string-scraped; `.anm` cutscenes are not played back.
+`.bon` skeletons and `.stck` animations are not applied (renders are the bind pose only);
+`tasks.data*` (quest tree with NPC ids and prerequisites) and `elements.data` are only
+string-scraped; `.anm` cutscenes are not played back.

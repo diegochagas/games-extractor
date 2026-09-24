@@ -3,9 +3,9 @@
 """Monta story.json para o documento 'Saint Seiya Online - Story' a partir do dump em ~/Downloads/Seiya."""
 import os, sys, re, json, csv, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES
+from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS
 OUT = os.path.expanduser("~/Downloads/Seiya"); T = OUT + "/text"
-NOTES = "/home/diego/Nextcloud/Documents/Reading/Mangás que vou fazer/Saint Seiya Online"
+GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Downloads/Saint Seiya Online Cloth Schemes"))  # saída de angelica/render/organize.py
 WORK = sys.argv[1] if len(sys.argv) > 1 else "."
 
 Q = json.load(open(T + "/quests_pt-BR.json")); byid = {q["id"]: q for q in Q}
@@ -105,24 +105,6 @@ for i in range(1, len(pt)):
     if len(pt[i]) > 120 and not pt[i].startswith("^") and 0 < len(pt[i - 1]) < 30 and not pt[i - 1].startswith(("^", "script")):
         pb_texts.setdefault(pt[i - 1].strip(), clean(pt[i]))
 # cartões do fotolivro: mapa manual zh -> (pt, grupo)
-CARDS = {
- "天马座星矢": ("Seiya de Pégaso", "bronze"), "天龙座紫龙": ("Shiryu de Dragão", "bronze"), "白鸟座冰河": ("Hyoga de Cisne", "bronze"), "仙女座瞬": ("Shun de Andrômeda", "bronze"), "凤凰座一辉": ("Ikki de Fênix", "bronze"),
- "天狼座那智": ("Nachi de Lobo", "bronze"), "大熊座檄": ("Geki de Urso", "bronze"), "幼狮座蛮": ("Ban de Leão Menor", "bronze"), "水蛇座市": ("Ichi de Hidra", "bronze"), "独角兽座邪武": ("Jabu de Unicórnio", "bronze"), "变色龙座珍妮": ("June de Camaleão", "bronze"),
- "白羊座穆": ("Mu de Áries", "ouro"), "金牛座阿鲁迪巴": ("Aldebaran de Touro", "ouro"), "双子座撒加": ("Saga de Gêmeos", "ouro"), "巨蟹座迪斯马克斯": ("Máscara da Morte de Câncer", "ouro"), "狮子座艾欧里亚": ("Aioria de Leão", "ouro"), "处女座沙加": ("Shaka de Virgem", "ouro"),
- "天秤座童虎": ("Dohko de Libra", "ouro"), "天蝎座米罗": ("Miro de Escorpião", "ouro"), "射手座艾欧罗斯": ("Aioros de Sagitário", "ouro"), "摩羯座修罗": ("Shura de Capricórnio", "ouro"), "水瓶座卡妙": ("Camus de Aquário", "ouro"), "双鱼座阿布罗迪": ("Afrodite de Peixes", "ouro"), "教皇史昂": ("Shion, o Grande Mestre", "ouro"),
- "天鹰座魔铃": ("Marin de Águia", "prata"), "蛇夫座莎尔娜": ("Shina de Cobra", "prata"), "天琴座奥路菲": ("Orfeu de Lira", "prata"),
- "海皇朱利安·索罗": ("Julian Solo (Poseidon)", "marina"), "海皇海龙加隆": ("Kanon de Dragão Marinho", "marina"), "海皇海马拜安": ("Baian de Cavalo Marinho", "marina"), "海皇六圣兽伊奥": ("Io de Skilla", "marina"), "海皇海皇子克修拉": ("Krishna de Crisaor", "marina"), "海皇海魔女苏兰特": ("Sorento de Sirene", "marina"), "海皇魔鬼鱼艾尔扎克": ("Isaac de Kraken", "marina"), "海皇海怪卡撒": ("Kasa de Lymnades", "marina"), "海皇美人鱼狄迪思": ("Thetis de Sereia", "marina"),
- "冥天猛星拉达曼迪斯": ("Radamanthys de Wyvern", "espectro"), "冥天贵星米诺斯": ("Minos de Griffon", "espectro"), "冥天雄星艾亚哥斯": ("Aiacos de Garuda", "espectro"), "冥潘多拉": ("Pandora", "espectro"), "冥死神达拿都斯": ("Thanatos", "espectro"), "冥睡神修普诺斯": ("Hypnos", "espectro"),
- "黑暗天马": ("Pégaso Negro", "negro"), "黑暗天龙": ("Dragão Negro", "negro"), "黑暗白鸟": ("Cisne Negro", "negro"), "黑暗仙女": ("Andrômeda Negro", "negro"), "黑暗强戈": ("Jango", "negro"),
- "普城户光政": ("Mitsumasa Kido", "outros"), "普辰巳德丸": ("Tatsumi", "outros"), "普美穗": ("Mino", "outros"), "普春丽": ("Shunrei", "outros"), "普贵鬼": ("Kiki", "outros"), "普卡西欧士": ("Cássios", "outros"), "普基鲁提": ("Guilty", "outros"), "普艾丝美拉达": ("Esmeralda", "outros"), "普星华": ("Seika", "outros"), "雅典娜": ("Athena (Saori Kido)", "outros"), "普冰之国公主瓦尔基里": ("Valquíria, princesa do País do Gelo", "outros"), "普圣域美人鱼": ("Sereia do Santuário", "outros"), "普东西伯利亚居民女": ("Moradora da Sibéria Oriental", "outros"),
- "天马座": ("Pégaso", "arm_bronze"), "天龙座": ("Dragão", "arm_bronze"), "白鸟座": ("Cisne", "arm_bronze"), "仙女座": ("Andrômeda", "arm_bronze"), "凤凰座": ("Fênix", "arm_bronze"),
- "盾牌座": ("Escudo", "arm_bronze"), "六分仪座": ("Sextante", "arm_bronze"), "箭鱼座": ("Volans (Peixe-Voador)", "arm_bronze"), "巨蛇座": ("Serpente", "arm_bronze"), "南鱼座": ("Peixe Austral", "arm_bronze"), "变色龙座": ("Camaleão", "arm_bronze"), "海蛇座": ("Hidra (macho)", "arm_bronze"), "北冕座": ("Coroa Boreal", "arm_bronze"), "南十字座": ("Cruzeiro do Sul", "arm_bronze"), "船尾座": ("Popa", "arm_bronze"), "鹿豹座": ("Rena / Girafa (Camelopardalis)", "arm_bronze"), "南冕座": ("Coroa Austral", "arm_bronze"), "天兔座": ("Lebre", "arm_bronze"), "波江座": ("Erídano", "arm_bronze"), "时钟座": ("Relógio (Horologium)", "arm_bronze"), "皇女座": ("Imperatriz (Nu)", "arm_bronze"), "银莺座": ("Oriolus de Prata", "arm_bronze"), "猎豹座": ("Guepardo", "arm_bronze"), "铜鱼座": ("Coreius", "arm_bronze"),
- "天琴座": ("Lira", "arm_prata"), "御夫座": ("Auriga", "arm_prata"), "仙王座": ("Cefeu", "arm_prata"), "网罟座": ("Rede (Reticulum)", "arm_prata"), "天鹰座": ("Águia", "arm_prata"), "三角座": ("Triângulo", "arm_prata"), "武仙座": ("Hércules", "arm_prata"), "乌鸦座": ("Corvo", "arm_prata"), "半人马座": ("Centauro", "arm_prata"), "天炉座": ("Fornalha", "arm_prata"), "罗盘座": ("Bússola", "arm_prata"), "鲸鱼座": ("Baleia", "arm_prata"), "英仙座": ("Perseu", "arm_prata"), "仙后座": ("Cassiopeia", "arm_prata"), "孔雀座": ("Pavão", "arm_prata"), "蜥蜴座": ("Lagarto", "arm_prata"), "巨爵座": ("Taça", "arm_prata"), "地狱犬座": ("Cérbero", "arm_prata"), "天鹤座": ("Grou", "arm_prata"), "祭坛座": ("Altar", "arm_prata"), "大犬座": ("Cão Maior ('Duquesa' na localização)", "arm_prata"), "剑鱼座": ("Dourado (Dorado)", "arm_prata"), "天幕座": ("Atrium", "arm_prata"), "鬼主座": ("Mestre dos Fantasmas", "arm_prata"), "天坦座": ("Titã (Tornado)", "arm_prata"), "猎犬座": ("Cães de Caça", "arm_prata"), "天箭座": ("Sagita", "arm_prata"), "海魔女座": ("Sirene (Escama)", "escama"), "海龙座": ("Dragão Marinho (Escama)", "escama"), "莲花座": ("Lótus", "arm_prata"),
- "白羊圣衣": ("Áries", "arm_ouro"), "金牛圣衣": ("Touro", "arm_ouro"), "双子圣衣": ("Gêmeos", "arm_ouro"), "巨蟹圣衣": ("Câncer", "arm_ouro"), "狮子圣衣": ("Leão", "arm_ouro"), "处女圣衣": ("Virgem", "arm_ouro"), "天秤圣衣": ("Libra", "arm_ouro"), "天蝎圣衣": ("Escorpião", "arm_ouro"), "射手圣衣": ("Sagitário", "arm_ouro"), "山羊圣衣": ("Capricórnio", "arm_ouro"), "水瓶圣衣": ("Aquário", "arm_ouro"), "双鱼圣衣": ("Peixes", "arm_ouro"),
- "神白羊座": ("Áries", "arm_divina"), "神金牛座": ("Touro", "arm_divina"), "神双子座": ("Gêmeos", "arm_divina"), "神巨蟹座": ("Câncer", "arm_divina"), "神狮子座": ("Leão", "arm_divina"), "神处女座": ("Virgem", "arm_divina"), "神天秤座": ("Libra", "arm_divina"), "神天平座": ("Libra (variante)", "arm_divina"), "神天蝎座": ("Escorpião", "arm_divina"), "神射手座": ("Sagitário", "arm_divina"), "神摩羯座": ("Capricórnio", "arm_divina"), "神水瓶座": ("Aquário", "arm_divina"), "神双鱼座": ("Peixes", "arm_divina"),
- "天猛星": ("Wyvern (Estrela Celeste da Fúria)", "sapuris"), "天贵星": ("Griffon (Estrela Celeste da Nobreza)", "sapuris"), "天雄星": ("Garuda (Estrela Celeste do Heroísmo)", "sapuris"), "天哭星": ("Harpia (Estrela Celeste da Lamentação)", "sapuris"), "天英星": ("Balron (Estrela Celeste da Excelência)", "sapuris"), "天间星": ("Aqueronte (Estrela Celeste do Espaço)", "sapuris"), "天魔星": ("Alraune (Estrela Celeste da Bruxaria)", "sapuris"), "天捷星": ("Basilisco (Estrela Celeste da Vitória)", "sapuris"), "天兽星": ("Esfinge (Estrela Celeste da Besta)", "sapuris"),
- "群星之地": ("Terra das Constelações", "lugar"), "圣域": ("Santuário", "lugar"), "银河竞技场": ("Coliseu Graad", "lugar"), "庐山": ("Rozan", "lugar"), "遗忘之路": ("Estrada Esquecida", "lugar"), "死亡皇后岛": ("Ilha da Rainha da Morte", "lugar"), "东西伯利亚": ("Sibéria Oriental", "lugar"), "亚特兰蒂斯": ("Atlântida", "lugar"), "仙女岛": ("Ilha de Andrômeda", "lugar"), "哈迪斯城": ("Castelo de Hades", "lugar"), "冥界地狱": ("Submundo", "lugar"), "阿提卡战场": ("Ruínas de Ática", "lugar"),
-}
 pb_dir = OUT + "/images/surfaces/res/photobook"; card_files = {f.split(".")[0]: "images/surfaces/res/photobook/" + f for f in os.listdir(pb_dir)}
 cards = []
 for zh, (ptn, grp) in CARDS.items():
@@ -130,14 +112,8 @@ for zh, (ptn, grp) in CARDS.items():
     if f: cards.append({"zh": zh, "pt": ptn, "group": grp, "file": f})
 unmapped = [z for z in card_files if z not in CARDS]
 # retratos principais (surfaces/res/portrait)
-PORTRAITS = {"Seiya": "星矢", "Shiryu": "紫龙便装", "Hyoga": "冰河水瓶版", "Shun": "瞬", "Ikki": "一辉", "Saori Kido": "城户纱织", "Athena": "雅典娜", "Kiki": "贵鬼", "Shunrei": "春丽", "Cássios": "卡西欧士", "Marin": "魔铃", "Shina": "莎尔娜", "Dohko": "童虎",
- "Kanon": "加隆", "Julian Solo": "朱利安", "Pandora": "潘多拉", "Hades": "冥王哈迪斯", "Poseidon": "海皇波塞冬", "Guilty": "基鲁提", "Esmeralda": "艾丝美拉达", "Jango": "强戈", "Orfeu": "奥路菲", "Grande Mestre": "教皇", "Shion": "白羊座史昂", "Miro": "天蝎座米罗", "Aioros": "射手座艾俄洛斯",
- "Lei-Hu": "庐山雷虎", "Rodório": "初代天马英灵", "Alex": "圣斗士学员阿历克斯", "Eide": "圣斗士男学员少年艾德", "Aiya": "圣域圣斗士女学员艾亚", "Alexer": "亚雷库萨", "Natássia": "娜塔莎", "Valquíria": "冰之国公主瓦尔基里", "Isaac": "北海巨妖艾尔扎克便衣", "Sorento": "海将军海魔女苏兰特", "Baian": "海将军海马拜安", "Krishna": "海将军海皇子克修拉",
- "Radamanthys": "冥斗士天猛星拉达曼提斯", "Minos": "冥斗士天贵星米洛斯", "Thanatos": "死神", "Hypnos": "睡神", "Perséfone": "冥后", "Eurídice": "尤丽缇丝", "Pégaso Negro": "黑暗天马座", "Dragão Negro": "黑暗天龙座", "Cisne Negro": "黑暗白鸟座", "Andrômeda Negro": "黑暗仙女", "Fênix Negro": "黑暗凤凰座",
- "Nachi": "白银天琴座", "Mitsumasa Kido": "城户光政", "Seika": "星华", "Zeros": "冥斗士地奇星赛洛斯", "Myu": "冥斗士地妖星缪", "Gerald": "冥斗士地囚星杰拉尔德", "Loki": "洛基", "Apolo": "太阳神阿波罗", "Eros": "爱神之子爱洛斯", "Afrodite (deusa)": "爱神阿芙洛狄忒", "Siegfried": "天枢星双头龙座齐格弗里德", "Hagen": "天璇星八脚战马哈根", "Alberich": "天权星阿鲁贝利亚", "Fenrir": "玉衡星北极狼菲利路", "Syd": "开阳星剑齿虎希度", "Mime": "摇光星米伊美", "Sísifo": "掷铁饼者", "Lamech": "虚无之神拉蒙斯", "Li-Yun": "庐山李云异化", "Julian (Castelo de Hades)": "哈迪斯城幸存者男尤里安版", "Lei-Hu (mutado)": "庐山雷虎变异", "Alex (Sapuris)": "圣斗士学员阿历克斯冥衣版", "Acer (máscara)": "死亡皇后岛学员枫戴面具", "Acer": "皇后岛学员枫", "Valquíria (guerreira)": "冰之国公主瓦尔基里女武神版", "Eide (mutado)": "圣斗士男学员少年艾德异化", "Loki": "邪神洛基", "Kanon (Sapuris)": "加隆灰发", "Seiya (Sagitário)": "星矢射手版", "Shina (Armadura)": "莎尔娜圣衣版", "Athena (Armadura Divina)": "雅典娜神圣衣", "Saori (vestido)": "城户纱织晚礼服", "Shion (alma)": "白羊座史昂灵魂状态", "Shion ressuscitado": "复生的白羊座史昂", "Ikki criança": "一辉幼年抱着瞬", "Seiya criança": "幼年星矢", "Pandora criança": "潘多拉幼年抱哈迪斯", "Julian Solo (mendigo)": "朱利安穷人", "Máscara da Morte ressuscitado": "复生的黄金圣斗士巨蟹座迪斯马斯克", "Shura ressuscitado": "复生的黄金圣斗士摩羯座修罗", "Camus ressuscitado": "复生的黄金圣斗士水瓶座卡妙", "Afrodite ressuscitado": "复生的黄金圣斗士双鱼座阿布罗狄", "Lune": "天英星路尼法袍", "Rock": "冥斗士天角星洛克", "Iwan": "冥斗士天败星伊万", "Laimi": "冥斗士地伏星莱米触手", "Sirene (Sorento)": "海魔女苏兰特便装", "Io de Skilla": "海将军六圣兽", "Kasa": "海斗士北海巨妖", "Julian Solo (Poseidon)": "【海皇】朱利安·梭罗", }
 port_dir = OUT + "/images/surfaces/res/portrait"; port_files = {f.split(".")[0]: "images/surfaces/res/portrait/" + f for f in os.listdir(port_dir)}
 head_dir = OUT + "/images/surfaces/res/head"; head_files = {f.split(".")[0]: "images/surfaces/res/head/" + f for f in os.listdir(head_dir)}
-PORTRAITS["Sillas"] = "火山之撒里诺"
 portraits = {k: (port_files.get(v) or head_files.get(v)) for k, v in PORTRAITS.items() if v in port_files or v in head_files}
 # NPCs nomeados (para o índice): zh -> pt
 npc = collections.OrderedDict()
@@ -146,17 +122,14 @@ for k, z, t in colkv("pt-BR", "data_npc"):
 mon = collections.OrderedDict()
 for k, z, t in colkv("pt-BR", "data_monster"):
     if k.endswith("_name") and t and z: mon.setdefault(z, t)
-# 7. armaduras: renders (pasta Cloths do Diego) e screenshots (pasta Saints)
-CONST_EN = {"andromeda": "Andrômeda", "aquarius": "Aquário", "aquila": "Águia", "aries": "Áries", "atrium": "Atrium", "auriga": "Auriga", "cancer": "Câncer", "canes-venatici": "Cães de Caça", "capricornus": "Capricórnio", "cassiopeia": "Cassiopeia", "centaurus": "Centauro", "cepheus": "Cefeu", "cerberus": "Cérbero", "cetus": "Baleia", "chamaeleon": "Camaleão", "corona-australis": "Coroa Austral", "corona-borealis": "Coroa Boreal", "corvus": "Corvo", "crux": "Cruzeiro do Sul", "cygnus": "Cisne", "delphinus": "Delfim", "dorado": "Dourado", "draco": "Dragão", "eridanus": "Erídano", "fornax": "Fornalha", "gemini": "Gêmeos", "ghosts-master": "Mestre dos Fantasmas", "heracles": "Hércules", "hydrus": "Hidra (macho)", "lacerta": "Lagarto", "leo": "Leão", "lepus": "Lebre", "libra": "Libra", "lyra": "Lira", "mensa": "Mensa", "nu": "Nu (Imperatriz)", "pavo": "Pavão", "pegasus": "Pégaso", "perseus": "Perseu", "phoenix": "Fênix", "pisces": "Peixes", "puppis": "Popa", "pyxis": "Bússola", "rangifer": "Rena", "reticulum": "Rede", "sagittarius": "Sagitário", "scorpio": "Escorpião", "scutum": "Escudo", "serpens": "Serpente", "sextans": "Sextante", "silver-oriolus": "Oriolus de Prata", "taurus": "Touro", "tornado": "Tornado", "triangulum": "Triângulo", "virgo": "Virgem", "volans": "Volans"}
-renders = collections.OrderedDict()
-for f in sorted(os.listdir(NOTES + "/Cloths")):
-    m = re.match(r"(.+?)(?:-v(\d))?(?:-(male|female))?\.png$", f)
-    base, ver, sex = m.group(1), m.group(2), m.group(3)
-    key = CONST_EN.get(base, base) + (f" V{ver}" if ver else "")
-    renders.setdefault(key, []).append({"file": NOTES + "/Cloths/" + f, "sex": {"male": "masc.", "female": "fem."}.get(sex, "")})
-shots = list(csv.DictReader(open(T + "/saints_screenshots.csv", encoding="utf-8")))
-shots_by = collections.OrderedDict()
-for s in shots: shots_by.setdefault(s["identificacao"], []).append({"file": NOTES + "/Saints/" + s["file"], "sex": {"M": "masc.", "F": "fem."}[s["genero"]]})
+# 7. galeria de renders 3D (angelica/render/organize.py -> text/gallery_index.json)
+gallery, gallery_folders = [], {}
+if os.path.exists(T + "/gallery_index.json"):
+    gi = json.load(open(T + "/gallery_index.json", encoding="utf-8")); gallery_folders = gi["folders"]
+    for it in gi["items"]:
+        it = dict(it); it["files"] = {k: GALLERY + "/" + v for k, v in it["files"].items()}
+        if "front" in it["files"]: it["files"]["front_thumb"] = it["files"]["front"] + "#thumb"
+        gallery.append(it)
 # 8. mapas, cinemáticas, legendas, diálogos das dungeons, títulos
 maps = list(csv.DictReader(open(T + "/maps.csv", encoding="utf-8")))
 anim = col("pt-BR", "animation")
@@ -190,8 +163,8 @@ for label, keys in KEYS:
     coverage.append({"item": label, "found": bool(hits), "detail": "; ".join(hits)[:500]})
 data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests,
         "pb_chars": pb_chars, "bios_common": bios_common, "pb_texts": pb_texts, "cards": cards, "unmapped_cards": unmapped, "portraits": portraits,
-        "renders": renders, "shots_by": shots_by, "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
-        "npc_count": len(npc), "mon_count": len(mon), "out": OUT, "notes": NOTES}
+        "gallery": gallery, "gallery_folders": gallery_folders, "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
+        "npc_count": len(npc), "mon_count": len(mon), "out": OUT}
 json.dump(data, open(os.path.join(WORK, "story.json"), "w"), ensure_ascii=False)
 def cnt(qs): return len(qs), sum(len(q["delv"]) + len(q["award"]) for q in qs)
 print("PARTS:"); tot = 0
@@ -202,5 +175,5 @@ print("char stories:", len(char_stories), sum(len(c["quests"]) for c in char_sto
 print("side:", [(s["title"][:20], len(s["quests"])) for s in side]); print("cloth quests:", {k: len(v) for k, v in cloth_q.items()})
 print("others:", sum(len(o["quests"]) for o in others), "blocks", len(others), "| tests skipped", tests)
 print("pb_chars", len(pb_chars), [c["name"] for c in pb_chars][:50]); print("bios_common", len(bios_common)); print("pb_texts", len(pb_texts)); print("cards", len(cards), "unmapped", unmapped)
-print("portraits", len(portraits), "missing:", [k for k in PORTRAITS if k not in portraits]); print("renders", len(renders), "shot groups", len(shots_by)); print("cut titles", len(cut_titles), "subtitles", len(subtitles), "inst lines", len(inst), "titles", len(title_rows))
+print("portraits", len(portraits), "missing:", [k for k in PORTRAITS if k not in portraits]); print("gallery items", len(gallery)); print("cut titles", len(cut_titles), "subtitles", len(subtitles), "inst lines", len(inst), "titles", len(title_rows))
 print("coverage:", [(c["item"], c["found"]) for c in coverage])

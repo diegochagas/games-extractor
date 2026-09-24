@@ -6,8 +6,9 @@ const FONT = 'Calibri', W = 9026;
 const border = { style: BorderStyle.SINGLE, size: 4, color: 'BFBFBF' }, borders = { top: border, bottom: border, left: border, right: border };
 const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: 21, ...o });
 const P = (t, o = {}) => new Paragraph({ spacing: { after: 100 }, ...o, children: (Array.isArray(t) ? t : [t]).map(x => typeof x === 'string' ? run(x, { size: o.size || 21, italics: o.italics, color: o.color }) : x) });
-const H1 = t => new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: t, font: FONT })] });
-const H2 = t => new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: t, font: FONT })] });
+let HEADINGS = [];
+const H1 = t => { HEADINGS.push([1, t]); return new Paragraph({ heading: HeadingLevel.HEADING_1, children: [new TextRun({ text: t, font: FONT })] }); };
+const H2 = t => { HEADINGS.push([2, t]); return new Paragraph({ heading: HeadingLevel.HEADING_2, children: [new TextRun({ text: t, font: FONT })] }); };
 const H3 = t => new Paragraph({ heading: HeadingLevel.HEADING_3, children: [new TextRun({ text: t, font: FONT })] });
 const H4 = t => new Paragraph({ heading: HeadingLevel.HEADING_4, children: [new TextRun({ text: t, font: FONT })] });
 const PB = () => new Paragraph({ children: [new PageBreak()] });
@@ -46,7 +47,7 @@ const VOLUMES = [['01', 'O jogo e o mundo'], ['02', 'Personagens'], ['03', 'Arma
   ...D.parts.map((p, i) => [String(6 + i).padStart(2, '0'), 'A história: ' + p.title]), ['10', 'As histórias dos personagens e as histórias secundárias'], ['11', 'Apêndices A, B e C: diálogos das dungeons, cinemáticas e títulos'],
   ['12', 'Apêndice D: outras missões, eventos e desafios'], ['13', 'Apêndices F, G, H e E: falas dos NPCs, missões de teste, duplicadas e Notas de Pesquisa']];
 function startDoc(num, title) {
-  c = []; docs.push({ num, title, children: c });
+  c = []; HEADINGS = []; docs.push({ num, title, children: c, headings: HEADINGS });
   c.push(new Paragraph({ spacing: { before: 1200, after: 100 }, children: [run('Saint Seiya Online - Story', { size: 44, bold: true })] }));
   c.push(new Paragraph({ spacing: { after: 200 }, children: [run(`Volume ${num}: ${title}`, { size: 30, color: '1F3864', bold: true })] }));
   c.push(P([run('A história completa do jogo, ilustrada com as imagens do cliente. O livro está dividido em volumes:', { size: 18, color: '595959' })]));
@@ -55,7 +56,21 @@ function startDoc(num, title) {
   c.push(new Paragraph({ spacing: { after: 200 }, children: [run('Sumário', { size: 34, bold: true, color: '1F3864' })] }));
   c.push(P([run('(No Word, clique com o botão direito no sumário abaixo e escolha "Atualizar campo" para ver as páginas.)', { size: 16, italics: true, color: '7F7F7F' })]));
   c.push(new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-2' }));
+  c.push({ __summary_placeholder: true });
   c.push(PB());
+}
+// "Conteúdo deste volume": static list of the chapters with a one-line summary each, filled when the volume is written
+function summaryBlock(doc) {
+  const out = [P([run('Conteúdo deste volume', { bold: true, size: 24 })], { spacing: { before: 200, after: 80 } })];
+  const S = D.chapter_summaries || {};
+  let sub = [];
+  const flush = () => { if (sub.length) { out.push(P([run(sub.join(' · '), { size: 15, color: '595959' })], { spacing: { after: 60 }, indent: { left: 360 } })); sub = []; } };
+  for (const [lvl, t] of doc.headings) {
+    if (lvl === 1) { flush(); const s = S[t] || S[t.replace(/\s*\(.*\)$/, '')] || S[t.split(':')[0]] || ''; out.push(P([run(t, { bold: true, size: 19 }), run(s ? ' — ' + s : '', { size: 18 })], { spacing: { before: 60, after: 20 } })); }
+    else if (lvl === 2 && sub.length < 14) sub.push(t.replace(/\s*\(\d+.*\)$/, ''));
+  }
+  flush();
+  return out;
 }
 startDoc('01', 'O jogo e o mundo');
 // ---------- capa ----------
@@ -321,6 +336,7 @@ const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Sain
 (async () => {
   for (const d of docs) {
     const name = `${d.num} - ${d.title.replace(/[\/:*?"<>|]/g, '-')}.docx`;
+    const idx = d.children.findIndex(x => x && x.__summary_placeholder); if (idx >= 0) d.children.splice(idx, 1, ...summaryBlock(d));
     const b = await Packer.toBuffer(mkDoc(d.children));
     fs.writeFileSync(path.join(OUTDIR, name), b);
     console.log('wrote', name, (b.length / 1e6).toFixed(1) + ' MB', 'paragraphs', d.children.length);

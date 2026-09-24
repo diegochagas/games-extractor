@@ -73,9 +73,9 @@ VIDEOS = {  # file stem -> (pt title, zh)
 }
 # concept art: file name (in the concept dir) -> (pt title, identification note)
 CONCEPT = {
-    "saint-seiya-online-xzsds09.jpg": ("Arte conceitual: Armadura de Dourado (Peixe-Espada), versão feminina", "剑鱼座 · identificação provável pela comparação com o modelo do jogo (nadadeiras, ombreiras e caneleiras azuis, calção castanho)"),
-    "saint-seiya-online-xzsds15 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura do Dragão de Nove Cabeças, versão feminina", "九头龙座 · identificação provável (elmo com chifres, ombreiras redondas com espinhos; o totem são as cabeças do dragão)"),
-    "saint-seiya-online-xzsds16 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura do Dragão de Nove Cabeças, versão masculina", "九头龙座 · identificação provável, mesma Armadura da imagem anterior"),
+    "saint-seiya-online-xzsds09.jpg": ("Arte conceitual: Armadura azul com nadadeiras e elmo de chifres, versão feminina", "folha 09 da série 圣衣设定; Armadura não identificada"),
+    "saint-seiya-online-xzsds15 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura vermelha com totem de garras, versão feminina", "folha 15 da série 圣衣设定; Armadura não identificada"),
+    "saint-seiya-online-xzsds16 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura vermelha com totem de garras, versão masculina", "folha 16 da série 圣衣设定; mesma Armadura da folha anterior"),
 }
 WANMEI_ORIGINAL = {  # official "原画" (concept paintings) of the seiya.wanmei.com gallery, by file id
     "10151358144664371": "Cachoeira de Rozan (Cinco Picos Antigos)", "10151358144819035": "Vulcão da Ilha da Rainha da Morte",
@@ -214,6 +214,7 @@ def main():
     ap.add_argument("--concept-dir", help="folder with extra concept-art files (e.g. the xzsds scans)")
     ap.add_argument("--library", help="root of the Saint Seiya Cloth Schemes library (official game images listed in story_config.LIB_OFFICIAL)")
     ap.add_argument("--sites-dir", help="folder with one sub-folder per web source (web/sites) of concept art collected from other sites")
+    ap.add_argument("--videos-dir", help="write the videos (and their frames) to this folder instead of <out>/Vídeos; index paths become absolute")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
     out = os.path.abspath(a.out)
@@ -327,11 +328,16 @@ def main():
             pt, zh = VIDEOS.get(stem, (translate(stem, game_names)["pt"], stem if not stem.isascii() else ""))
             folder = PT_FOLDER["videos"]
             base = namer.take(folder, slug(pt), "video:" + f)
-            rel = "%s/%s.mp4" % (folder, base)
-            copy(os.path.join(vd, f), os.path.join(out, rel))
+            if args.videos_dir:  # videos live outside the gallery (e.g. the Nextcloud Videos folder): absolute paths in the index
+                vout, rel, frame = args.videos_dir, os.path.join(args.videos_dir, base + ".mp4"), os.path.join(args.videos_dir, base + "-quadro.jpg")
+                os.makedirs(vout, exist_ok=True)
+                copy(os.path.join(vd, f), rel)
+            else:
+                rel = "%s/%s.mp4" % (folder, base)
+                frame = "%s/%s-quadro.jpg" % (folder, base)
+                copy(os.path.join(vd, f), os.path.join(out, rel))
             r = media.get("videos/mp4/" + f, {})
             files = {"video": rel}
-            frame = "%s/%s-quadro.jpg" % (folder, base)
             if not os.path.exists(os.path.join(out, frame)) and shutil.which("ffmpeg"):
                 secs = float(r.get("seconds") or 0)
                 subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(min(8, max(0, secs / 2))), "-i", os.path.join(vd, f), "-frames:v", "1",

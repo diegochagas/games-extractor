@@ -3,9 +3,9 @@
 """Monta story.json para o documento 'Saint Seiya Online - Story' a partir do dump em ~/Downloads/Seiya."""
 import os, sys, re, json, csv, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS
+from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS, PRESS_NOTES
 OUT = os.path.expanduser("~/Downloads/Seiya"); T = OUT + "/text"
-GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Downloads/Saint Seiya Online Cloth Schemes"))  # saída de angelica/render/organize.py
+GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Downloads/Saint Seiya Online - Galeria de Imagens"))  # saída de angelica/render/organize.py
 WORK = sys.argv[1] if len(sys.argv) > 1 else "."
 
 Q = json.load(open(T + "/quests_pt-BR.json")); byid = {q["id"]: q for q in Q}
@@ -137,9 +137,32 @@ gallery, gallery_folders = [], {}
 if os.path.exists(T + "/gallery_index.json"):
     gi = json.load(open(T + "/gallery_index.json", encoding="utf-8")); gallery_folders = gi["folders"]
     for it in gi["items"]:
-        it = dict(it); it["files"] = {k: GALLERY + "/" + v for k, v in it["files"].items()}
+        it = dict(it); it["files"] = {k: ([GALLERY + "/" + x for x in v] if isinstance(v, list) else GALLERY + "/" + v) for k, v in it["files"].items()}
         if "front" in it["files"]: it["files"]["front_thumb"] = it["files"]["front"] + "#thumb"
+        if "images" in it["files"]: it["files"]["thumbs"] = [x + "#thumb" for x in it["files"]["images"]]
         gallery.append(it)
+# 7b. NPC/monstro -> modelo (angelica/npc_models.py -> text/npc_models.json): lista única (nome pt, zh, job)
+npc_models = []
+if os.path.exists(T + "/npc_models.json"):
+    seen_nm = set()
+    for i, v in json.load(open(T + "/npc_models.json", encoding="utf-8")).items():
+        if not v.get("job"): continue
+        key = (v["pt"], v["job"])
+        if key in seen_nm: continue
+        seen_nm.add(key); npc_models.append({"id": int(i), "kind": v["kind"], "zh": v["zh"], "pt": v["pt"], "job": v["job"], "model": v["model"]})
+# 7c. personagens do histórico do site Saint Seiya Cloths (text/site_history_saints.json)
+site_saints = json.load(open(T + "/site_history_saints.json", encoding="utf-8")) if os.path.exists(T + "/site_history_saints.json") else []
+# 7d. vozes dos chefes (packages/sfx/boss配音): nome zh do arquivo -> personagem
+boss_voices = collections.OrderedDict()
+bv = OUT + "/packages/sfx/boss配音"
+if os.path.isdir(bv):
+    for f in sorted(os.listdir(bv)):
+        stem = re.sub(r"^[a-z]-", "", os.path.splitext(f)[0]); who = re.sub(r"\d+$", "", stem)
+        boss_voices.setdefault(who, []).append(f)
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "render"))
+from names import translate as _tr, load_game_names as _lg  # noqa: E402
+_GN = _lg(T + "/names_zh_en_pt.json")
+boss_voices = [{"zh": k, "pt": _tr(k, _GN)["pt"], "files": v} for k, v in boss_voices.items()]
 # 8. mapas, cinemáticas, legendas, diálogos das dungeons, títulos
 maps = list(csv.DictReader(open(T + "/maps.csv", encoding="utf-8")))
 anim = col("pt-BR", "animation")
@@ -173,7 +196,9 @@ for label, keys in KEYS:
     coverage.append({"item": label, "found": bool(hits), "detail": "; ".join(hits)[:500]})
 data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests, "tests_q": tests_q, "stats": qstats, "duplicates": [{"id": i, "name": clean(byid[i].get("name")), "of": o} for i, o in sorted(dup_of.items())],
         "pb_chars": pb_chars, "bios_common": bios_common, "pb_texts": pb_texts, "cards": cards, "unmapped_cards": unmapped, "portraits": portraits,
-        "gallery": gallery, "gallery_folders": gallery_folders, "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
+        "gallery": gallery, "gallery_folders": gallery_folders, "npc_models": npc_models, "site_saints": site_saints, "boss_voices": boss_voices, "press_notes": PRESS_NOTES, "bg": {f.split(".")[0]: "images/surfaces/background/" + f for f in os.listdir(OUT + "/images/surfaces/background") if f.startswith("loading")},
+        "worldmaps": {f.split(".")[0]: "images/surfaces/maps/worldmaps/" + f for f in os.listdir(OUT + "/images/surfaces/maps/worldmaps")},
+        "site_root": os.environ.get("SSC_SITE", os.path.expanduser("~/Projects/saintseiyacloths/public")), "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
         "npc_count": len(npc), "mon_count": len(mon), "out": OUT}
 json.dump(data, open(os.path.join(WORK, "story.json"), "w"), ensure_ascii=False)
 def cnt(qs): return len(qs), sum(len(q["delv"]) + len(q["award"]) for q in qs)

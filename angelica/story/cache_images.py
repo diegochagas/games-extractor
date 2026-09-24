@@ -4,6 +4,8 @@ from PIL import Image
 WORK = sys.argv[1]; SRC = json.load(open(WORK + "/story.json")); OUT = SRC["out"] + "/"; CACHE = WORK + "/imgcache"; os.makedirs(CACHE, exist_ok=True)
 def size_for(p):
     if p.endswith("#thumb"): return 150
+    if "Imprensa (CavZodiaco)" in p or "-quadro.jpg" in p: return 420
+    if "/cloth-schemes/" in p: return 300
     if "Cloth Schemes" in p or "/renders/" in p: return 300
     if "/portrait/" in p or "/head/" in p: return 128
     if "/photobook/" in p or "/Cloths/" in p: return 320
@@ -15,7 +17,8 @@ def cached(p):
     if not os.path.exists(full): return p
     h = hashlib.md5(p.encode()).hexdigest()[:12]; dst = f"{CACHE}/{h}.jpg"
     if not os.path.exists(dst):
-        im = Image.open(full); im.thumbnail((size_for(p), size_for(p)))
+        try: im = Image.open(full); im.thumbnail((size_for(p), size_for(p)))
+        except Exception as exc: print("unreadable image, skipped:", full, exc); return None
         if im.mode in ("RGBA", "LA", "P"):
             im = im.convert("RGBA"); bg = Image.new("RGBA", im.size, (255, 255, 255, 255)); bg.alpha_composite(im); im = bg.convert("RGB")
         elif im.mode != "RGB": im = im.convert("RGB")

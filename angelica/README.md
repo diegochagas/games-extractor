@@ -28,7 +28,7 @@ python3 catalog.py OUT                                   # manifest.csv, folders
 python3 dump_text.py CLIENT/element OUT/packages OUT/text; python3 maps_table.py OUT; python3 media_index.py OUT
 python3 docx_data.py OUT WORK && node docx_build.js OUT/"Image index.docx"   # Word image index
 python3 quests_dump.py OUT pt-BR                         # text/quests_pt-BR.json (dialogue windows)
-cd story && python3 story_prep.py WORK && python3 cache_images.py WORK && node build.js WORK/story_cached.json OUT/"Story.docx"
+cd story && python3 story_prep.py WORK && python3 cache_images.py WORK && node build.js WORK/story_cached.json OUT/"Story"   # one .docx per volume
 ```
 
 `story/story_config.py` holds the narrative structure (quest-id ranges per chapter, hand-written
@@ -57,10 +57,16 @@ its bind pose (T pose) with Blender, front / side / back, transparent background
   first, skipping jobs that already have `job.json`.
 - `names.py` – Chinese asset name → English file name / Portuguese caption (game text first, then a
   glossary of constellations, characters and common words, pinyin as last resort).
-- `organize.py DUMP GALLERY` – copies the renders plus the album cards, portraits, world maps and
-  loading screens into a gallery with one folder per faction (like the Cloth Schemes library) and
-  writes `index.json` / `text/gallery_index.json`, which `story/story_prep.py` picks up so the story
-  book shows the renders.
+- `organize.py DUMP GALLERY [--concept-dir DIR]` – copies the renders plus the album cards,
+  portraits, world maps, loading screens, videos (with a frame each), music, voice lines, official
+  concept art and press images into a gallery with one Portuguese-named folder per faction or
+  content type (the same sections as the story book's gallery volume) and writes `index.json` /
+  `text/gallery_index.json`, which `story/story_prep.py` picks up.
+- `../npc_models.py DUMP CLIENT/element/data` – links every NPC/monster id of the language files
+  to its `.ecm` model (`path.data` id table + `elements.data` records) and to the render job, so the
+  story book can show the real model of characters that use a generic NPC body.
+- `../web/cavzodiaco.py OUT` and `../web/wanmei_wayback.py OUT` – collect the CavZodiaco.com.br
+  coverage (articles + images) and the official site's galleries from the Wayback Machine.
 
 ```bash
 python3 render/inventory.py OUT OUT/text/render_jobs.json

@@ -1,7 +1,7 @@
 // Saint Seiya Online - Story (pt-BR).  node build.js story.json "OUT.docx"
 const fs = require('fs'), path = require('path');
 const { Document, Packer, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, ShadingType, ImageRun, PageBreak, BorderStyle, LevelFormat, Footer, PageNumber, AlignmentType, TableOfContents } = require('docx');
-const D = JSON.parse(fs.readFileSync(process.argv[2], 'utf8')); const OUTF = process.argv[3];
+const D = JSON.parse(fs.readFileSync(process.argv[2], 'utf8')); const OUTDIR = process.argv[3]; fs.mkdirSync(OUTDIR, { recursive: true });
 const FONT = 'Calibri', W = 9026;
 const border = { style: BorderStyle.SINGLE, size: 4, color: 'BFBFBF' }, borders = { top: border, bottom: border, left: border, right: border };
 const run = (t, o = {}) => new TextRun({ text: t, font: FONT, size: 21, ...o });
@@ -41,27 +41,36 @@ function questBlock(q, small = false) {
   dlg('NPC', q.delv); dlg('Ao concluir', q.award); dlg('Se não estiver pronto', q.unq);
   return out;
 }
-const c = [];
+let c = []; const docs = [];
+const VOLUMES = [['01', 'O jogo e o mundo'], ['02', 'Personagens'], ['03', 'Armaduras'], ['04', 'Galeria de modelos 3D'], ['05', 'Vídeos, músicas, arte conceitual e imprensa'],
+  ...D.parts.map((p, i) => [String(6 + i).padStart(2, '0'), 'A história: ' + p.title]), ['10', 'As histórias dos personagens e as histórias secundárias'], ['11', 'Apêndices A, B e C: diálogos das dungeons, cinemáticas e títulos'],
+  ['12', 'Apêndice D: outras missões, eventos e desafios'], ['13', 'Apêndices F, G, H e E: falas dos NPCs, missões de teste, duplicadas e Notas de Pesquisa']];
+function startDoc(num, title) {
+  c = []; docs.push({ num, title, children: c });
+  c.push(new Paragraph({ spacing: { before: 1200, after: 100 }, children: [run('Saint Seiya Online - Story', { size: 44, bold: true })] }));
+  c.push(new Paragraph({ spacing: { after: 200 }, children: [run(`Volume ${num}: ${title}`, { size: 30, color: '1F3864', bold: true })] }));
+  c.push(P([run('A história completa do jogo, ilustrada com as imagens do cliente. O livro está dividido em volumes:', { size: 18, color: '595959' })]));
+  for (const [n, t] of VOLUMES) c.push(P([run(`${n} - ${t}`, { size: 17, bold: n === num, color: n === num ? '1F3864' : '595959' })], { spacing: { after: 20 } }));
+  c.push(PB());
+  c.push(new Paragraph({ spacing: { after: 200 }, children: [run('Sumário', { size: 34, bold: true, color: '1F3864' })] }));
+  c.push(P([run('(No Word, clique com o botão direito no sumário abaixo e escolha "Atualizar campo" para ver as páginas.)', { size: 16, italics: true, color: '7F7F7F' })]));
+  c.push(new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-2' }));
+  c.push(PB());
+}
+startDoc('01', 'O jogo e o mundo');
 // ---------- capa ----------
-c.push(new Paragraph({ spacing: { before: 2000, after: 200 }, children: [run('Saint Seiya Online', { size: 56, bold: true })] }));
-c.push(new Paragraph({ spacing: { after: 300 }, children: [run('A história completa, ilustrada com as imagens do jogo', { size: 30, color: '404040' })] }));
+c.push(H1('Sobre este livro'));
 c.push(P('Saint Seiya Online (圣斗士星矢Online) é o MMORPG 3D da Perfect World, licenciado pela Shueisha e supervisionado por Masami Kurumada, lançado na China em 2013 e no Brasil e na América Latina em setembro de 2017 (Ongame / SEGA), em português e espanhol. A versão chinesa encerrou em 2018 e a brasileira em junho de 2020; hoje sobrevive no servidor de fãs Seiya Reborn, de onde vieram os arquivos usados neste livro.'));
 c.push(P('Este documento reúne tudo o que o cliente do jogo guarda sobre a história: as quatro sagas da missão principal (Santuário, Poseidon, Hades: Cruzada ao Submundo e Hades: Inferno) com todas as missões e diálogos, as histórias secundárias de cada região, as trinta e oito "histórias" que o Professor Kurumada pede ao herói para investigar, a enciclopédia de personagens e Armaduras do próprio jogo (o Álbum), os mapas, as cinemáticas e os títulos. Os textos são os da localização oficial em português; quando o jogo só tinha tradução automática para um trecho (conteúdo antigo que a versão brasileira nunca revisou), isso está marcado em vermelho e um resumo em português correto precede o trecho.'));
-c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na pasta "Saint Seiya Online Cloth Schemes".'));
-c.push(IMG(IMGROOT + 'images/surfaces/background/loading18.jpg.png', 620, 480)); c.push(cap('Tela de carregamento: o Santuário sob o céu estrelado'));
-c.push(PB());
-c.push(new Paragraph({ spacing: { after: 200 }, children: [run('Sumário', { size: 34, bold: true, color: '1F3864' })] }));
-c.push(P([run('(No Word, clique com o botão direito no sumário abaixo e escolha "Atualizar campo" para ver as páginas.)', { size: 16, italics: true, color: '7F7F7F' })]));
-c.push(new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-2' }));
-c.push(P([run('Conteúdo', { bold: true, size: 24 })], { spacing: { before: 200 } }));
-for (const line of ['O mundo do jogo: as regiões, os mapas, os capítulos e as telas de carregamento', 'Personagens: o Álbum do jogo e os personagens criados para o jogo', 'Armaduras: Bronze, Prata, Ouro, Divinas, Escamas e Sapuris, com os renders 3D dos modelos do jogo', 'Galeria de modelos 3D: todos os NPCs, monstros e objetos do cliente, por facção', ...D.parts.map(p => p.title + ': ' + p.sections.map(s => s.title.split(':')[0]).join(', ')), 'As histórias dos personagens (Professor Kurumada): ' + D.char_stories.map(s => s.character).join(', '), 'Histórias secundárias por região', 'Apêndices: diálogos das dungeons, cinemáticas e legendas, títulos, outras missões e eventos (com diálogos), falas soltas dos NPCs, missões de teste dos desenvolvedores, cobertura das Notas de Pesquisa']) c.push(bullet([line]));
+c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na pasta "Saint Seiya Online - Galeria de Imagens", organizada como o volume 04.'));
+c.push(IMG(D.bg.loading18, 620, 480)); c.push(cap('Tela de carregamento: o Santuário sob o céu estrelado'));
 c.push(PB());
 // ---------- o mundo ----------
 c.push(H1('O mundo do jogo'));
 c.push(P('O jogador cria um aspirante a Cavaleiro escolhendo uma de cinco constelações de Bronze (Pégaso, Dragão, Cisne, Andrômeda e Fênix; mais tarde o jogo acrescentou Lira, Tornado e, para as facções de Poseidon e Hades, Dragão Marinho e Wyrm). O mesmo herói pode vestir dezenas de Armaduras de Bronze, Prata e Ouro, Escamas e Sapuris ao longo do jogo. A história segue os arcos do mangá clássico, mas vista pelos olhos desse novo Cavaleiro, que convive com Seiya, Shiryu, Hyoga, Shun e Ikki e carrega um segredo próprio: o sangue de Rodório, o primeiro Cavaleiro de Pégaso.'));
 c.push(H2('As regiões'));
 const placeCards = D.cards.filter(k => k.group === 'lugar');
-for (const k of placeCards) { c.push(H3(k.pt)); const t = D.pb_texts[({ 'Terra das Constelações': 'T. das Constel.', 'Santuário': 'Santuário', 'Coliseu Graad': 'Coliseu Graad', 'Rozan': 'Rozan', 'Estrada Esquecida': 'Estr. Esquecida', 'Ilha da Rainha da Morte': 'I. da R. da Morte', 'Sibéria Oriental': 'Sibéria Orie.', 'Atlântida': 'Atlântida', 'Ilha de Andrômeda': 'Ilha de Andrôm.', 'Castelo de Hades': 'Cast. de Hades', 'Submundo': 'Submundo' })[k.pt]]; if (t) c.push(P(t)); const row = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }, ...(({ 'Terra das Constelações': 'n1', 'Santuário': 'n2', 'Coliseu Graad': 'n4', 'Rozan': 'n3', 'Estrada Esquecida': 'n5', 'Ilha da Rainha da Morte': 'n6', 'Sibéria Oriental': 'n7', 'Atlântida': 'n8', 'Ilha de Andrômeda': 'n9', 'Castelo de Hades': 'n10', 'Submundo': 'n11' })[k.pt] ? [{ file: IMGROOT + `images/surfaces/maps/worldmaps/${({ 'Terra das Constelações': 'n1', 'Santuário': 'n2', 'Coliseu Graad': 'n4', 'Rozan': 'n3', 'Estrada Esquecida': 'n5', 'Ilha da Rainha da Morte': 'n6', 'Sibéria Oriental': 'n7', 'Atlântida': 'n8', 'Ilha de Andrômeda': 'n9', 'Castelo de Hades': 'n10', 'Submundo': 'n11' })[k.pt]}.dds.png`, label: 'Mapa da região' }] : [])], 240, 260); if (row) c.push(row); }
+for (const k of placeCards) { c.push(H3(`${k.pt} (${k.zh})`)); const t = D.pb_texts[({ 'Terra das Constelações': 'T. das Constel.', 'Santuário': 'Santuário', 'Coliseu Graad': 'Coliseu Graad', 'Rozan': 'Rozan', 'Estrada Esquecida': 'Estr. Esquecida', 'Ilha da Rainha da Morte': 'I. da R. da Morte', 'Sibéria Oriental': 'Sibéria Orie.', 'Atlântida': 'Atlântida', 'Ilha de Andrômeda': 'Ilha de Andrôm.', 'Castelo de Hades': 'Cast. de Hades', 'Submundo': 'Submundo' })[k.pt]]; if (t) c.push(P(t)); const row = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }, ...(({ 'Terra das Constelações': 'n1', 'Santuário': 'n2', 'Coliseu Graad': 'n4', 'Rozan': 'n3', 'Estrada Esquecida': 'n5', 'Ilha da Rainha da Morte': 'n6', 'Sibéria Oriental': 'n7', 'Atlântida': 'n8', 'Ilha de Andrômeda': 'n9', 'Castelo de Hades': 'n10', 'Submundo': 'n11' })[k.pt] ? [{ file: D.worldmaps[({ 'Terra das Constelações': 'n1', 'Santuário': 'n2', 'Coliseu Graad': 'n4', 'Rozan': 'n3', 'Estrada Esquecida': 'n5', 'Ilha da Rainha da Morte': 'n6', 'Sibéria Oriental': 'n7', 'Atlântida': 'n8', 'Ilha de Andrômeda': 'n9', 'Castelo de Hades': 'n10', 'Submundo': 'n11' })[k.pt]], label: 'Mapa da região' }] : [])], 240, 260); if (row) c.push(row); }
 c.push(H2('Mapas e instâncias'));
 c.push(P('Todos os mapas definidos no cliente (script/map/instance.lua), com o código interno usado nos arquivos e o nome oficial em português:'));
 const seen = new Set(); const maprows = [['Código', 'Nome (pt-BR)', 'Nome original']];
@@ -70,18 +79,20 @@ c.push(table([1200, 4400, W - 5600], maprows, { size: 15 }));
 c.push(H2('Telas de carregamento e a linha do tempo das sagas'));
 c.push(P('A missão principal está dividida em 22 capítulos. O jogo entrega um título ao herói ao fim de cada um:'));
 c.push(table([3200, 900, W - 4100], [['Saga', 'Cap.', 'Título do capítulo'], ...D.parts.flatMap(p => p.sections.map(s => [s.chapter[0], s.chapter[1], s.chapter[2]])).filter((r, i, a) => a.findIndex(x => x.join() === r.join()) === i)], { size: 17 }));
-const loads = ['loading01', 'loading02', 'loading05', 'loading06', 'loading08', 'loading10', 'loading12', 'loading13', 'loading14', 'loading16'].map(n => IMGROOT + `images/surfaces/background/${n}.jpg.png`);
+const loads = ['loading01', 'loading02', 'loading05', 'loading06', 'loading08', 'loading10', 'loading12', 'loading13', 'loading14', 'loading16'].map(n => D.bg[n]);
 for (const g of chunk(loads, 2)) { const r = imgRow(g, 300, 240); if (r) c.push(r); }
 c.push(cap('Telas de carregamento do jogo'));
 c.push(H2('Os quadrinhos das telas de carregamento'));
 c.push(P('Oito telas de carregamento reproduzem páginas de quadrinhos com os momentos clássicos da série; o Álbum do jogo também tem uma seção "Quadrinhos" (Volume I e II).'));
-for (let i = 1; i <= 8; i++) { const f = IMGROOT + `images/surfaces/background/loading_comic_0${i}.jpg.png`; const im = IMG(f, 600, 480); if (im) { c.push(im); c.push(cap(`Quadrinhos da tela de carregamento ${i}`)); } }
-c.push(PB());
+for (let i = 1; i <= 8; i++) { const f = D.bg['loading_comic_0' + i]; const im = IMG(f, 600, 480); if (im) { c.push(im); c.push(cap(`Quadrinhos da tela de carregamento ${i}`)); } }
+startDoc('02', 'Personagens');
 // ---------- personagens ----------
 c.push(H1('Personagens'));
 c.push(P('As fichas abaixo são as do Álbum do próprio jogo (a seção "Personagens" da enciclopédia), com a ilustração do cartão, o retrato usado nos diálogos quando existe, e os dados e o texto oficiais em português. Em seguida vêm os personagens criados para o jogo, que não existem no mangá.'));
 const portraitOf = (name) => { const map = { 'Saori Kido': 'Saori Kido', 'Julian Solo': 'Julian Solo', 'Máscara da Morte': null, 'Deus · Seiya': 'Seiya', 'Deus · Shiryu': 'Shiryu', 'Deus · Hyoga': 'Hyoga', 'Deus · Shun': 'Shun', 'Deus · Ikki': 'Ikki', 'Pégasus Negro': 'Pégaso Negro', 'Mino': null, 'Sorento': 'Sorento', 'Grande Mestre': 'Grande Mestre' }; const k = map[name] === undefined ? name : map[name]; return k && D.portraits[k] ? IMGROOT + D.portraits[k] : null; };
-const cardOf = (name) => { const alias = { 'Saori Kido': 'Athena (Saori Kido)', 'Julian Solo': 'Julian Solo (Poseidon)', 'Mu': 'Mu de Áries', 'Aldebaran': 'Aldebaran de Touro', 'Saga': 'Saga de Gêmeos', 'Máscara da Morte': 'Máscara da Morte de Câncer', 'Aioria': 'Aioria de Leão', 'Shaka': 'Shaka de Virgem', 'Dohko': 'Dohko de Libra', 'Miro': 'Miro de Escorpião', 'Aioros': 'Aioros de Sagitário', 'Shura': 'Shura de Capricórnio', 'Camus': 'Camus de Aquário', 'Afrodite': 'Afrodite de Peixes', 'Orfeu': 'Orfeu de Lira', 'Marin': 'Marin de Águia', 'Shina': 'Shina de Cobra', 'Deus · Seiya': 'Seiya de Pégaso', 'Deus · Shiryu': 'Shiryu de Dragão', 'Deus · Hyoga': 'Hyoga de Cisne', 'Deus · Shun': 'Shun de Andrômeda', 'Deus · Ikki': 'Ikki de Fênix', 'Nachi': 'Nachi de Lobo', 'Geki': 'Geki de Urso', 'Ichi': 'Ichi de Hidra', 'Jabu': 'Jabu de Unicórnio', 'Pégasus Negro': 'Pégaso Negro', 'Kanon': 'Kanon de Dragão Marinho', 'Krishna': 'Krishna de Crisaor', 'Sorento': 'Sorento de Sirene', 'Radamanthys': 'Radamanthys de Wyvern', 'Minos': 'Minos de Griffon', 'Sirene': 'Sirene (Escama)', 'Cérbero': 'Cérbero' }; const k = alias[name] || name; const card = D.cards.find(x => x.pt === k); return card ? IMGROOT + card.file : null; };
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const cardFor = (name) => { const alias = { 'Saori Kido': 'Athena (Saori Kido)', 'Julian Solo': 'Julian Solo (Poseidon)', 'Mu': 'Mu de Áries', 'Aldebaran': 'Aldebaran de Touro', 'Saga': 'Saga de Gêmeos', 'Máscara da Morte': 'Máscara da Morte de Câncer', 'Aioria': 'Aioria de Leão', 'Shaka': 'Shaka de Virgem', 'Dohko': 'Dohko de Libra', 'Miro': 'Miro de Escorpião', 'Aioros': 'Aioros de Sagitário', 'Shura': 'Shura de Capricórnio', 'Camus': 'Camus de Aquário', 'Afrodite': 'Afrodite de Peixes', 'Orfeu': 'Orfeu de Lira', 'Marin': 'Marin de Águia', 'Shina': 'Shina de Cobra', 'Deus · Seiya': 'Seiya de Pégaso', 'Deus · Shiryu': 'Shiryu de Dragão', 'Deus · Hyoga': 'Hyoga de Cisne', 'Deus · Shun': 'Shun de Andrômeda', 'Deus · Ikki': 'Ikki de Fênix', 'Nachi': 'Nachi de Lobo', 'Geki': 'Geki de Urso', 'Ichi': 'Ichi de Hidra', 'Jabu': 'Jabu de Unicórnio', 'Pégasus Negro': 'Pégaso Negro', 'Kanon': 'Kanon de Dragão Marinho', 'Krishna': 'Krishna de Crisaor', 'Sorento': 'Sorento de Sirene', 'Radamanthys': 'Radamanthys de Wyvern', 'Minos': 'Minos de Griffon', 'Sirene': 'Sirene (Escama)', 'Cérbero': 'Cérbero' }; const k = alias[name] || name; return D.cards.find(x => x.pt === k) || null; };
+const cardOf = (name) => { const card = cardFor(name); return card ? IMGROOT + card.file : null; };
 const groupTitle = { ouro: 'Cavaleiros de Ouro', bronze: 'Cavaleiros de Bronze', prata: 'Cavaleiros de Prata', marina: 'Generais Marinas', espectro: 'Espectros e o Submundo', negro: 'Cavaleiros Negros', outros: 'Outros personagens' };
 const G = D.gallery || [];
 const playerSets = G.filter(x => x.kind === 'render' && x.category === 'player');
@@ -92,11 +103,18 @@ const CHAR_ZH = { 'Saori Kido': ['城户纱织', '城户沙织', '婴儿沙织',
   'Rodório': ['初代天马英灵'], 'Lei-Hu': ['雷虎'], 'Sher-Khan': ['希尔汗'], 'Aiya e Eide': ['艾德', '艾亚'], 'Alex': ['阿历克斯'], 'Nya e Jaffet': ['尼亚', '云峰'], 'Li-Yun': ['李云'], 'Colomba, Darius e Augusto': ['高龙巴', '奥古斯塔', '达里乌斯'], 'Sillas': ['撒里诺'], 'Lamech': ['拉蒙斯'], 'Alexer e Natássia': ['亚雷库萨', '娜塔莎'], 'Valquíria': ['瓦尔基里'], 'Acer e Taylor': ['学员枫', '泰勒'], 'Julian (Castelo de Hades)': ['尤里安'], 'Perséfone': ['冥后'], 'Zeros, Lupin e Luise': ['赛洛斯', '鲁邦', '鲁琪'], 'Kafka, Moe, Larry, Curly, Steven, Stone, Gerald, Isolde': ['地伏星', '天暗星', '天阴星', '天异星', '天杀星', '地明星', '地囚星', '地恶星'], 'Wyrm': ['天威星'],
   'Poseidon': ['波塞冬'], 'Thanatos': ['死神'], 'Hypnos': ['睡神'], 'Eurídice': ['尤丽缇丝'], 'Loki': ['洛基'], 'Apolo': ['阿波罗'], 'Eros': ['爱洛斯'], 'Afrodite (deusa)': ['阿芙洛狄忒'], 'Siegfried': ['齐格弗里德'], 'Hagen': ['哈根'], 'Alberich': ['阿鲁贝利亚'], 'Fenrir': ['菲利路'], 'Syd': ['希度'], 'Mime': ['米伊美'], 'Mitsumasa Kido': ['城户光政'], 'Seika': ['星华'], 'Isaac': ['艾尔扎克'], 'Baian': ['拜安'], 'Myu': ['地妖星缪'], 'Lune': ['路尼'], 'Rock': ['洛克'], 'Iwan': ['伊万'], 'Laimi': ['莱米'], 'Io de Skilla': ['六圣兽'], 'Kasa': ['北海巨妖'], 'Julian Solo (Poseidon)': ['海皇波塞冬'], 'Sirene (Sorento)': ['苏兰特便装'] };
 const NPC_SKIP = ['翅膀', '锁链', '雕像', '雪人'];
+const normN = s => norm(s || '').replace(/[^a-z0-9]+/g, '');
+const jobItem = new Map(npcRendersAll.map(x => [x.job, x]));
+const npcByPt = new Map(); for (const m of (D.npc_models || [])) { const k = normN(m.pt); if (!npcByPt.has(k)) npcByPt.set(k, []); npcByPt.get(k).push(m); }
+function npcModelsFor(label) { if (!label) return []; const parts = label.replace(/\(.*?\)/g, '').split(/,| e |\/|·/).map(s => s.trim()).filter(Boolean); const out = []; for (const p of parts) for (const m of (npcByPt.get(normN(p)) || [])) if (!out.some(x => x.job === m.job)) out.push(m); return out; }
+function zhFor(label) { const card = cardFor(label); if (card && card.zh) return card.zh; const zs = [...new Set(npcModelsFor(label).map(m => m.zh))].filter(z => z && z.length <= 14); return zs.slice(0, 3).join(' / '); }
+const zhTag = label => { const z = zhFor(label); return z ? ` (${z})` : ''; };
 function npcRenders(keys, max = 8) { if (!keys || !keys.length) return []; const out = []; for (const it of npcRendersAll) { if (NPC_SKIP.some(k => it.zh.includes(k))) continue; if (keys.some(k => it.zh.includes(k))) out.push(it); } return out.slice(0, max); }
+function rendersFor(label, keys, max = 8) { const items = npcRenders(keys || [], max); for (const m of npcModelsFor(label)) { const it = jobItem.get(m.job); if (it && !items.includes(it) && !NPC_SKIP.some(k => it.zh.includes(k))) items.push(it); } return items.slice(0, max); }
 function renderRows(items, maxW = 130, maxH = 190) { const files = []; items.forEach((it, i) => { const views = i === 0 ? ['front', 'side', 'back'] : ['front']; for (const v of views) if (it.files[v]) files.push({ file: it.files[v], label: it.pt + (v === 'front' ? '' : ' (' + VIEW_PT[v] + ')') }); }); return chunk(files, 6).map(g => imgRow(g, maxW, maxH)).filter(Boolean); }
 function charEntry(name, stats, bio, extra) {
-  c.push(H3(name)); const row = imgRow([{ file: cardOf(name), label: 'Cartão do Álbum' }, { file: portraitOf(name), label: 'Retrato' }].filter(x => x.file), 170, 240); if (row) c.push(row);
-  c.push(...renderRows(npcRenders(CHAR_ZH[name])));
+  c.push(H3(name + zhTag(name))); const row = imgRow([{ file: cardOf(name), label: 'Cartão do Álbum' }, { file: portraitOf(name), label: 'Retrato' }].filter(x => x.file), 170, 240); if (row) c.push(row);
+  c.push(...renderRows(rendersFor(name, CHAR_ZH[name])));
   if (stats && stats.length) c.push(P([run(stats.join('  ·  '), { size: 17, color: '595959' })]));
   if (bio) c.push(P(bio)); if (extra) c.push(P([run(extra, { italics: true, size: 19 })]));
 }
@@ -126,18 +144,35 @@ const originals = [
  ['Wyrm', 'A classe de Espectro jogável: Estrela Celeste do Prestígio, com uma Sapuris própria (V1 azul-prata, V2 e Divina dourada) distinta da Wyvern de Radamanthys.'],
 ];
 const origPorts = { 'Rodório': ['Rodório'], 'Lei-Hu': ['Lei-Hu', 'Lei-Hu (mutado)'], 'Aiya e Eide': ['Eide', 'Eide (mutado)', 'Aiya'], 'Alex': ['Alex', 'Alex (Sapuris)'], 'Li-Yun': ['Li-Yun'], 'Sillas': ['Sillas'], 'Lamech': ['Lamech'], 'Alexer e Natássia': ['Alexer', 'Natássia'], 'Valquíria': ['Valquíria', 'Valquíria (guerreira)'], 'Acer e Taylor': ['Acer', 'Acer (máscara)'], 'Julian (Castelo de Hades)': ['Julian (Castelo de Hades)'], 'Perséfone': ['Perséfone'], 'Zeros, Lupin e Luise': ['Zeros'], 'Kafka, Moe, Larry, Curly, Steven, Stone, Gerald, Isolde': ['Gerald'], 'Wyrm': [] };
-for (const [n, t] of originals) { c.push(H3(n)); const ks = origPorts[n] || []; const row = imgRow(ks.filter(k => D.portraits[k]).map(k => ({ file: IMGROOT + D.portraits[k], label: k })), 120, 120); const rr = renderRows(npcRenders(CHAR_ZH[n])); if (row) c.push(row); else if (!rr.length) c.push(P([run('(sem retrato nem modelo próprio: este personagem usa um modelo genérico de NPC e o jogo não desenhou um rosto para ele)', { size: 15, italics: true, color: '7F7F7F' })])); else c.push(P([run('(sem retrato próprio: o jogo não desenhou um rosto para as caixas de diálogo; abaixo, o modelo 3D)', { size: 15, italics: true, color: '7F7F7F' })])); c.push(...rr); c.push(P(t)); }
+for (const [n, t] of originals) { c.push(H3(n + zhTag(n))); const ks = origPorts[n] || []; const row = imgRow(ks.filter(k => D.portraits[k]).map(k => ({ file: IMGROOT + D.portraits[k], label: k })), 120, 120); const rr = renderRows(rendersFor(n, CHAR_ZH[n])); if (row) c.push(row); else if (!rr.length) c.push(P([run('(sem retrato nem modelo próprio: este personagem usa um modelo genérico de NPC e o jogo não desenhou um rosto para ele)', { size: 15, italics: true, color: '7F7F7F' })])); else c.push(P([run('(sem retrato próprio: o jogo não desenhou um rosto para as caixas de diálogo; abaixo, o modelo 3D)', { size: 15, italics: true, color: '7F7F7F' })])); c.push(...rr); c.push(P(t)); }
 c.push(H2('Deuses, Guerreiros Deuses e outros retratos'));
 const extraPorts = ['Poseidon', 'Thanatos', 'Hypnos', 'Eurídice', 'Loki', 'Apolo', 'Eros', 'Afrodite (deusa)', 'Siegfried', 'Hagen', 'Alberich', 'Fenrir', 'Syd', 'Mime', 'Sísifo', 'Mitsumasa Kido', 'Seika', 'Isaac', 'Baian', 'Myu', 'Lune', 'Rock', 'Iwan', 'Laimi', 'Io de Skilla', 'Kasa', 'Julian Solo (Poseidon)', 'Sirene (Sorento)', 'Kanon (Sapuris)', 'Seiya (Sagitário)', 'Shina (Armadura)', 'Athena (Armadura Divina)', 'Saori (vestido)', 'Shion (alma)', 'Shion ressuscitado', 'Ikki criança', 'Seiya criança', 'Pandora criança', 'Julian Solo (mendigo)', 'Máscara da Morte ressuscitado', 'Shura ressuscitado', 'Camus ressuscitado', 'Afrodite ressuscitado'].map(k => ({ file: D.portraits[k] ? IMGROOT + D.portraits[k] : null, label: k })).filter(x => x.file);
 for (const g of chunk(extraPorts, 6)) { const r = imgRow(g, 120, 120); if (r) c.push(r); }
 c.push(H3('Modelos 3D dos deuses, Guerreiros Deuses e outros'));
-for (const k of extraPorts.map(x => x.label)) { const rs = npcRenders(CHAR_ZH[k], 4); if (!rs.length) continue; c.push(P([run(k, { bold: true, size: 19 })], { spacing: { before: 100, after: 40 }, keepNext: true })); c.push(...renderRows(rs)); }
-c.push(PB());
+for (const k of extraPorts.map(x => x.label)) { const rs = rendersFor(k, CHAR_ZH[k], 4); if (!rs.length) continue; c.push(P([run(k + zhTag(k), { bold: true, size: 19 })], { spacing: { before: 100, after: 40 }, keepNext: true })); c.push(...renderRows(rs)); }
+// ---------- personagens do site Saint Seiya Cloths ----------
+c.push(H2('Personagens e Armaduras do jogo no site Saint Seiya Cloths'));
+c.push(P('O site saintseiyacloths.diegochagas.com (seção History, "Saint Seiya Online") lista os personagens e as Armaduras que a enciclopédia de Diego associa ao jogo. Para cada entrada: o nome no site, o NPC correspondente nos arquivos do cliente (nome em português e em chinês) com o seu modelo 3D, e os conjuntos jogáveis da mesma constelação; a miniatura à esquerda é o esquema do próprio site. Entradas sem NPC no jogo são as que o site cataloga apenas pela Armadura.'));
+const SITE_ROOT = D.site_root || '';
+const siteGroups = new Map(); for (const ss of (D.site_saints || [])) { const g = ss.group_pt || ss.group; if (!siteGroups.has(g)) siteGroups.set(g, []); siteGroups.get(g).push(ss); }
+for (const [g, list] of siteGroups) {
+  c.push(H3(g));
+  for (const ss of list) {
+    const label = [ss.character, ss.cloth].filter(Boolean).join(' - ') || '(sem nome)';
+    const ms = npcModelsFor(ss.character || ''); const zh = [...new Set(ms.map(m => m.zh))].slice(0, 3).join(' / ');
+    c.push(P([run(label, { bold: true, size: 20 }), run(zh ? `  ·  no jogo: ${[...new Set(ms.map(m => m.pt))].slice(0, 2).join(' / ')} (${zh})` : '  ·  sem NPC com este nome nos arquivos do cliente', { size: 16, color: '595959' })], { spacing: { before: 140, after: 40 }, keepNext: true }));
+    if (ss.curiosity) c.push(P([run(ss.curiosity, { size: 17, italics: true })]));
+    const files = []; if (ss.image && SITE_ROOT) files.push({ file: SITE_ROOT + ss.image, label: 'esquema do site' });
+    const rs = rendersFor(ss.character || '', [], 5); rs.forEach((it, i) => { for (const v of (i === 0 ? ['front', 'side', 'back'] : ['front'])) if (it.files[v]) files.push({ file: it.files[v], label: it.pt + (v === 'front' ? '' : ' (' + VIEW_PT[v] + ')') }); });
+    for (const grp of chunk(files, 6)) { const r = imgRow(grp, 130, 190); if (r) c.push(r); }
+    if (ss.cloth) { const sets = playerSets.filter(x => norm(x.en).includes(norm(ss.cloth)) && !x.zh.includes('冥')); const bySetM = bySet(sets); let n = 0; for (const [zhs, its] of bySetM) { if (n++ >= 2) break; const f2 = []; for (const sex of ['male', 'female']) { const it = its.find(x => x.sex === sex); if (it && it.files.front) f2.push({ file: it.files.front, label: it.pt + ' (' + (sex === 'male' ? 'masc.' : 'fem.') + ') ' + zhs }); } const r = imgRow(f2, 130, 190); if (r) c.push(r); } }
+  }
+}
+startDoc('03', 'Armaduras');
 // ---------- armaduras ----------
 c.push(H1('Armaduras'));
 c.push(P('O Álbum do jogo cataloga as Armaduras de Bronze, Prata, Ouro e Divinas, as Escamas e as Sapuris. Para cada uma mostramos o cartão do Álbum e os renders 3D dos conjuntos que o jogador veste no jogo (modelos .ski do cliente renderizados no Blender em pose T: frente, lado e costas, nas versões masculina e feminina). Os nomes são a tradução do nome interno de cada conjunto; "nível 1" e "nível 2" são as versões V1 e V2 do jogo, "dourada" a variante de ouro.'));
 const groupsA = [['arm_bronze', 'Armaduras de Bronze'], ['arm_prata', 'Armaduras de Prata'], ['arm_ouro', 'Armaduras de Ouro'], ['arm_divina', 'Armaduras Divinas'], ['escama', 'Escamas'], ['sapuris', 'Sapuris']];
-const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
 function setsFor(card) {
   const zh = card.zh, g = card.group; let key = zh;
   if (g === 'arm_ouro') key = zh.replace('圣衣', ''); else if (g === 'arm_divina') key = zh.replace(/^神/, ''); else if (g === 'escama') key = zh.replace(/座$/, '');
@@ -166,7 +201,7 @@ const usedSets = new Set();
 for (const [g, title] of groupsA) {
   c.push(H2(title)); const items = D.cards.filter(k => k.group === g);
   for (const k of items) {
-    c.push(H3(k.pt)); const t = D.pb_texts[k.pt] || D.pb_texts[k.pt.replace(/ \(.*$/, '')]; if (t) c.push(P(t));
+    c.push(H3(`${k.pt} (${k.zh})`)); const t = D.pb_texts[k.pt] || D.pb_texts[k.pt.replace(/ \(.*$/, '')]; if (t) c.push(P(t));
     const r1 = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }], 150, 200); if (r1) c.push(r1);
     const sets = setsFor(k); sets.forEach(x => usedSets.add(x.zh)); c.push(...setRows(sets));
   }
@@ -182,15 +217,37 @@ c.push(H2('Como as Armaduras são obtidas no jogo'));
 c.push(P('As missões de obtenção de Armaduras (Artesão de Bronze Joseph, Artesão de Prata Altai, o Álbum de Ouro de Athena e as Sapuris entregues por Pandora):'));
 c.push(P([run('Todas as missões de obtenção, com descrição e diálogos completos (as repetidas para cada constelação aparecem uma a uma, na ordem dos arquivos).', { italics: true, size: 19 })]));
 for (const [k, title] of [['bronze', 'Armaduras de Bronze'], ['prata', 'Armaduras de Prata'], ['ouro', 'Armaduras de Ouro'], ['sapuris', 'Sapuris']]) { c.push(H3(title)); for (const q of D.cloth_quests[k]) c.push(...questBlock(q, true)); }
-c.push(PB()); c.push(H1('Galeria de modelos 3D'));
-c.push(P('Todos os modelos da pasta models/npcs do cliente (personagens, NPCs, monstros, pets, relíquias, efeitos de habilidades, cenários e objetos das cinemáticas), renderizados de frente em pose T. Os arquivos completos (frente, lado e costas, 1000 px) estão na pasta "Saint Seiya Online Cloth Schemes", organizada por facção como a biblioteca Saint Seiya Cloth Schemes; a legenda é a tradução do nome interno em chinês (nomes entre parênteses ou em pinyin quando o jogo não dá um nome).'));
-for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = npcRendersAll.filter(x => x.folder === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt })), 110, 150); if (r) c.push(r); } }
-c.push(PB());
+startDoc('04', 'Galeria de modelos 3D'); c.push(H1('Galeria de modelos 3D'));
+c.push(P('Todos os modelos da pasta models/npcs do cliente (personagens, NPCs, monstros, pets, relíquias, efeitos de habilidades, cenários e objetos das cinemáticas), renderizados de frente em pose T. Os arquivos completos (frente, lado e costas, 1000 px) estão na pasta "Saint Seiya Online - Galeria de Imagens", com os mesmos títulos de seção deste volume; a legenda é a tradução do nome interno em chinês (nomes entre parênteses ou em pinyin quando o jogo não dá um nome).'));
+for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = npcRendersAll.filter(x => (x.folder_key || x.folder) === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt + (x.zh ? ' · ' + x.zh : '') })), 110, 150); if (r) c.push(r); } }
+// ---------- mídia ----------
+startDoc('05', 'Vídeos, músicas, arte conceitual e imprensa');
+const G2 = D.gallery || []; const fmtDur = s => { s = Math.round(s || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
+c.push(H1('Vídeos do jogo'));
+c.push(P('Os vinte vídeos que o cliente traz na pasta videos (formato MP4, H.264): a abertura em duas versões, o logotipo, a introdução "A última Guerra Santa", sete vídeos de apresentação de classe (a classe de cada um foi identificada pelos quadros do vídeo, por isso "provável") e oito lutas da história em estilo de quadrinhos. As cópias estão na pasta "Vídeos" da galeria, com o quadro mostrado abaixo tirado de cada um.'));
+for (const v of G2.filter(x => x.kind === 'video')) { c.push(P([run(v.pt, { bold: true, size: 20 }), run(`  ${v.zh ? '(' + v.zh + ')  ' : ''}${fmtDur(v.seconds)} · ${v.width}×${v.height} · ${v.source}`, { size: 16, color: '595959' })], { spacing: { before: 140, after: 40 }, keepNext: true })); const im = IMG(v.files.frame, 420, 260, false); if (im) c.push(im); }
+c.push(H1('Músicas'));
+c.push(P('As 129 faixas de trilha sonora do cliente (pasta music, Ogg Vorbis), com o nome original do arquivo, a tradução quando o nome é chinês e a duração. As cópias estão na pasta "Músicas" da galeria.'));
+c.push(table([3600, 2400, 900, W - 6900], [['Faixa (pt)', 'Nome original', 'Duração', 'Arquivo na galeria'], ...G2.filter(x => x.kind === 'music').map(m => [m.pt, m.zh || m.en, fmtDur(m.seconds), m.files.audio.split('/').pop()])], { size: 14 }));
+c.push(H1('Vozes'));
+c.push(P('Os gritos de técnica do herói (pasta voice: 女b, voz feminina; 男a, voz masculina) e as falas dubladas dos chefes (packages/sfx/boss配音), agrupadas pelo personagem indicado no nome do arquivo.'));
+c.push(H2('Técnicas do herói'));
+c.push(table([4200, 3000, W - 7200], [['Técnica (pt)', 'Nome original', 'Duração'], ...G2.filter(x => x.kind === 'voice').map(m => [m.pt, m.zh, fmtDur(m.seconds)])], { size: 14 }));
+c.push(H2('Falas dos chefes'));
+c.push(table([3200, 3200, W - 6400], [['Personagem (pt)', 'Nome no arquivo', 'Arquivos'], ...(D.boss_voices || []).map(b => [b.pt || '', b.zh, b.files.length + ' (' + b.files.slice(0, 3).join(', ') + (b.files.length > 3 ? '...' : '') + ')'])], { size: 14 }));
+c.push(H1('Arte conceitual e material oficial'));
+c.push(P('As três folhas de arte conceitual (圣衣设定, "xzsds") guardadas na biblioteca Saint Seiya Cloth Schemes vêm do site oficial chinês seiya.wanmei.com; a identificação abaixo foi feita comparando cada desenho com os modelos 3D do jogo. Em seguida, o que a Wayback Machine guardou das galerias do site oficial (arte original, papéis de parede e capturas de tela). Tudo está na pasta "Arte conceitual oficial" da galeria.'));
+for (const a of G2.filter(x => x.kind === 'concept-art')) { const im = IMG(a.files.image, 620, 460); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.note ? ' — ' + a.note : ''))); }
+c.push(H1('A cobertura do CavZodiaco.com.br'));
+c.push(P('O site brasileiro CavZodiaco.com.br acompanhou o jogo de 2008 (anúncio da SEGA) a 2020 (encerramento no Brasil). Abaixo, cada matéria encontrada na busca do site por "saint seiya online", em ordem cronológica, com um resumo meu e as imagens que a matéria publicou (as imagens estão na pasta "Imprensa (CavZodiaco)" da galeria, uma subpasta por matéria; o texto integral fica no site, no endereço indicado).'));
+for (const a of G2.filter(x => x.kind === 'press')) { c.push(H3(`${a.date} · ${a.pt}`)); const note = (D.press_notes || {})[a.date]; if (note) c.push(P([run(note, { size: 18 })])); c.push(P([run(a.url, { size: 14, color: '7F7F7F' })])); for (const g of chunk(a.files.thumbs || a.files.images || [], 5)) { const r = imgRow(g.map(f => ({ file: f })), 150, 130); if (r) c.push(r); } }
 // ---------- a história ----------
-c.push(H1('A história'));
-c.push(P('A partir daqui, a missão principal do jogo, saga por saga, com todas as missões na ordem dos arquivos e todas as falas: a descrição da missão (em itálico), o que o NPC diz ao entregá-la ("NPC"), as respostas que o herói pode escolher ("Herói") e o que o NPC diz ao concluí-la ("Ao concluir"). O jogo não guarda o nome de quem fala em cada janela; ele está quase sempre na própria descrição.'));
+let partNo = 0;
+const historiaIntro = 'A partir daqui, a missão principal do jogo, saga por saga, com todas as missões na ordem dos arquivos e todas as falas: a descrição da missão (em itálico), o que o NPC diz ao entregá-la ("NPC"), as respostas que o herói pode escolher ("Herói") e o que o NPC diz ao concluí-la ("Ao concluir"). O jogo não guarda o nome de quem fala em cada janela; ele está quase sempre na própria fala ou no nome da missão. Missões cujo texto em português é a tradução automática do cliente estão marcadas em vermelho.';
 for (const p of D.parts) {
-  c.push(PB()); c.push(H1(p.title)); c.push(P(p.intro));
+  startDoc(String(6 + partNo).padStart(2, '0'), 'A história: ' + p.title); partNo++;
+  c.push(H1('A história')); c.push(P(historiaIntro));
+  c.push(H1(p.title)); c.push(P(p.intro));
   for (const s of p.sections) {
     c.push(H2(`${s.title}`)); c.push(P([run(`${s.chapter[0]}, capítulo ${s.chapter[1]}: "${s.chapter[2]}"`, { italics: true, color: '595959', size: 19 })]));
     const ims = imgRow(s.images.map(f => IMGROOT + f), 200, 200); if (ims) c.push(ims);
@@ -199,13 +256,13 @@ for (const p of D.parts) {
     for (const a of s.alts) { c.push(H3(a.title)); for (const q of a.quests) c.push(...questBlock(q, true)); }
   }
 }
-c.push(PB()); c.push(H1('As histórias dos personagens (Professor Kurumada)'));
+startDoc('10', 'As histórias dos personagens e as histórias secundárias'); c.push(H1('As histórias dos personagens (Professor Kurumada)'));
 c.push(P('Um personagem chamado Professor Kurumada, na Cidade Prata, pede ao herói que investigue a vida de cada Cavaleiro para "servir de inspiração". São trinta e oito histórias curtas, em capítulos numerados, cada uma passada na região do personagem.'));
 for (const s of D.char_stories) { c.push(H2('A história de ' + s.character)); const pf = portraitOf(s.character); const im = IMG(pf, 120, 120, false); if (im) c.push(im); for (const q of s.quests) c.push(...questBlock(q, true)); }
 c.push(PB()); c.push(H1('Histórias secundárias por região'));
 c.push(P('As missões que não pertencem à linha principal: as vilas, os aldeões, os festivais e as dungeons de cada região, na ordem dos arquivos.'));
 for (const s of D.side) { c.push(H2(s.title)); const ims = imgRow(s.images.map(f => IMGROOT + f), 200, 200); if (ims) c.push(ims); for (const q of s.quests) c.push(...questBlock(q, true)); }
-c.push(PB()); c.push(H1('Apêndice A: diálogos das dungeons das Doze Casas e de outras instâncias'));
+startDoc('11', 'Apêndices A, B e C: diálogos das dungeons, cinemáticas e títulos'); c.push(H1('Apêndice A: diálogos das dungeons das Doze Casas e de outras instâncias'));
 c.push(P('Falas roteirizadas dentro das instâncias, com o nome de quem fala quando o arquivo o traz (o nome aparece numa linha própria, junto das falas do personagem; $PLAYER_NAME é o herói). Reproduzidas na ordem do arquivo.'));
 for (const line of D.instance_dialogue) { const isName = line.length < 40 && !/[.!?…,]/.test(line) && !/^(Sim|Não)$/.test(line); c.push(P([run(line, { size: 17, bold: isName, color: isName ? '1F3864' : '000000' })], { spacing: { after: isName ? 20 : 40 }, indent: { left: isName ? 0 : 360 } })); }
 c.push(PB()); c.push(H1('Apêndice B: cinemáticas e legendas'));
@@ -215,10 +272,10 @@ c.push(H2('Legendas'));
 for (const t of D.subtitles) c.push(P([run(t, { size: 17 })], { spacing: { after: 20 } }));
 c.push(PB()); c.push(H1('Apêndice C: títulos do herói'));
 c.push(table([2600, 3400, W - 6000], [['Título', 'Descrição', 'Como obter'], ...D.titles.map(t => [t.name, t.desc, t.how])], { size: 15 }));
-c.push(PB()); c.push(H1('Apêndice D: outras missões, eventos e desafios'));
+startDoc('12', 'Apêndice D: outras missões, eventos e desafios'); c.push(H1('Apêndice D: outras missões, eventos e desafios'));
 c.push(P(`Missões repetíveis, eventos sazonais, desafios, tutoriais e missões de sistema que não entram na narrativa, todas com descrição e diálogos completos, agrupadas por faixa de id. As etapas sem descrição e sem falas aparecem só pelo nome ("etapa da missão"). As ${D.tests} missões de teste dos desenvolvedores estão no Apêndice G.`));
 for (const b of D.others) { c.push(H2(b.block)); for (const q of b.quests) c.push(...questBlock(q, true)); }
-c.push(PB()); c.push(H1('Apêndice F: falas soltas dos NPCs'));
+startDoc('13', 'Apêndices F, G, H e E: falas dos NPCs, missões de teste, duplicadas e Notas de Pesquisa'); c.push(H1('Apêndice F: falas soltas dos NPCs'));
 c.push(P('As frases que os NPCs dizem ao serem clicados ou que aparecem em balões durante cinemáticas e eventos (tabela text.data do cliente), sem repetição, na ordem do arquivo.'));
 for (const t of D.npc_lines) c.push(P([run(t, { size: 17 })], { spacing: { after: 20 } }));
 c.push(PB()); c.push(H1('Apêndice G: missões de teste dos desenvolvedores'));
@@ -232,7 +289,14 @@ c.push(PB()); c.push(H1('Apêndice E: cobertura das Notas de Pesquisa'));
 c.push(P('Confronto entre o que o documento "Saint Seiya Online - Notas de Pesquisa" e o "Surplices - Saint Seiya Online" citam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português).'));
 c.push(table([3000, 900, W - 3900], [['Item das notas', 'No jogo?', 'Onde aparece'], ...D.coverage.map(x => [x.item, x.found ? 'sim' : 'não', x.detail])], { size: 14 }));
 c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${new Set(playerSets.map(x => x.zh)).size} conjuntos jogáveis (Armaduras, Escamas e Sapuris) e ${npcRendersAll.length} modelos de NPC foram renderizados em 3D a partir dos arquivos do cliente.`));
-const doc = new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } } },
+const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } } },
   numbering: { config: [{ reference: 'bul', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 540, hanging: 300 } } } }] }] },
-  sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 1417 } } }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: '808080' })] })] }) }, children: c.filter(Boolean) }] });
-Packer.toBuffer(doc).then(b => { fs.writeFileSync(OUTF, b); console.log('wrote', OUTF, (b.length / 1e6).toFixed(1) + ' MB', 'paragraphs', c.length); });
+  sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 1417 } } }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: '808080' })] })] }) }, children: children.filter(Boolean) }] });
+(async () => {
+  for (const d of docs) {
+    const name = `${d.num} - ${d.title.replace(/[\/:*?"<>|]/g, '-')}.docx`;
+    const b = await Packer.toBuffer(mkDoc(d.children));
+    fs.writeFileSync(path.join(OUTDIR, name), b);
+    console.log('wrote', name, (b.length / 1e6).toFixed(1) + ' MB', 'paragraphs', d.children.length);
+  }
+})();

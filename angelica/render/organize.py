@@ -18,6 +18,7 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,6 +53,33 @@ PT_FOLDER = {
     "others": "Outros personagens", "npcs": "NPCs genéricos", "pets": "Pets", "monsters": "Monstros e feras",
     "artifacts": "Relíquias e armas", "skill-effects": "Efeitos de habilidades", "scenery-and-props": "Cenários e objetos",
     "cutscene-props": "Objetos das cinemáticas", "world-maps": "Mapas do mundo", "loading-screens": "Telas de carregamento",
+    "videos": "Vídeos", "music": "Músicas", "voice": "Vozes", "concept-art": "Arte conceitual oficial", "press": "Imprensa (CavZodiaco)",
+}
+# folder names used by the first version of the gallery (English); removed when found
+OLD_FOLDERS = ["athena-saints", "hades-specters", "poseidon-mariners", "odin-god-warriors", "odin-blue-warriors", "lamech-servants",
+               "zeus-olympians", "others", "npcs", "pets", "monsters", "artifacts", "skill-effects", "scenery-and-props", "cutscene-props",
+               "world-maps", "loading-screens"]
+VIEW_PT = {"front": "frente", "side": "lado", "back": "costas"}
+SEX_PT = {"male": "masc", "female": "fem"}
+VIDEOS = {  # file stem -> (pt title, zh)
+    "login": ("Abertura (tela de login)", ""), "login_cn": ("Abertura (versão chinesa)", ""), "logo": ("Logotipo", ""),
+    "last_saint_war": ("A última Guerra Santa (introdução)", ""), "last_saint_war_cn": ("A última Guerra Santa (versão chinesa)", ""),
+    "prof02": ("Apresentação de classe: Pégaso (provável)", ""), "prof03": ("Apresentação de classe: Cisne (provável)", ""), "prof04": ("Apresentação de classe: Dragão (provável)", ""),
+    "prof05": ("Apresentação de classe: Andrômeda (provável)", ""), "prof06": ("Apresentação de classe: Fênix (provável)", ""), "prof07": ("Apresentação de classe: Dragão Marinho (provável)", ""), "prof08": ("Apresentação de classe: Wyrm (provável)", ""),
+    "一辉vs基鲁提": ("Ikki contra Guilty", "一辉vs基鲁提"), "一辉夺圣衣": ("Ikki toma a Armadura", "一辉夺圣衣"), "奥路菲vs三头犬": ("Orfeu contra Cérbero", "奥路菲vs三头犬"),
+    "星矢vs卡西欧士": ("Seiya contra Cássios", "星矢vs卡西欧士"), "星矢vs莎尔娜": ("Seiya contra Shina", "星矢vs莎尔娜"), "紫龙vs英仙座": ("Shiryu contra Perseu", "紫龙vs英仙座"),
+    "紫龙vs迪斯马斯克": ("Shiryu contra Máscara da Morte", "紫龙vs迪斯马斯克"), "艾欧罗斯vs修罗": ("Aioros contra Shura", "艾欧罗斯vs修罗"),
+}
+# concept art: file name (in the concept dir) -> (pt title, identification note)
+CONCEPT = {
+    "saint-seiya-online-xzsds09.jpg": ("Arte conceitual: Armadura de Dourado (Peixe-Espada), versão feminina", "剑鱼座 · identificação provável pela comparação com o modelo do jogo (nadadeiras, ombreiras e caneleiras azuis, calção castanho)"),
+    "saint-seiya-online-xzsds15 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura do Dragão de Nove Cabeças, versão feminina", "九头龙座 · identificação provável (elmo com chifres, ombreiras redondas com espinhos; o totem são as cabeças do dragão)"),
+    "saint-seiya-online-xzsds16 (maybe Tornado or Cerberus).jpg": ("Arte conceitual: Armadura do Dragão de Nove Cabeças, versão masculina", "九头龙座 · identificação provável, mesma Armadura da imagem anterior"),
+}
+WANMEI_ORIGINAL = {  # official "原画" (concept paintings) of the seiya.wanmei.com gallery, by file id
+    "10151358144664371": "Cachoeira de Rozan (Cinco Picos Antigos)", "10151358144819035": "Vulcão da Ilha da Rainha da Morte",
+    "10151358145450054": "Montanhas do Santuário", "10151358145823801": "Templo do Santuário", "10151358145914288": "Relógio de Fogo das Doze Casas",
+    "10151358145943497": "Castelo de Hades (Heinstein)", "10151358145994204": "Coliseu Graad",
 }
 
 
@@ -180,6 +208,7 @@ def main():
     ap.add_argument("--jobs", default="text/render_jobs.json")
     ap.add_argument("--renders", default="renders")
     ap.add_argument("--names", default="text/names_zh_en_pt.json")
+    ap.add_argument("--concept-dir", help="folder with extra concept-art files (e.g. the xzsds scans)")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
     out = os.path.abspath(a.out)
@@ -196,24 +225,25 @@ def main():
         if not os.path.exists(os.path.join(jdir, "job.json")):
             continue
         t = translate(job["name"], game_names)
-        folder = classify(job)
-        base = slug(t["en"])
+        key = classify(job)
+        folder = PT_FOLDER[key]
+        base = slug(t["pt"]) or slug(t["en"])
         sex = ""
         if job["category"] == "player":
             sex = job["group"]  # male / female
-            base = "%s-%s" % (base, sex)
+            base = "%s-%s" % (base, SEX_PT[sex])
         base = namer.take(folder, base, job["id"])
         files = {}
         for view in VIEWS:
             src = os.path.join(jdir, view + ".png")
             if os.path.exists(src):
-                rel = "%s/%s-%s.png" % (folder, base, view)
+                rel = "%s/%s-%s.png" % (folder, base, VIEW_PT[view])
                 copy(src, os.path.join(out, rel))
                 files[view] = rel
         if files:
             n_jobs += 1
             index.append({"kind": "render", "job": job["id"], "category": job["category"], "group": job["group"], "sex": sex,
-                          "zh": job["name"], "en": t["en"], "pt": t["pt"], "folder": folder, "base": base, "files": files,
+                          "zh": job["name"], "en": t["en"], "pt": t["pt"], "folder": folder, "folder_key": key, "base": base, "files": files,
                           "pieces": job.get("pieces", [])})
 
     # 2. album cards
@@ -222,12 +252,13 @@ def main():
         src = os.path.join(pb, zh + ".dds.png")
         if not os.path.exists(src):
             continue
-        folder = card_folder(group)
+        key = card_folder(group)
+        folder = PT_FOLDER[key]
         t = translate(zh, game_names)
-        base = namer.take(folder, slug(pt if group == "lugar" else t["en"]), "card:" + zh)
-        rel = "%s/%s-album-card.png" % (folder, base)
+        base = namer.take(folder, slug(pt), "card:" + zh)
+        rel = "%s/%s-cartao-do-album.png" % (folder, base)
         copy(src, os.path.join(out, rel))
-        index.append({"kind": "album-card", "zh": zh, "en": t["en"], "pt": pt, "group": group, "folder": folder, "base": base,
+        index.append({"kind": "album-card", "zh": zh, "en": t["en"], "pt": pt, "group": group, "folder": folder, "folder_key": key, "base": base,
                       "files": {"card": rel}})
 
     # 3. portraits
@@ -240,11 +271,12 @@ def main():
                 break
         if not src:
             continue
-        folder = portrait_folder(zh)
+        key = portrait_folder(zh)
+        folder = PT_FOLDER[key]
         base = namer.take(folder, slug(label), "portrait:" + zh)
-        rel = "%s/%s-portrait.png" % (folder, base)
+        rel = "%s/%s-retrato.png" % (folder, base)
         copy(src, os.path.join(out, rel))
-        index.append({"kind": "portrait", "zh": zh, "en": label, "pt": label, "folder": folder, "base": base, "files": {"portrait": rel}})
+        index.append({"kind": "portrait", "zh": zh, "en": label, "pt": label, "folder": folder, "folder_key": key, "base": base, "files": {"portrait": rel}})
 
     # 4. world maps and loading screens
     maps = list(csv.DictReader(open(os.path.join(dump, "text/maps.csv"), encoding="utf-8")))
@@ -260,53 +292,180 @@ def main():
             continue
         seen.add(wm)
         name = m.get("name_pt") or m.get("name_en") or m["map_code"]
-        base = namer.take("world-maps", slug(m.get("name_en") or name) + "-" + m["map_code"], "map:" + wm)
-        rel = "world-maps/%s.png" % base
+        folder = PT_FOLDER["world-maps"]
+        base = namer.take(folder, slug(name) + "-" + m["map_code"], "map:" + wm)
+        rel = "%s/%s-mapa.png" % (folder, base)
         copy(src, os.path.join(out, rel))
         index.append({"kind": "world-map", "zh": m.get("name_zh", ""), "en": m.get("name_en", ""), "pt": name, "map_code": m["map_code"],
-                      "folder": "world-maps", "base": base, "files": {"map": rel}})
+                      "folder": folder, "folder_key": "world-maps", "base": base, "files": {"map": rel}})
     bg = os.path.join(dump, "images/surfaces/background")
     for f in sorted(os.listdir(bg)):
         if f.startswith("loading") and f.endswith(".png"):
-            base = f.split(".")[0].replace("_", "-")
-            rel = "loading-screens/%s.png" % base
+            stem = f.split(".")[0]
+            base = "tela-de-carregamento-" + stem.replace("loading_", "").replace("loading", "")
+            folder = PT_FOLDER["loading-screens"]
+            rel = "%s/%s.png" % (folder, base)
             copy(os.path.join(bg, f), os.path.join(out, rel))
-            index.append({"kind": "loading-screen", "zh": "", "en": base, "pt": base, "folder": "loading-screens", "base": base,
-                          "files": {"image": rel}})
+            index.append({"kind": "loading-screen", "zh": "", "en": stem, "pt": "Tela de carregamento " + stem.replace("loading_", "").replace("loading", ""),
+                          "folder": folder, "folder_key": "loading-screens", "base": base, "files": {"image": rel}})
+
+    # 5. videos, music and voice lines (media_index.csv gives durations)
+    media = {}
+    mi = os.path.join(dump, "media_index.csv")
+    if os.path.exists(mi):
+        for r in csv.DictReader(open(mi, encoding="utf-8")):
+            media[r["path"]] = r
+    vd = os.path.join(dump, "videos/mp4")
+    if os.path.isdir(vd):
+        for f in sorted(os.listdir(vd)):
+            stem = os.path.splitext(f)[0]
+            pt, zh = VIDEOS.get(stem, (translate(stem, game_names)["pt"], stem if not stem.isascii() else ""))
+            folder = PT_FOLDER["videos"]
+            base = namer.take(folder, slug(pt), "video:" + f)
+            rel = "%s/%s.mp4" % (folder, base)
+            copy(os.path.join(vd, f), os.path.join(out, rel))
+            r = media.get("videos/mp4/" + f, {})
+            files = {"video": rel}
+            frame = "%s/%s-quadro.jpg" % (folder, base)
+            if not os.path.exists(os.path.join(out, frame)) and shutil.which("ffmpeg"):
+                secs = float(r.get("seconds") or 0)
+                subprocess.run(["ffmpeg", "-loglevel", "error", "-y", "-ss", str(min(8, max(0, secs / 2))), "-i", os.path.join(vd, f), "-frames:v", "1",
+                                os.path.join(out, frame)], check=False)
+            if os.path.exists(os.path.join(out, frame)):
+                files["frame"] = frame
+            index.append({"kind": "video", "zh": zh, "en": stem, "pt": pt, "folder": folder, "folder_key": "videos", "base": base, "files": files,
+                          "seconds": float(r.get("seconds") or 0), "width": r.get("width", ""), "height": r.get("height", ""), "source": f})
+    md = os.path.join(dump, "music")
+    if os.path.isdir(md):
+        for root, _dirs, fs in os.walk(md):
+            for f in sorted(fs):
+                if not f.lower().endswith((".ogg", ".mp3", ".wav")):
+                    continue
+                relsrc = os.path.relpath(os.path.join(root, f), md)
+                stem = os.path.splitext(f)[0]
+                zh = stem if not stem.isascii() else ""
+                pt = translate(stem, game_names)["pt"] if zh else stem
+                if root != md:
+                    pt = translate(os.path.basename(root), game_names)["pt"] + ": " + pt
+                folder = PT_FOLDER["music"]
+                base = namer.take(folder, slug(pt) or slug(stem), "music:" + relsrc)
+                rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+                copy(os.path.join(root, f), os.path.join(out, rel))
+                r = media.get("music/" + relsrc, {})
+                index.append({"kind": "music", "zh": zh, "en": stem, "pt": pt, "folder": folder, "folder_key": "music", "base": base, "files": {"audio": rel},
+                              "seconds": float(r.get("seconds") or 0), "source": relsrc})
+    vo = os.path.join(dump, "voice")
+    if os.path.isdir(vo):
+        for sub in sorted(os.listdir(vo)):
+            sd = os.path.join(vo, sub)
+            if not os.path.isdir(sd):
+                continue
+            who = {"男a": "voz masculina", "女b": "voz feminina"}.get(sub, sub)
+            for f in sorted(os.listdir(sd)):
+                stem = os.path.splitext(f)[0]
+                pt = translate(stem, game_names)["pt"] + " (" + who + ")"
+                folder = PT_FOLDER["voice"]
+                base = namer.take(folder, slug(pt), "voice:" + sub + "/" + f)
+                rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+                copy(os.path.join(sd, f), os.path.join(out, rel))
+                r = media.get("voice/%s/%s" % (sub, f), {})
+                index.append({"kind": "voice", "zh": stem, "en": "", "pt": pt, "folder": folder, "folder_key": "voice", "base": base, "files": {"audio": rel},
+                              "seconds": float(r.get("seconds") or 0), "source": sub + "/" + f})
+
+    # 6. official concept art (Diego's copies + the seiya.wanmei.com gallery fetched from the Wayback Machine)
+    folder = PT_FOLDER["concept-art"]
+    for src_dir in (a.concept_dir, os.path.join(dump, "web/wanmei/img")):
+        if not src_dir or not os.path.isdir(src_dir):
+            continue
+        for f in sorted(os.listdir(src_dir)):
+            if not f.lower().endswith((".jpg", ".png")):
+                continue
+            try:
+                from PIL import Image
+                Image.open(os.path.join(src_dir, f)).verify()
+            except Exception:
+                print("skipping unreadable image", f)
+                continue
+            fid = os.path.splitext(f)[0].split("_")[-1]
+            if f in CONCEPT:
+                pt, note = CONCEPT[f]
+            elif f.startswith("original_"):
+                pt, note = ("Arte conceitual oficial: " + WANMEI_ORIGINAL.get(fid, "cenário " + fid), "seiya.wanmei.com, galeria 原画 (arte original), identificação do local provável")
+            elif f.startswith("wallpaper_"):
+                pt, note = ("Papel de parede oficial " + fid, "seiya.wanmei.com, galeria 壁纸 (papéis de parede)")
+            elif f.startswith("printscreen_"):
+                pt, note = ("Captura de tela oficial " + fid, "seiya.wanmei.com, galeria 截图 (capturas de tela)")
+            else:
+                continue
+            base = namer.take(folder, slug(pt), "concept:" + f)
+            rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+            copy(os.path.join(src_dir, f), os.path.join(out, rel))
+            index.append({"kind": "concept-art", "zh": "", "en": f, "pt": pt, "note": note, "folder": folder, "folder_key": "concept-art", "base": base,
+                          "files": {"image": rel}, "source": f})
+
+    # 7. press coverage (CavZodiaco articles collected by angelica/web/cavzodiaco.py)
+    pj = os.path.join(dump, "web/cavzodiaco/articles.json")
+    if os.path.exists(pj):
+        folder = PT_FOLDER["press"]
+        for art in json.load(open(pj, encoding="utf-8")):
+            sub = "%s %s" % (art["date"], slug(art["title"])[:70])
+            files = []
+            for img in art["images"]:
+                src = os.path.join(dump, "web/cavzodiaco/images", img)
+                if not os.path.exists(src):
+                    continue
+                rel = "%s/%s/%s" % (folder, sub, img)
+                copy(src, os.path.join(out, rel))
+                files.append(rel)
+            index.append({"kind": "press", "zh": "", "en": art["title"], "pt": art["title"], "date": art["date"], "url": art["url"],
+                          "folder": folder + "/" + sub, "folder_key": "press", "base": sub, "files": {"images": files}, "n": art["n"]})
 
     # remove files from earlier runs that are no longer in the index (renamed or reclassified)
-    keep = {os.path.join(out, rel) for it in index for rel in it["files"].values()}
+    keep = set()
+    for it in index:
+        for v in it["files"].values():
+            for rel in (v if isinstance(v, list) else [v]):
+                keep.add(os.path.join(out, rel))
     removed = 0
-    for folder in set(PT_FOLDER) | {i["folder"] for i in index}:
+    for folder in OLD_FOLDERS:
+        d = os.path.join(out, folder)
+        if os.path.isdir(d):
+            shutil.rmtree(d)
+            removed += 1
+    for folder in set(PT_FOLDER.values()) | {i["folder"] for i in index}:
         d = os.path.join(out, folder)
         if not os.path.isdir(d):
             continue
-        for f in os.listdir(d):
-            fp = os.path.join(d, f)
-            if os.path.isfile(fp) and fp not in keep:
-                os.remove(fp)
-                removed += 1
-        if not os.listdir(d):
-            os.rmdir(d)
+        for root, _dirs, fs in os.walk(d):
+            for f in fs:
+                fp = os.path.join(root, f)
+                if fp not in keep:
+                    os.remove(fp)
+                    removed += 1
+        for root, dirs, fs in os.walk(d, topdown=False):
+            if not os.listdir(root):
+                os.rmdir(root)
     if removed:
-        print("removed %d stale files" % removed)
+        print("removed %d stale files/folders" % removed)
     with open(os.path.join(out, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"folders": PT_FOLDER, "items": index}, f, ensure_ascii=False, indent=1)
     shutil.copy2(os.path.join(out, "index.json"), os.path.join(dump, "text/gallery_index.json"))
     with open(os.path.join(out, "README.md"), "w", encoding="utf-8") as f:
-        f.write("# Saint Seiya Online - galeria de modelos e imagens\n\n"
-                "Renders 3D (frente, lado e costas, pose T) de todos os personagens, Armaduras, NPCs, monstros e objetos do cliente "
-                "Saint Seiya Online (Seiya Reborn), feitos com Blender a partir dos arquivos .ski do jogo, mais os cartões do Álbum, "
-                "retratos, mapas e telas de carregamento do próprio jogo. Uma pasta por facção, nomes em inglês (kebab-case) como na "
-                "biblioteca Saint Seiya Cloth Schemes; `index.json` traz o nome chinês original, o nome em português e a origem de cada arquivo.\n\n")
+        f.write("# Saint Seiya Online - Galeria de Imagens\n\n"
+                "Organizada como a seção \"Galeria de modelos 3D\" do livro *Saint Seiya Online - Story*: uma pasta por facção ou tipo de conteúdo, "
+                "nomes em português. Renders 3D (frente, lado e costas, pose T) de todos os personagens, Armaduras, NPCs, monstros e objetos do cliente "
+                "Saint Seiya Online (Seiya Reborn), feitos com Blender a partir dos arquivos .ski do jogo; cartões do Álbum, retratos, mapas e telas de "
+                "carregamento do próprio jogo; os vídeos, as músicas e as vozes do cliente; a arte conceitual oficial (seiya.wanmei.com, via Wayback Machine) "
+                "e as imagens da cobertura do CavZodiaco.com.br, por matéria. `index.json` traz, para cada arquivo, o nome chinês original, o nome em "
+                "português e a origem.\n\n")
         for k, v in PT_FOLDER.items():
-            n = sum(1 for i in index if i["folder"] == k)
+            n = sum(1 for i in index if i.get("folder_key") == k)
             if n:
-                f.write("- `%s/` - %s (%d itens)\n" % (k, v, n))
+                f.write("- `%s/` - %d itens\n" % (v, n))
         f.write("\nGerado por `angelica/render/organize.py` do repositório games-extractor.\n")
     counts = {}
     for i in index:
-        counts[i["folder"]] = counts.get(i["folder"], 0) + 1
+        counts[i["folder_key"]] = counts.get(i["folder_key"], 0) + 1
     print("%d rendered characters, %d index entries" % (n_jobs, len(index)))
     for k, v in sorted(counts.items()):
         print("  %-20s %d" % (k, v))

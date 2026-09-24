@@ -53,7 +53,7 @@ PT_FOLDER = {
     "others": "Outros personagens", "npcs": "NPCs genéricos", "pets": "Pets", "monsters": "Monstros e feras",
     "artifacts": "Relíquias e armas", "skill-effects": "Efeitos de habilidades", "scenery-and-props": "Cenários e objetos",
     "cutscene-props": "Objetos das cinemáticas", "world-maps": "Mapas do mundo", "loading-screens": "Telas de carregamento",
-    "videos": "Vídeos", "music": "Músicas", "voice": "Vozes", "concept-art": "Arte conceitual oficial", "press": "Imprensa (CavZodiaco)",
+    "videos": "Vídeos", "video-frames": "Quadros dos vídeos", "music": "Músicas", "voice": "Vozes", "concept-art": "Arte conceitual oficial", "press": "Imprensa (CavZodiaco)",
     "cloth-objects": "Armaduras em forma de objeto (totens e urnas)", "site-art": "Arte conceitual dos sites",
 }
 # folder names used by the first version of the gallery (English); removed when found
@@ -214,7 +214,7 @@ def main():
     ap.add_argument("--concept-dir", help="folder with extra concept-art files (e.g. the xzsds scans)")
     ap.add_argument("--library", help="root of the Saint Seiya Cloth Schemes library (official game images listed in story_config.LIB_OFFICIAL)")
     ap.add_argument("--sites-dir", help="folder with one sub-folder per web source (web/sites) of concept art collected from other sites")
-    ap.add_argument("--videos-dir", help="write the videos (and their frames) to this folder instead of <out>/Vídeos; index paths become absolute")
+    ap.add_argument("--videos-dir", help="write the videos to this folder instead of <out>/Vídeos (absolute paths in the index); their frames stay in the gallery, in Quadros dos vídeos")
     ap.add_argument("--music-dir", help="write the music tracks and voice lines to <music-dir>/Músicas and <music-dir>/Vozes instead of the gallery; index paths become absolute")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
@@ -330,8 +330,10 @@ def main():
             folder = PT_FOLDER["videos"]
             base = namer.take(folder, slug(pt), "video:" + f)
             if a.videos_dir:  # videos live outside the gallery (e.g. the Nextcloud Videos folder): absolute paths in the index
-                vout, rel, frame = a.videos_dir, os.path.join(a.videos_dir, base + ".mp4"), os.path.join(a.videos_dir, base + "-quadro.jpg")
+                vout, rel = a.videos_dir, os.path.join(a.videos_dir, base + ".mp4")
+                frame = "%s/%s-quadro.jpg" % (PT_FOLDER["video-frames"], base)  # pictures stay in the (pictures-only) gallery
                 os.makedirs(vout, exist_ok=True)
+                os.makedirs(os.path.join(out, PT_FOLDER["video-frames"]), exist_ok=True)
                 copy(os.path.join(vd, f), rel)
             else:
                 rel = "%s/%s.mp4" % (folder, base)

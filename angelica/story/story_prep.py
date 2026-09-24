@@ -18,17 +18,16 @@ def qrec(q):
             "delv": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["delv"].get("windows", [])],
             "award": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["award"].get("windows", [])],
             "unq": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["unq"].get("windows", [])]}
-used = set(); sigs = set()
+used = set(); sigs = {}; dup_ids = []; dup_of = {}
 def collect(ranges, need_desc=True):
     out = []
     for lo, hi in ranges:
         for i in range(lo, hi + 1):
             q = byid.get(i)
             if not q or i in used or is_system(q): continue
-            if not q.get("descript") and not (q["delv"].get("windows") or q["award"].get("windows") or q["unq"].get("windows")): continue
-            sig = (q.get("name"), q.get("descript"), json.dumps(q["delv"], ensure_ascii=False), json.dumps(q["award"], ensure_ascii=False))
-            if sig in sigs: used.add(i); continue
-            sigs.add(sig); used.add(i); out.append(qrec(q))
+            sig = (q.get("name"), q.get("descript"), json.dumps(q["delv"], ensure_ascii=False), json.dumps(q["award"], ensure_ascii=False), json.dumps(q["unq"], ensure_ascii=False))
+            if sig in sigs: used.add(i); dup_ids.append(i); dup_of[i] = sigs[sig]; continue
+            sigs[sig] = i; used.add(i); out.append(qrec(q))
     return out
 story_re = re.compile(r"^A história d[eoa] (.+?) \((\d+)/(\d+)\)$")
 # 1. partes
@@ -71,14 +70,25 @@ for q in Q:
 rest = collections.OrderedDict()
 for q in Q:
     if q["id"] in used or is_system(q): continue
-    if not q.get("descript") and not (q["delv"].get("windows") or q["award"].get("windows") or q["unq"].get("windows")): continue
-    sig = (q.get("name"), q.get("descript"), json.dumps(q["delv"], ensure_ascii=False), json.dumps(q["award"], ensure_ascii=False))
-    if sig in sigs: continue
-    sigs.add(sig); used.add(q["id"])
+    sig = (q.get("name"), q.get("descript"), json.dumps(q["delv"], ensure_ascii=False), json.dumps(q["award"], ensure_ascii=False), json.dumps(q["unq"], ensure_ascii=False))
+    if sig in sigs: dup_ids.append(q["id"]); dup_of[q["id"]] = sigs[sig]; continue
+    sigs[sig] = q["id"]; used.add(q["id"])
     blk = q["id"] // 1000 * 1000
     rest.setdefault(blk, []).append(qrec(q))
 others = [{"block": f"IDs {k}–{k+999}", "quests": v} for k, v in sorted(rest.items())]
-tests = sum(1 for q in Q if is_system(q))
+# 5b. missões de teste dos desenvolvedores (padrões SYSTEM_PATTERNS): também entram, num apêndice próprio
+test_rest = collections.OrderedDict()
+for q in Q:
+    if not is_system(q): continue
+    blk = q["id"] // 1000 * 1000
+    test_rest.setdefault(blk, []).append(qrec(q))
+tests_q = [{"block": f"IDs {k}–{k+999}", "quests": v} for k, v in sorted(test_rest.items())]
+tests = sum(len(b["quests"]) for b in tests_q)
+def nwin(q): return len(q["delv"]) + len(q["award"]) + len(q["unq"])
+all_recs = [q for p in parts for sct in p["sections"] for q in sct["quests"] + [x for a in sct["alts"] for x in a["quests"]]] + [q for st in char_stories for q in st["quests"]] + [q for sd in side for q in sd["quests"]] + [q for v in cloth_q.values() for q in v] + [q for b in others for q in b["quests"]] + [q for b in tests_q for q in b["quests"]]
+total_win = sum(len(q["delv"].get("windows", [])) + len(q["award"].get("windows", [])) + len(q["unq"].get("windows", [])) for q in Q)
+qstats = {"quests_total": len(Q), "quests_in_doc": len(all_recs), "duplicates_dropped": len(dup_ids), "windows_total": total_win, "windows_in_doc": sum(nwin(q) for q in all_recs)}
+print("STATS", qstats)
 
 # 6. fotolivro: personagens, armaduras, lugares
 LANG = {}
@@ -161,7 +171,7 @@ for label, keys in KEYS:
         n1 = [npc[z] for z in npc if k in z or k.lower() in npc[z].lower()][:3]; m1 = [mon[z] for z in mon if k in z or k.lower() in mon[z].lower()][:3]; c1 = sum(1 for z in cfg if k in z); q1 = qtext.count(k)
         if n1 or m1 or c1 or q1: hits.append(f"{k}: NPC {n1} | monstros {m1} | {c1} entradas de config | {q1} quests")
     coverage.append({"item": label, "found": bool(hits), "detail": "; ".join(hits)[:500]})
-data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests,
+data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests, "tests_q": tests_q, "stats": qstats, "duplicates": [{"id": i, "name": clean(byid[i].get("name")), "of": o} for i, o in sorted(dup_of.items())],
         "pb_chars": pb_chars, "bios_common": bios_common, "pb_texts": pb_texts, "cards": cards, "unmapped_cards": unmapped, "portraits": portraits,
         "gallery": gallery, "gallery_folders": gallery_folders, "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
         "npc_count": len(npc), "mon_count": len(mon), "out": OUT}

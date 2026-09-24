@@ -274,6 +274,22 @@ def main():
             index.append({"kind": "loading-screen", "zh": "", "en": base, "pt": base, "folder": "loading-screens", "base": base,
                           "files": {"image": rel}})
 
+    # remove files from earlier runs that are no longer in the index (renamed or reclassified)
+    keep = {os.path.join(out, rel) for it in index for rel in it["files"].values()}
+    removed = 0
+    for folder in set(PT_FOLDER) | {i["folder"] for i in index}:
+        d = os.path.join(out, folder)
+        if not os.path.isdir(d):
+            continue
+        for f in os.listdir(d):
+            fp = os.path.join(d, f)
+            if os.path.isfile(fp) and fp not in keep:
+                os.remove(fp)
+                removed += 1
+        if not os.listdir(d):
+            os.rmdir(d)
+    if removed:
+        print("removed %d stale files" % removed)
     with open(os.path.join(out, "index.json"), "w", encoding="utf-8") as f:
         json.dump({"folders": PT_FOLDER, "items": index}, f, ensure_ascii=False, indent=1)
     shutil.copy2(os.path.join(out, "index.json"), os.path.join(dump, "text/gallery_index.json"))

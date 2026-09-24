@@ -54,7 +54,6 @@ function startDoc(num, title) {
   for (const [n, t] of VOLUMES) c.push(P([run(`${n} - ${t}`, { size: 17, bold: n === num, color: n === num ? '1F3864' : '595959' })], { spacing: { after: 20 } }));
   c.push(PB());
   c.push(new Paragraph({ spacing: { after: 200 }, children: [run('Sumário', { size: 34, bold: true, color: '1F3864' })] }));
-  c.push(P([run('(No Word, clique com o botão direito no sumário abaixo e escolha "Atualizar campo" para ver as páginas.)', { size: 16, italics: true, color: '7F7F7F' })]));
   c.push(new TableOfContents('Sumário', { hyperlink: true, headingStyleRange: '1-2' }));
   c.push({ __summary_placeholder: true });
   c.push(PB());
@@ -330,7 +329,11 @@ c.push(PB()); c.push(H1('Apêndice E: cobertura das Notas de Pesquisa'));
 c.push(P('Confronto entre o que o documento "Saint Seiya Online - Notas de Pesquisa" e o "Surplices - Saint Seiya Online" citam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português).'));
 c.push(table([3000, 900, W - 3900], [['Item das notas', 'No jogo?', 'Onde aparece'], ...D.coverage.map(x => [x.item, x.found ? 'sim' : 'não', x.detail])], { size: 14 }));
 c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${new Set(playerSets.map(x => x.zh)).size} conjuntos jogáveis (Armaduras, Escamas e Sapuris) e ${npcRendersAll.length} modelos de NPC foram renderizados em 3D a partir dos arquivos do cliente.`));
-const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } } },
+const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } }, paragraphStyles: [  // outline levels so LibreOffice's table of contents finds the headings
+    { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { size: 32, color: '2E74B5' }, paragraph: { outlineLevel: 0 } },
+    { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { size: 26, color: '2E74B5' }, paragraph: { outlineLevel: 1 } },
+    { id: 'Heading3', name: 'Heading 3', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { size: 24, color: '1F4D78' }, paragraph: { outlineLevel: 2 } },
+    { id: 'Heading4', name: 'Heading 4', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { italics: true, color: '2E74B5' }, paragraph: { outlineLevel: 3 } }] },
   numbering: { config: [{ reference: 'bul', levels: [{ level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT, style: { paragraph: { indent: { left: 540, hanging: 300 } } } }] }] },
   sections: [{ properties: { page: { margin: { top: 1134, bottom: 1134, left: 1417, right: 1417 } } }, footers: { default: new Footer({ children: [new Paragraph({ alignment: AlignmentType.CENTER, children: [new TextRun({ children: [PageNumber.CURRENT], font: FONT, size: 16, color: '808080' })] })] }) }, children: children.filter(Boolean) }] });
 (async () => {

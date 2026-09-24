@@ -90,6 +90,9 @@ hand (see `docs/FIT_INSTRUCTIONS.md`, `translation/fit/`) and checked by `check_
 
 ## Story books and picture library (tools/)
 
+The books are delivered as LibreOffice `.odt` (converted by `../tools/docx_to_odt.py`, which also fills in the table of contents with page numbers). The patch tools below work on `.docx`: convert with `soffice --headless --convert-to docx BOOK.odt`, patch, then convert back with `docx_to_odt.py`.
+
+
 - `tools/story/add_summaries.py BOOK.docx SUMMARIES.json` - adds a "Conteúdo deste livro" page (one line per chapter) after the table of contents of an existing .docx.
 - `tools/story/add_content.py BOOK.docx SPEC.json [--before "Heading"]` - appends or inserts headings, paragraphs, dialogue lines, tables and image grids into an existing .docx without any library; SPEC may be a list of anchored insertions (`before` a heading, `after_para` a paragraph, `replace_para` to rewrite one). Used to add the text the first build had missed (per-string review reports live next to each dump as `text/story_review_<date>.json`).
 - `tools/story/image_appendix.py BOOK.docx DUMP_DIR bank_labels_pt.json GAME_KEY OUT.json --before "Heading" --pictures "..."` - builds the "Apêndice: galeria de imagens do cartucho" spec (every dumped image the book does not show yet, bank by bank) for add_content.py.

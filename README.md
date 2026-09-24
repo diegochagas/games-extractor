@@ -10,3 +10,7 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 | `angelica/` | Perfect World "Angelica" engine clients (built for **Saint Seiya Online**, the Seiya Reborn client) | Unpacks the `.pck` archives, converts every texture to PNG, dumps all in-game text (LANG files, quests, NPCs), builds an HTML/CSV image index, a Word image index and the Word story book, and renders every 3D character (front/side/back T pose) with Blender into a faction-organised gallery. See `angelica/README.md`. |
 
 Both were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
+
+## Shared tools
+
+- `tools/docx_to_odt.py [--out-dir DIR] [--drop-paragraph PREFIX] [--trash] FILE.docx...` - converts generated .docx documents to LibreOffice .odt through a private headless LibreOffice, giving heading styles their outline levels and updating the table of contents so it shows page numbers.

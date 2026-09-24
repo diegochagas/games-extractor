@@ -54,6 +54,7 @@ PT_FOLDER = {
     "artifacts": "Relíquias e armas", "skill-effects": "Efeitos de habilidades", "scenery-and-props": "Cenários e objetos",
     "cutscene-props": "Objetos das cinemáticas", "world-maps": "Mapas do mundo", "loading-screens": "Telas de carregamento",
     "videos": "Vídeos", "music": "Músicas", "voice": "Vozes", "concept-art": "Arte conceitual oficial", "press": "Imprensa (CavZodiaco)",
+    "cloth-objects": "Armaduras em forma de objeto (totens e urnas)", "site-art": "Arte conceitual dos sites",
 }
 # folder names used by the first version of the gallery (English); removed when found
 OLD_FOLDERS = ["athena-saints", "hades-specters", "poseidon-mariners", "odin-god-warriors", "odin-blue-warriors", "lamech-servants",
@@ -89,6 +90,8 @@ def has(name, words):
 
 def classify(job):
     name = job["name"]
+    if job["category"] == "object":
+        return "cloth-objects"
     if job["category"] == "player":
         if has(name, LAMECH):
             return "lamech-servants"
@@ -210,6 +213,7 @@ def main():
     ap.add_argument("--names", default="text/names_zh_en_pt.json")
     ap.add_argument("--concept-dir", help="folder with extra concept-art files (e.g. the xzsds scans)")
     ap.add_argument("--library", help="root of the Saint Seiya Cloth Schemes library (official game images listed in story_config.LIB_OFFICIAL)")
+    ap.add_argument("--sites-dir", help="folder with one sub-folder per web source (web/sites) of concept art collected from other sites")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
     out = os.path.abspath(a.out)
@@ -414,6 +418,29 @@ def main():
             copy(src, os.path.join(out, rel))
             index.append({"kind": "concept-art", "zh": "", "en": rel_src, "pt": pt, "note": note + " (biblioteca Saint Seiya Cloth Schemes)", "site_key": key,
                           "folder": folder, "folder_key": "concept-art", "base": base, "files": {"image": rel}, "source": rel_src})
+
+    if a.sites_dir and os.path.isdir(a.sites_dir):
+        from story_config import SITE_ART_NOTES
+        folder = PT_FOLDER["site-art"]
+        for src_name in sorted(os.listdir(a.sites_dir)):
+            sd = os.path.join(a.sites_dir, src_name)
+            if not os.path.isdir(sd):
+                continue
+            for f in sorted(os.listdir(sd)):
+                if not f.lower().endswith((".jpg", ".jpeg", ".png", ".webp")):
+                    continue
+                try:
+                    from PIL import Image
+                    Image.open(os.path.join(sd, f)).verify()
+                except Exception:
+                    continue
+                stem = os.path.splitext(f)[0]
+                pt, note = SITE_ART_NOTES.get(stem, (stem.replace("_", " "), ""))
+                base = namer.take(folder, slug(src_name + " " + pt), "site:" + src_name + "/" + f)
+                rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+                copy(os.path.join(sd, f), os.path.join(out, rel))
+                index.append({"kind": "site-art", "zh": "", "en": stem, "pt": pt, "note": note, "site": src_name, "folder": folder, "folder_key": "site-art",
+                              "base": base, "files": {"image": rel}, "source": src_name + "/" + f})
 
     # 7. press coverage (CavZodiaco articles collected by angelica/web/cavzodiaco.py)
     pj = os.path.join(dump, "web/cavzodiaco/articles.json")

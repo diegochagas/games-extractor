@@ -3,7 +3,7 @@
 """Monta story.json para o documento 'Saint Seiya Online - Story' a partir do dump em ~/Downloads/Seiya."""
 import os, sys, re, json, csv, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS, PRESS_NOTES, DA_NOTES, LIB_OFFICIAL
+from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS, PRESS_NOTES, DA_NOTES, LIB_OFFICIAL, SITE_ART_NOTES, FANDOM_NOTES, SITE_INTROS
 OUT = os.path.expanduser("~/Downloads/Seiya"); T = OUT + "/text"
 GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Downloads/Saint Seiya Online - Galeria de Imagens"))  # saída de angelica/render/organize.py
 WORK = sys.argv[1] if len(sys.argv) > 1 else "."
@@ -196,7 +196,8 @@ for label, keys in KEYS:
     coverage.append({"item": label, "found": bool(hits), "detail": "; ".join(hits)[:500]})
 data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quests": cloth_q, "others": others, "tests": tests, "tests_q": tests_q, "stats": qstats, "duplicates": [{"id": i, "name": clean(byid[i].get("name")), "of": o} for i, o in sorted(dup_of.items())],
         "pb_chars": pb_chars, "bios_common": bios_common, "pb_texts": pb_texts, "cards": cards, "unmapped_cards": unmapped, "portraits": portraits,
-        "gallery": gallery, "gallery_folders": gallery_folders, "npc_models": npc_models, "site_saints": site_saints, "boss_voices": boss_voices, "press_notes": PRESS_NOTES, "da_notes": DA_NOTES, "lib_official": LIB_OFFICIAL,
+        "gallery": gallery, "gallery_folders": gallery_folders, "npc_models": npc_models, "site_saints": site_saints, "boss_voices": boss_voices, "press_notes": PRESS_NOTES, "da_notes": DA_NOTES, "lib_official": LIB_OFFICIAL, "fandom_notes": FANDOM_NOTES, "site_intros": SITE_INTROS,
+        "sites": (json.load(open(OUT + "/web/sites/sources.json", encoding="utf-8")) if os.path.exists(OUT + "/web/sites/sources.json") else {}),
         "deviantart": (json.load(open(OUT + "/web/deviantart/cerberus-rack-saint-seiya-online.json", encoding="utf-8")) if os.path.exists(OUT + "/web/deviantart/cerberus-rack-saint-seiya-online.json") else []), "bg": {f.split(".")[0]: "images/surfaces/background/" + f for f in os.listdir(OUT + "/images/surfaces/background") if f.startswith("loading")},
         "worldmaps": {f.split(".")[0]: "images/surfaces/maps/worldmaps/" + f for f in os.listdir(OUT + "/images/surfaces/maps/worldmaps")},
         "site_root": os.environ.get("SSC_SITE", os.path.expanduser("~/Projects/saintseiyacloths/public")), "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,

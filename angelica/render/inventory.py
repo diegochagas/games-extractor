@@ -218,6 +218,42 @@ def player_jobs(models, images_models, tex_index):
     return jobs
 
 
+def object_jobs(models, images_models, tex_index):
+    """Cloth object forms (players/道具/圣衣组合版), cloth boxes (players/道具/圣衣箱) and the
+    other assembled-cloth models: one job per .smd, category "object"."""
+    jobs = []
+    seen = set()
+    roots = [("players/道具/圣衣组合版", "cloth-object"), ("players/道具/圣衣箱", "cloth-box"),
+             ("特效用ecm/狮子座圣衣组合版", "cloth-object"), ("矿物/海龙座鳞衣组合版", "cloth-object")]
+    for rel_root, group in roots:
+        root_dir = os.path.join(models, rel_root)
+        if not os.path.isdir(root_dir):
+            continue
+        for root, _dirs, files in os.walk(root_dir):
+            for f in sorted(files):
+                if not f.lower().endswith(".smd"):
+                    continue
+                try:
+                    info = parse_smd(os.path.join(root, f))
+                except ValueError:
+                    continue
+                skis = [os.path.join(root, s) for s in info["skis"] if os.path.exists(os.path.join(root, s))]
+                if not skis or tuple(sorted(skis)) in seen:
+                    continue
+                seen.add(tuple(sorted(skis)))
+                parts = []
+                for s in skis:
+                    part, err = texture_map(s, tex_index, os.path.join(images_models, os.path.relpath(s, models)))
+                    if not err:
+                        parts.append(part)
+                if parts:
+                    rel = os.path.relpath(root, models)
+                    jobs.append({"id": "objects/" + os.path.join(rel, os.path.splitext(f)[0]).replace(os.sep, "/"),
+                                 "category": "object", "group": group, "folder": rel.replace(os.sep, "/"),
+                                 "name": os.path.splitext(f)[0], "parts": parts})
+    return jobs
+
+
 def main(argv):
     if len(argv) != 2:
         print(__doc__)
@@ -226,13 +262,13 @@ def main(argv):
     models = os.path.join(dump, "packages", "models")
     images_models = os.path.join(dump, "images", "models")
     tex_index = TextureIndex(images_models)
-    jobs = npc_jobs(models, images_models, tex_index) + player_jobs(models, images_models, tex_index)
+    jobs = npc_jobs(models, images_models, tex_index) + player_jobs(models, images_models, tex_index) + object_jobs(models, images_models, tex_index)
     with open(out, "w", encoding="utf-8") as f:
         json.dump(jobs, f, ensure_ascii=False, indent=1)
     missing = sum(len(p["missing"]) for j in jobs for p in j["parts"])
-    print("%d jobs (%d npc, %d player), %d missing textures"
+    print("%d jobs (%d npc, %d player, %d object), %d missing textures"
           % (len(jobs), sum(j["category"] == "npc" for j in jobs),
-             sum(j["category"] == "player" for j in jobs), missing))
+             sum(j["category"] == "player" for j in jobs), sum(j["category"] == "object" for j in jobs), missing))
     return 0
 
 

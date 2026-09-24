@@ -33,6 +33,8 @@ GROUP_ORDER = [
 def job_rank(job):
     if job["category"] == "player":
         return (0, job["group"], job["name"])
+    if job["category"] == "object":
+        return (0, "z-object", job["id"])
     try:
         g = GROUP_ORDER.index(job["group"])
     except ValueError:
@@ -48,7 +50,7 @@ def main():
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--size", type=int, default=1000)
     ap.add_argument("--samples", type=int, default=64)
-    ap.add_argument("--category", choices=["npc", "player"])
+    ap.add_argument("--category", choices=["npc", "player", "object"])
     ap.add_argument("--force", action="store_true")
     a = ap.parse_args()
 

@@ -97,6 +97,10 @@ const groupTitle = { ouro: 'Cavaleiros de Ouro', bronze: 'Cavaleiros de Bronze',
 const G = D.gallery || [];
 const playerSets = G.filter(x => x.kind === 'render' && x.category === 'player');
 const npcRendersAll = G.filter(x => x.kind === 'render' && x.category === 'npc');
+const objectRenders = G.filter(x => x.kind === 'render' && x.category === 'object');
+function objectsFor(card) { const zh = card.zh, g = card.group; let key = zh; if (g === 'arm_ouro') key = zh.replace('圣衣', ''); else if (g === 'arm_divina') key = zh.replace(/^神/, ''); else if (g === 'escama') key = zh.replace(/座$/, ''); const base = key.replace(/座$/, '');
+  return objectRenders.filter(o => { const n = o.zh; if (!n.includes(base)) return false; if (g === 'sapuris') return n.includes('冥'); if (g === 'arm_divina') return /神圣衣|神/.test(n) && !n.includes('冥'); if (g === 'arm_ouro') return !n.includes('冥') && !n.includes('神'); if (g === 'arm_bronze' || g === 'arm_prata') return !n.includes('冥') && !n.includes('神圣衣'); return true; }); }
+function objectRows(items, label = 'forma de objeto') { const out = []; for (const o of items) { const files = []; for (const v of ['front', 'side', 'back']) if (o.files[v]) files.push({ file: o.files[v], label: o.pt + ' · ' + VIEW_PT[v] }); const r = imgRow(files, 140, 170); if (r) { out.push(P([run(label + ': ' + o.pt, { bold: true, size: 18 }), run('  ' + o.zh, { size: 14, color: '7F7F7F' })], { spacing: { before: 80, after: 20 }, keepNext: true })); out.push(r); } } return out; }
 const VIEW_PT = { front: 'frente', side: 'lado', back: 'costas' };
 const shownChars = new Set();
 const CHAR_ZH = { 'Saori Kido': ['城户纱织', '城户沙织', '婴儿沙织', '雅典娜神圣衣'], 'Julian Solo': ['朱利安'], 'Hades': ['冥王哈迪斯'], 'Mu': ['白羊座穆'], 'Aldebaran': ['阿鲁迪巴', '黄金圣斗士金牛座'], 'Saga': ['撒加'], 'Máscara da Morte': ['迪斯马斯克'], 'Aioria': ['艾欧里亚'], 'Shaka': ['沙加'], 'Dohko': ['童虎'], 'Miro': ['米罗'], 'Aioros': ['艾欧罗斯', '射手座便装'], 'Shura': ['修罗'], 'Camus': ['卡妙'], 'Afrodite': ['阿布罗狄'], 'Shion': ['史昂'], 'Orfeu': ['奥路菲', '天琴座神圣衣'], 'Marin': ['魔铃'], 'Shina': ['莎尔娜'], 'Deus · Seiya': ['星矢'], 'Deus · Shiryu': ['紫龙'], 'Deus · Hyoga': ['冰河'], 'Deus · Shun': ['瞬'], 'Deus · Ikki': ['一辉'], 'Nachi': ['那智'], 'Geki': ['檄'], 'Ban': ['幼狮座蛮'], 'Ichi': ['水蛇座市'], 'Jabu': ['邪武'], 'June': ['珍妮'], 'Pégasus Negro': ['黑暗天马'], 'Dragão Negro': ['黑暗天龙'], 'Cisne Negro': ['黑暗白鸟'], 'Andrômeda Negro': ['黑暗仙女'], 'Jango': ['强戈'], 'Mino': ['美惠'], 'Cássios': ['卡西欧士'], 'Kiki': ['贵鬼'], 'Shunrei': ['春丽'], 'Esmeralda': ['艾丝美拉达'], 'Guilty': ['基鲁提'], 'Kanon': ['加隆'], 'Krishna': ['克修拉'], 'Sorento': ['苏兰特', '海魔女鳞衣'], 'Thetis': ['美人鱼'], 'Radamanthys': ['拉达曼提斯'], 'Aiacos': ['艾亚哥斯', '天雄星'], 'Minos': ['米洛斯', '天贵星'], 'Pandora': ['潘多拉'],
@@ -200,15 +204,19 @@ function setRows(items) { // one row per cloth set: male front/side/back + femal
   }
   return out;
 }
-const usedSets = new Set();
+const usedSets = new Set(); const usedObjects = new Set();
 for (const [g, title] of groupsA) {
   c.push(H2(title)); const items = D.cards.filter(k => k.group === g);
   for (const k of items) {
     c.push(H3(`${k.pt} (${k.zh})`)); const t = D.pb_texts[k.pt] || D.pb_texts[k.pt.replace(/ \(.*$/, '')]; if (t) c.push(P(t));
     const r1 = imgRow([{ file: IMGROOT + k.file, label: 'Cartão do Álbum' }], 150, 200); if (r1) c.push(r1);
+    const objs = objectsFor(k); objs.forEach(o => usedObjects.add(o.zh)); c.push(...objectRows(objs));
     const sets = setsFor(k); sets.forEach(x => usedSets.add(x.zh)); c.push(...setRows(sets));
   }
 }
+c.push(H2('As Armaduras em forma de objeto (totens) e as urnas'));
+c.push(P('O cliente traz o modelo de cada Armadura montada na sua forma de objeto (pasta models/players/道具/圣衣组合版: "versão montada", 组合版/拼装版) e as urnas (圣衣箱, Pandora Box) de cada classe. Acima, cada totem já aparece junto do seu cartão; aqui estão os que não têm cartão no Álbum e todas as urnas, renderizados de frente, de lado e de costas.'));
+c.push(...objectRows(objectRenders.filter(o => !usedObjects.has(o.zh))));
 c.push(H2('Conjuntos jogáveis sem cartão no Álbum'));
 c.push(P('Os demais conjuntos de Armadura, Escama e Sapuris que existem nos arquivos do cliente (equipamentos iniciais, roupas de treino, versões de transição, Armaduras de Prata sem cartão, as Sapuris das classes jogáveis, os servos de Lamech e conjuntos de eventos).'));
 c.push(...setRows(playerSets.filter(x => !usedSets.has(x.zh))));
@@ -222,7 +230,7 @@ c.push(P([run('Todas as missões de obtenção, com descrição e diálogos comp
 for (const [k, title] of [['bronze', 'Armaduras de Bronze'], ['prata', 'Armaduras de Prata'], ['ouro', 'Armaduras de Ouro'], ['sapuris', 'Sapuris']]) { c.push(H3(title)); for (const q of D.cloth_quests[k]) c.push(...questBlock(q, true)); }
 startDoc('04', 'Galeria de modelos 3D'); c.push(H1('Galeria de modelos 3D'));
 c.push(P('Todos os modelos da pasta models/npcs do cliente (personagens, NPCs, monstros, pets, relíquias, efeitos de habilidades, cenários e objetos das cinemáticas), renderizados de frente em pose T. Os arquivos completos (frente, lado e costas, 1000 px) estão na pasta "Saint Seiya Online - Galeria de Imagens", com os mesmos títulos de seção deste volume; a legenda é a tradução do nome interno em chinês (nomes entre parênteses ou em pinyin quando o jogo não dá um nome).'));
-for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = npcRendersAll.filter(x => (x.folder_key || x.folder) === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt + (x.zh ? ' · ' + x.zh : '') })), 110, 150); if (r) c.push(r); } }
+for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = (folder === 'cloth-objects' ? objectRenders : npcRendersAll).filter(x => (x.folder_key || x.folder) === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt + (x.zh ? ' · ' + x.zh : '') })), 110, 150); if (r) c.push(r); } }
 // ---------- mídia ----------
 startDoc('05', 'Vídeos, músicas, arte conceitual e imprensa');
 const G2 = D.gallery || []; const fmtDur = s => { s = Math.round(s || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -241,6 +249,15 @@ c.push(table([3200, 3200, W - 6400], [['Personagem (pt)', 'Nome no arquivo', 'Ar
 c.push(H1('Arte conceitual e material oficial'));
 c.push(P('As três folhas de arte conceitual (圣衣设定, "xzsds") guardadas na biblioteca Saint Seiya Cloth Schemes vêm do site oficial chinês seiya.wanmei.com; a identificação abaixo foi feita comparando cada desenho com os modelos 3D do jogo. Em seguida, o que a Wayback Machine guardou das galerias do site oficial (arte original, papéis de parede e capturas de tela). Tudo está na pasta "Arte conceitual oficial" da galeria.'));
 for (const a of G2.filter(x => x.kind === 'concept-art')) { const im = IMG(a.files.image, 620, 460); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.note ? ' — ' + a.note : ''))); }
+c.push(H1('Arte conceitual e material de outros sites'));
+c.push(P('Imagens e informações reunidas em outros sites sobre o jogo, por fonte. As imagens repetidas em mais de um site foram guardadas uma vez, na melhor resolução encontrada; os endereços originais estão em cada fonte. Tudo está na pasta "Arte conceitual dos sites" da galeria.'));
+for (const [key, src] of Object.entries(D.sites || {})) {
+  c.push(H2(src.title)); c.push(P([run(src.note, { size: 19 })])); c.push(P([run(src.url, { size: 14, color: '7F7F7F' })]));
+  const intro = (D.site_intros || {})[key]; if (intro) c.push(P([run(intro, { size: 18 })]));
+  const items = G2.filter(x => x.kind === 'site-art' && x.site === key);
+  for (const a of items) { const im = IMG(a.files.image, 600, 440); if (!im) continue; c.push(im); c.push(cap(a.pt + (a.note ? ' — ' + a.note : ''))); }
+  if (key === 'fandom') { for (const [t, txt] of Object.entries(D.fandom_notes || {})) { c.push(P([run(t, { bold: true, size: 19 })], { spacing: { before: 100, after: 20 }, keepNext: true })); c.push(P([run(txt, { size: 18 })])); } }
+}
 c.push(H1('A cobertura do CavZodiaco.com.br'));
 c.push(P('O site brasileiro CavZodiaco.com.br acompanhou o jogo de 2008 (anúncio da SEGA) a 2020 (encerramento no Brasil). Abaixo, cada matéria encontrada na busca do site por "saint seiya online", em ordem cronológica, com um resumo meu e as imagens que a matéria publicou (as imagens estão na pasta "Imprensa (CavZodiaco)" da galeria, uma subpasta por matéria; o texto integral fica no site, no endereço indicado).'));
 for (const a of G2.filter(x => x.kind === 'press')) { c.push(H3(`${a.date} · ${a.pt}`)); const note = (D.press_notes || {})[a.date]; if (note) c.push(P([run(note, { size: 18 })])); c.push(P([run(a.url, { size: 14, color: '7F7F7F' })])); for (const g of chunk(a.files.thumbs || a.files.images || [], 5)) { const r = imgRow(g.map(f => ({ file: f })), 150, 130); if (r) c.push(r); } }

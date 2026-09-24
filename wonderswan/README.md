@@ -90,7 +90,7 @@ hand (see `docs/FIT_INSTRUCTIONS.md`, `translation/fit/`) and checked by `check_
 
 ## Story books and picture library (tools/)
 
-The books are delivered as LibreOffice `.odt` (converted by `../tools/docx_to_odt.py`, which also fills in the table of contents with page numbers). The patch tools below work on `.docx`: convert with `soffice --headless --convert-to docx BOOK.odt`, patch, then convert back with `docx_to_odt.py`.
+The books are delivered as LibreOffice `.odt` (converted by the `docx-odt-convert` skill of comic-skills, which also fills in the table of contents with page numbers). The patch tools below work on `.docx`: convert with `soffice --headless --convert-to docx BOOK.odt`, patch, then convert back with that skill (`convert.py BOOK.docx --to odt --in-place --trash`).
 
 
 - `tools/story/add_summaries.py BOOK.docx SUMMARIES.json` - adds a "Conteúdo deste livro" page (one line per chapter) after the table of contents of an existing .docx.

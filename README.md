@@ -11,6 +11,6 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 
 Both were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
 
-## Shared tools
+## Document format
 
-- `tools/docx_to_odt.py [--out-dir DIR] [--drop-paragraph PREFIX] [--trash] FILE.docx...` - converts generated .docx documents to LibreOffice .odt through a private headless LibreOffice, giving heading styles their outline levels and updating the table of contents so it shows page numbers.
+The books and image indexes are delivered as LibreOffice `.odt`: the generators write `.docx`, and the `docx-odt-convert` skill of the [comic-skills](https://github.com/diegochagas/comic-skills) repo converts them (`python3 docx-odt-convert/scripts/convert.py <folder> --to odt --output <dest>`), updating the table of contents so it shows page numbers.

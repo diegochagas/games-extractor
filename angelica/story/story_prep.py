@@ -5,7 +5,7 @@ import os, sys, re, json, csv, collections
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from story_config import PARTS, SIDE_GROUPS, SYSTEM_PATTERNS, CHAPTERS, REGION_IMAGES, CARDS, PORTRAITS, PRESS_NOTES, DA_NOTES, LIB_OFFICIAL, SITE_ART_NOTES, FANDOM_NOTES, SITE_INTROS, CHAPTER_SUMMARIES
 OUT = os.path.expanduser("~/Downloads/Seiya"); T = OUT + "/text"
-GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Nextcloud/Pictures/Saint Seiya/Saint Seiya Online - Galeria de Imagens"))  # saída de angelica/render/organize.py
+GALLERY = os.environ.get("SSO_GALLERY", os.path.expanduser("~/Nextcloud/Pictures/Saint Seiya/Saint Seiya Online"))  # saída de angelica/render/organize.py
 WORK = sys.argv[1] if len(sys.argv) > 1 else "."
 
 Q = json.load(open(T + "/quests_pt-BR.json")); byid = {q["id"]: q for q in Q}

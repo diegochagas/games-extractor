@@ -87,3 +87,10 @@ exactly 20 characters x 2 lines.** Writing past that overwrites tile RAM: the ba
 rows of garbage and the game hangs. `fit.py` derives each string's box from the Japanese text and
 `build.py` never writes anything wider or taller; strings that cannot be re-wrapped are condensed by
 hand (see `docs/FIT_INSTRUCTIONS.md`, `translation/fit/`) and checked by `check_fit.py`.
+
+## Story books and picture library (tools/)
+
+- `tools/story/add_summaries.py BOOK.docx SUMMARIES.json` - adds a "Conteúdo deste livro" page (one line per chapter) after the table of contents of an existing .docx.
+- `tools/story/add_content.py BOOK.docx SPEC.json [--before "Heading"]` - appends or inserts headings, paragraphs, dialogue lines, tables and image grids into an existing .docx without any library; SPEC may be a list of anchored insertions (`before` a heading, `after_para` a paragraph, `replace_para` to rewrite one). Used to add the text the first build had missed (per-string review reports live next to each dump as `text/story_review_<date>.json`).
+- `tools/story/image_appendix.py BOOK.docx DUMP_DIR bank_labels_pt.json GAME_KEY OUT.json --before "Heading" --pictures "..."` - builds the "Apêndice: galeria de imagens do cartucho" spec (every dumped image the book does not show yet, bank by bank) for add_content.py.
+- `tools/image_index/collect.py` + `build.js` - the "Image index" document (what every extracted image is); `tools/image_index/organize_pictures.py GAMES_DIR OUT_DIR bank_labels_pt.json` - copies every dumped image into a picture library organised like that index (one folder per game, `bankNN - <label>` sub-folders, original file names); `bank_labels_pt.json` holds the Portuguese label/description of each ROM bank of the four games.

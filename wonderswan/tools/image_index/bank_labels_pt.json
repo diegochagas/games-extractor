@@ -1,0 +1,800 @@
+{
+ "1": {
+  "bank00": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de Digimon (Koromon, Agumon, Piyomon, Tentomon, Betamon, Gabumon, Frigimon, etc.); cada um aparece duas vezes, uma cópia usada no livro e uma duplicata idêntica com fundo/paleta diferente."
+  },
+  "bank01": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos de Digimon em pares duplicados (Patamon, Angemon, Elecmon, Kabuterimon, Ogremon, Togemon, Drimogemon, Meramon, Sukamon, Tanemon)."
+  },
+  "bank02": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Jyureimon, Unimon, Leomon, Monzaemon, Bakemon, Yukidarumon, Kuwagamon, Tyrannomon, Devimon, Vademon, Gomamon, Seadramon, etc.)."
+  },
+  "bank03": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares de Digimon adulto/perfeito (Airdramon, Devidramon, Vegimon, Coelamon, Kokatorimon, Ikkakumon, Tortamon, Whamon, Mojyamon, Nanimon, Nanomon, Otamamon, Pinocchimon)."
+  },
+  "bank04": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Leomon, Guardromon, Kuwagamon, Numemon, Wormmon, Gizamon, Piyomon, Seadramon, MegaSeadramon, Gigadramon, Kabuterimon, Mamemon)."
+  },
+  "bank05": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Angemon, Piccolomon, Bakemon, Meramon, Andromon, Tokomon, Digitamamon, Frigimon, Wizarmon, Demidevimon, Devimon)."
+  },
+  "bank06": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Bakemon, Etemon, Angewomon, Yuramon, Otamamon, Piyomon, Kokatorimon, Mushroomon, Garurumon, Blossomon, Woodmon, Blocos/Toy Digimon)."
+  },
+  "bank07": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Vegimon, Tokomon, Tsunomon, Kuwagamon, Hagurumon, Starmon, Tankmon, Metal Mamemon, Mekanorimon, Guardromon, Tailmon)."
+  },
+  "bank08": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Ebidramon, Wendimon, Garudamon, Devidramon, Minotarumon, Vademon, Tortamon, Sukamon, Nanomon, Chuumon, Yukidarumon); os quatro últimos são únicos (não duplicados)."
+  },
+  "bank09": {
+   "label": "Retratos de Digimon (duplicados)",
+   "kind": "portrait",
+   "desc": "Retratos em pares (Kuwagamon, Nanimon, Bakemon, Tentomon, Piyomon, Wizarmon, Agumon, Devimon, MetalGreymon, Angewomon), com fundos ciano/magenta de transparência."
+  },
+  "bank10": {
+   "label": "Retratos de Digimon únicos",
+   "kind": "portrait",
+   "desc": "Sete retratos únicos de Digimon perfeito/definitivo (Mekanorimon, Dinobeemon, Dukemon/Anjo, Boltmon, Vamdemon, Angewomon, Pegasmon)."
+  },
+  "bank11": {
+   "label": "Cutscenes da abertura",
+   "kind": "cutscene",
+   "desc": "Ilustrações de história 224x144: Ryo no computador, a luz do portal, o encontro com Agumon, a queda no penhasco e o ataque do Digimon caranguejo."
+  },
+  "bank12": {
+   "label": "Cutscenes da história",
+   "kind": "cutscene",
+   "desc": "Ilustrações de história: Ryo e Agumon, Taichi e os Digimon escolhidos, Gennai apresentando o Digivice, o Digivice brilhando, Mimi e Sora com seus parceiros."
+  },
+  "bank13": {
+   "label": "Cutscenes da história",
+   "kind": "cutscene",
+   "desc": "Ilustrações: crianças escolhidas reunidas com os parceiros, Ryo abraçando Agumon, o adeus com o céu brilhando e Ryo voltando ao computador."
+  },
+  "bank14": {
+   "label": "Cutscenes do final",
+   "kind": "cutscene",
+   "desc": "Ilustrações finais: Taichi e Sora, Ryo lutando com o Digimon caranguejo (Ebidramon), a explosão de energia, a queda pelo vórtice e o pôr do sol sobre a cidade."
+  },
+  "bank15": {
+   "label": "Casa, campo e fonte",
+   "kind": "mixed",
+   "desc": "Mistura: casa de Ryo ao pôr do sol (usada), dois campos de grama e uma sala de tatame com máquina (não usados), fonte japonesa (kanji/kana) e três sprites de efeito (cursor X, círculo escuro de máscara e pedras)."
+  },
+  "bank16": {
+   "label": "Arenas isométricas de batalha",
+   "kind": "location",
+   "desc": "Nove arenas isométricas de batalha (campo verde, deserto, neve, planalto, lava) em mosaico 448x256; cinco usadas no livro."
+  },
+  "bank17": {
+   "label": "Arenas isométricas de batalha",
+   "kind": "location",
+   "desc": "Dez arenas isométricas de batalha (bordas amarelas/azuis; deserto, água, montanhas, floresta); nenhuma usada no livro."
+  },
+  "bank18": {
+   "label": "Arenas isométricas de batalha",
+   "kind": "location",
+   "desc": "Dez arenas isométricas de batalha (grades, lava, neve, água, campo com blocos verdes); nenhuma usada no livro."
+  },
+  "bank19": {
+   "label": "Arenas isométricas de batalha",
+   "kind": "location",
+   "desc": "Três arenas isométricas de batalha (deserto, água/gelo, montanhas de lava roxa); nenhuma usada no livro."
+  },
+  "bank20": {
+   "label": "Ilustrações de garota (outro jogo?)",
+   "kind": "cutscene",
+   "desc": "Seis ilustrações não usadas: uma garota de cabelo azul, tiara e óculos (três variantes, estilo visual novel), duas cenas dela deitada na grama e uma estrada ao pôr do sol; arte parece vinda de outro jogo, não de Digimon."
+  },
+  "bank23": {
+   "label": "Retratos de Digimon adultos",
+   "kind": "portrait",
+   "desc": "Retratos únicos de Digimon adulto/perfeito (Angemon, MetalGreymon, Kabuterimon, Devidramon, Garurumon, Leomon, Nanimon, Deramon, Cyclomon, Airdramon, Okuwamon, Tortamon)."
+  },
+  "bank24": {
+   "label": "Retratos de Digimon variados",
+   "kind": "portrait",
+   "desc": "Retratos únicos: Piccolomon, Andromon, Dukemon/Gladimon, Digitama (ovo), Digimon com espada, Tyrannomon, Monochromon, Monzaemon, Vademon, Angewomon, Cyberdramon, WarGreymon."
+  },
+  "bank25": {
+   "label": "Retratos de Digimon variados",
+   "kind": "portrait",
+   "desc": "Retratos únicos: Nanimon, Kabuterimon, Yanmamon, Piccolomon jovem, Boltmon, Whamon, Nanomon, Metal Mamemon, Fugamon, Pumpkinmon, Stingmon, Deltamon."
+  },
+  "bank26": {
+   "label": "Retratos dos parceiros evoluídos",
+   "kind": "portrait",
+   "desc": "Retratos dos parceiros de Adventure evoluídos: Greymon, MetalGreymon, WarGreymon, Birdramon, Garudamon, Kabuterimon, Togemon, Lilymon, Zudomon, Angewomon, HolyAngemon."
+  },
+  "bank27": {
+   "label": "Retratos de vilões e perfeitos",
+   "kind": "portrait",
+   "desc": "Retratos únicos: MetalSeadramon, Machinedramon-like, Mugendramon, Devimon/LadyDevimon, Blossomon, Jyureimon, Monzaemon, Pinocchimon, Etemon, Garbagemon, Piedmon."
+  },
+  "bank28": {
+   "label": "Retratos de Digimon definitivos",
+   "kind": "portrait",
+   "desc": "Retratos únicos: Chuumon/Millenniummon?, Metal Etemon, Cyberdramon, Andromon, Bakemon, Deramon, Whamon, Devidramon, Dukemon/King, Vamdemon, Boltmon."
+  },
+  "bank29": {
+   "label": "Cenários do mapa",
+   "kind": "location",
+   "desc": "Telas de mapa 224x144: vilas de casinhas, praça de asfalto, lago, castelo de areia, desfiladeiro com carro, floresta e caverna de rocha."
+  },
+  "bank30": {
+   "label": "Cenários do mapa",
+   "kind": "location",
+   "desc": "Telas de mapa: casa grande, torre/fábrica de pedra, círculo mágico, templo, fortaleza com portões, mansão e coliseu no penhasco."
+  },
+  "bank31": {
+   "label": "Ícones de rosto e dois cenários",
+   "kind": "mixed",
+   "desc": "Dois cenários (ilha da torre de cristal e praça da cidade) mais 66 ícones de rosto 32x32 de Ryo, Taichi, Agumon, Yamato, Sora, Koushiro, Mimi, Jou, Takeru, Hikari e seus Digimon, cada rosto em duas expressões/paletas."
+  },
+  "bank32": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "Sprites de campo/batalha (~32x32) de dezenas de Digimon: Greymon, MetalGreymon, Garurumon, Togemon, Lilymon, Ikkakumon, Angemon, Devimon, Numemon, Vamdemon, etc. (a folha original ficou em branco por bug do gerador)."
+  },
+  "bank33": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "Sprites de campo/batalha: Kunemon, Piyomon, Andromon, Etemon, Whamon, Pumpkinmon, Penmon, Numemon, Devidramon, Agumon, Frigimon, Tailmon, etc."
+  },
+  "bank34": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "Sprites de campo/batalha: Sukamon, Tanemon, Palmon, Garudamon, Leomon, Gennai-like, Ogremon, Jellymon, Wizarmon, Otamamon, Gomamon, Tentomon, Airdramon, Meramon, etc."
+  },
+  "bank35": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "Sprites de campo/batalha: Nanimon, Yuramon, Piyomon, Mushroomon, Betamon, Woodmon, Nanomon, Guardromon, Tankmon, Starmon, Minotarumon, Kabuterimon, etc."
+  },
+  "bank36": {
+   "label": "Sprites de personagens",
+   "kind": "sprite",
+   "desc": "Sete sprites de história: Ryo, blob negro (semente/Millenniummon), Wendimon, Meramon, Guardromon, Numemon/gel verde e Tyrannomon."
+  },
+  "bank37": {
+   "label": "Sprites de Ryo e amigos",
+   "kind": "sprite",
+   "desc": "Sprites de personagens da história: Ryo andando em várias direções, Agumon, Gennai, Meramon, Guardromon, Palmon, Kuwagamon e efeitos de explosão."
+  },
+  "bank38": {
+   "label": "Sprites e efeitos de cutscene",
+   "kind": "mixed",
+   "desc": "Sprites de Ryo, Gennai, Piccolomon e Devimon, seis cópias de um Digimon-morcego pequeno, bola de fogo e pedras, mais quatro tilesheets de efeito."
+  },
+  "bank40": {
+   "label": "Título e telas de batalha",
+   "kind": "title",
+   "desc": "Telas de título DIGIMON (duas versões), cartazes WIN!!/LOSE/BATTLE, ilha-árvore em cores e em tons de cinza, moldura de TV, cenário 'Server Room', sprites do menu NEW GAME/ANODE TAMER e tiles do logo Digital Monster."
+  },
+  "bank42": {
+   "label": "Menus, ícones e fundos",
+   "kind": "ui",
+   "desc": "Janelas de diálogo, botões de menu em inglês (Move, Attack, Variable, End, Unit, Item, OK, NO, AiAttackMode, AiDefenceMode, Command, Save), três fundos de batalha (campo, mar, vórtice), 39 ícones 32x32 de técnicas e tiles de fonte."
+  },
+  "bank43": {
+   "label": "Arenas isométricas (duplicata)",
+   "kind": "location",
+   "desc": "Nove arenas isométricas idênticas às do bank16 (duplicata dos dados de arena); nenhuma usada no livro."
+  },
+  "bank44": {
+   "label": "Arenas isométricas (duplicata)",
+   "kind": "location",
+   "desc": "Dez arenas isométricas idênticas às do bank17; nenhuma usada no livro."
+  },
+  "bank45": {
+   "label": "Arenas isométricas (duplicata)",
+   "kind": "location",
+   "desc": "Dez arenas isométricas idênticas às do bank18; nenhuma usada no livro."
+  },
+  "bank46": {
+   "label": "Arenas e garota de cabelo azul",
+   "kind": "mixed",
+   "desc": "Três arenas isométricas (duplicatas do bank19, uma usada) mais outra cópia da ilustração da garota de cabelo azul do bank20, que não parece ser arte de Digimon."
+  },
+  "bank47": {
+   "label": "Logo do título e logo OZ",
+   "kind": "title",
+   "desc": "Logo DIGIMON do título (usado), tela do logo 'OZ' com WonderSwan e computador, quatro pontinhos 8x8 de cursor e o sprite da janela ANALYZE."
+  },
+  "bank49": {
+   "label": "Janelas, fontes e prédios",
+   "kind": "mixed",
+   "desc": "Janelas de texto vazias, logo 'OZ', fonte ASCII e kana com botões OK/End/Cancel, tela de VS 'Digital Monster', prédios isométricos (Leomon Colosseum, Pixi Battle Lesson, Penguimon Trading House, Digimon House, Gennai's House), composições de cutscene em fundo verde e tiles de logo."
+  }
+ },
+ "2": {
+  "bank00": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos de Digimon (Koromon, Agumon, Greymon, Devimon, Numemon, Monzaemon, Angemon, Piccolomon, Leomon, Ogremon, Etemon, etc.), todos usados no livro."
+  },
+  "bank01": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos (Garudamon, Whamon, Kunemon, Numemon, Tentomon, Kabuterimon, Bakemon, Vademon, Gomamon, Seadramon, Wizarmon, Yukidarumon, Tanemon, Pinocchimon, etc.)."
+  },
+  "bank02": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos (Digitamamon, Kuwagamon, Airdramon, Tankmon, Mekanorimon, Andromon, Minotarumon, Vegimon, Wormmon, Vamdemon, Yanmamon, Cyberdramon, etc.)."
+  },
+  "bank03": {
+   "label": "Retratos de Digimon perfeitos",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos de Digimon perfeito/definitivo (WarGreymon, MetalGarurumon, Garudamon, HolyAngemon, Angewomon, Pegasmon, Dukemon, Piedmon, Lilymon, etc.)."
+  },
+  "bank04": {
+   "label": "Retratos de Digimon e Digitama",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos (MegaSeadramon, Boltmon, Mugendramon, MetalEtemon, Blossomon, Monochromon, Pumpkinmon, Monzaemon, Jyureimon) e um Digitama (ovo)."
+  },
+  "bank05": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos monocromáticos (Garudamon, Tortamon, Ebidramon, Wendimon, Gigadramon, Devidramon, Garbagemon, Kokatorimon, Nanomon, Nanimon, Mojyamon, Metal Mamemon, Whamon, Chuumon, etc.)."
+  },
+  "bank06": {
+   "label": "Retratos dos Digimon de 02",
+   "kind": "portrait",
+   "desc": "Retratos de vilões e parceiros de Adventure 02: Kimeramon, Millenniummon, Chicomon, Chibimon, V-mon, XV-mon, Paildramon, Imperialdramon, Devimon, Vamdemon, Stingmon, Lighdramon, Fladramon, etc."
+  },
+  "bank07": {
+   "label": "Retratos e bebês Digimon",
+   "kind": "portrait",
+   "desc": "Retratos de Digimon (Digmon, Holsmon, Magnamon, Submarimon, Shurimon, Pegasmon, Nefertimon, Tailmon, Patamon) e pequenos ícones de Digimon bebê/Digitama (Botamon, Punimon, Pururumon, Poyomon) e um cristal/Dark Seed."
+  },
+  "bank08": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "77 sprites de campo/batalha de Digimon (Greymon, Garurumon, Devimon, Kabuterimon, Monzaemon, Whamon, Etemon, Numemon, etc.) mais quatro tilesheets de UI; a folha original só mostrava os tiles."
+  },
+  "bank09": {
+   "label": "Vórtice, cidade e tiles de texto",
+   "kind": "mixed",
+   "desc": "Mistura: cena do vórtice/silhueta escura e a praça isométrica (usadas), dez sprites de história (Ryo, Ken, Piccolomon, V-mon, Wormmon, Kimeramon, computador, porta) e 117 tilesheets de fonte/janela."
+  },
+  "bank10": {
+   "label": "Sprites de Digimon",
+   "kind": "sprite",
+   "desc": "43 sprites de campo/batalha de Digimon (Wizarmon, Mojyamon, Bakemon, Yuramon, Tokomon, Hagurumon, Tailmon, Angemon, Guardromon, Sukamon, etc.) e dois tilesheets."
+  },
+  "bank11": {
+   "label": "Cenários do Mundo Digital",
+   "kind": "location",
+   "desc": "Dez cenários 224x144 (vila na montanha, torre no penhasco, lago, porto, torre sagrada, cidade isométrica, ruínas) mais seis tilesheets de mapa."
+  },
+  "bank12": {
+   "label": "Cenários, globo e sala de PC",
+   "kind": "location",
+   "desc": "Cenários (torre no penhasco, cidade, parque com roda-gigante, penhascos, globo do Mundo Digital), quatro variantes da sala de computador isométrica, ícones de computador, moldura de texto vazia e cinco tilesheets; mistura de cenário e UI."
+  },
+  "bank13": {
+   "label": "Logo Digimon Link System",
+   "kind": "title",
+   "desc": "Logo 'Digimon Link System' (não usado), quatro mini-retratos emoldurados, barras 32x8 de UI, dois tilesheets e um sprite com o texto de copyright '©AKIYOSHI HONGO, TX ©2000 BANDAI'."
+  },
+  "bank14": {
+   "label": "Cutscenes do chefe e retratos",
+   "kind": "cutscene",
+   "desc": "Cenas de história: coliseu, Millenniummon no pedestal, Kimeramon, laboratório, sala de PC, retratos verticais de Ryo, V-mon, Wormmon, Agumon, Gennai e Piccolomon, explosão e linhas de impacto; também 47 sprites de Ryo/Ken andando e 45 tilesheets."
+  },
+  "bank15": {
+   "label": "Lojas, logo OZ e botões",
+   "kind": "mixed",
+   "desc": "Salão da arena, três telas do logo 'OZ' com WonderSwan, lojas isométricas (treino, loja, casa de trocas), barra de energia e sprites de botões (Login, Battle, バトル, つうしん, トレード, ポータブル) e Ryo grande."
+  },
+  "bank16": {
+   "label": "Menus de batalha e arenas",
+   "kind": "mixed",
+   "desc": "Menus de batalha em inglês (Fight/Items/Status/Tactics/Guard/Escape, Command/Offense/Balance/Defense, OK/No), fundos de vórtice e explosão, cartazes WIN!!/LOSE, onze arenas isométricas de batalha (usadas), sprite de Digitama e dois tilesheets."
+  },
+  "bank17": {
+   "label": "Janelas de status e HP",
+   "kind": "ui",
+   "desc": "Painéis 'Digital Monster' de status, moldura grande, fonte de símbolos, layouts de janela de HP/DP, sprites de setas e 'THE END', e sete tilesheets de stats (AT/DE/HP/DP)."
+  },
+  "bank18": {
+   "label": "Cenários do mapa",
+   "kind": "location",
+   "desc": "Nove cenários 224x144 (coliseu visto de cima, vulcão, lago, santuário na montanha nevada, praça isométrica, cidade, corredor, ruínas) mais sete tilesheets de mapa."
+  },
+  "bank19": {
+   "label": "Caixa 'total' e menu de opções",
+   "kind": "ui",
+   "desc": "Caixa de diálogo 'total', dois sprites pequenos de Ryo, tela de grade com menu OPTION/LOAD, tela do logo Digimon com ícone e três tilesheets de UI."
+  }
+ },
+ "3": {
+  "bank00": {
+   "label": "Arenas de batalha e HUD",
+   "kind": "mixed",
+   "desc": "As 11 arenas isométricas de batalha (deserto, floresta, mar, neve, cidade, lava…) mais o menu de comandos em inglês (Fight/Item/Stats/AI/Protect/Escape), OK/NO, WIN!!/LOSE e dois sprites de Digitama; todas as arenas já estão no livro."
+  },
+  "bank03": {
+   "label": "Sprites de batalha (cinza)",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon em tons de cinza (sem paleta de cor aplicada) para a batalha, com HUD miúdo (cursor losango, setas, HP↑) e tilesheets de efeito; nenhum aparece no livro."
+  },
+  "bank04": {
+   "label": "Sprites de batalha (cinza)",
+   "kind": "sprite",
+   "desc": "Continuação dos sprites de Digimon em cinza (32x32) usados na batalha, só quadro 0 visível; nada usado no livro."
+  },
+  "bank05": {
+   "label": "Sprites de batalha (cinza)",
+   "kind": "sprite",
+   "desc": "Mais sprites de Digimon em cinza para a batalha (níveis adulto/perfeito), mais alguns tilesheets; nada usado no livro."
+  },
+  "bank06": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon do campo/mapa (fundo verde transparente), do bebê ao perfeito; idênticos aos do Brave Tamer bank06."
+  },
+  "bank07": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon (Greymon, Angemon, Piyomon, V-mon, Wormmon…); idênticos ao Brave Tamer bank07."
+  },
+  "bank08": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon (Agumon, Gabumon, Patamon, Tailmon, Digimentals, alguns em cinza sem paleta) mais 4 tilesheets de efeito; idênticos ao Brave Tamer bank08."
+  },
+  "bank09": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon bebês/crianças (Koromon, Tsunomon, Tokomon, Hawkmon…); idênticos ao Brave Tamer bank09."
+  },
+  "bank10": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon (Guilmon, Terriermon, Digmon, Fladramon, Devimon, Vamdemon…); idênticos ao Brave Tamer bank10."
+  },
+  "bank11": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de batalha de Digimon bebês e crianças (Koromon, Poyomon, Agumon, V-mon, Gomamon…); 2 sem uso no livro (F1C2 pequeno e F510 Gomamon-like)."
+  },
+  "bank12": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de batalha (Kabuterimon, Garurumon, Digitama, Tentomon, Kuwagamon…); todos já usados no livro."
+  },
+  "bank13": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Greymon, Angemon, Birdramon, Leomon, Gabumon…); só CD7C (Digimon branco) e F060 não aparecem no livro."
+  },
+  "bank14": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de níveis adulto/perfeito (MetalGreymon, Andromon, Piyomon, Tailmon, Meramon…); só 3438 não está no livro."
+  },
+  "bank15": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (WereGarurumon, Pumpkinmon, Devimon, Ogremon, Mushroomon, Garbagemon…); todos usados no livro."
+  },
+  "bank16": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Chuumon, Agumon, Piedmon com fundo magenta, Seraphimon, Kabuterimon…); 4 sem uso: 87DC, 907A, A9A6 e BCAE (Piemon)."
+  },
+  "bank17": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de Digimon perfeitos/definitivos (Vamdemon, Etemon, Kimeramon, Digimon dourados) e bebês (Chibimon, Poromon…); 6 definitivos sem uso no livro (00FC, 3254, 41B8, 6644, 781C, A45A)."
+  },
+  "bank18": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (MetalGarurumon, V-dramon, Stingmon, Wormmon, Hawkmon, Tailmon, Digmon, Fladramon…); todos usados no livro."
+  },
+  "bank19": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Angewomon, Digimental roxo, Holsmon, Tortamon, Diablomon-like) e bebês; 5 sem uso (E04C, 4BFC, 4ED6, 5718, 012C)."
+  },
+  "bank20": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Machinedramon, Andromon, Mamemon, Monzaemon, Giromon, Tankmon…); todos usados no livro."
+  },
+  "bank21": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Wizarmon, Chuumon, Pukamon, cavaleiros de armadura 8626/96C8, Digimon-mago); 7 dos 15 não aparecem no livro (2BCA, 451A, 6854, 8176, 83B4, 8626, 96C8)."
+  },
+  "bank22": {
+   "label": "Silhuetas e flash do D-3",
+   "kind": "cutscene",
+   "desc": "Silhuetas pretas de Digimon para as cenas de revelação (017C, 9F54, 99C6, 07A6) e os dois quadros de flash do D-3 (0ED2 branco, 243C preto), mais sprites e 54 tilesheets de efeito de batalha; só a silhueta 07A6 está no livro."
+  },
+  "bank24": {
+   "label": "Ilhas flutuantes dos campos",
+   "kind": "location",
+   "desc": "Nove ilhas flutuantes de cada campo (torre D-1, cidade verde, Digimon Shop, arena azul, vulcão, deserto…) mais tilesheets de rocha; todas já estão no livro."
+  },
+  "bank25": {
+   "label": "Locais da história",
+   "kind": "location",
+   "desc": "Seis telas de local (plataforma-torre, cidade metálica, tanque, jardim de pedra, lago com fonte, arena roxa) e 3 tilesheets; todas no livro."
+  },
+  "bank26": {
+   "label": "Locais e salas de coliseu",
+   "kind": "location",
+   "desc": "Torre roxa em 3 estados, cavernas, árvore-casa, floresta, castelo e ilha (todos no livro) mais 6 salas azuis de coliseu/loja não usadas (Portable/Local/D-Terminal Colosseum, Wonder Wave, Digimon Shop) e 2 ícones de caixa de ferramentas vermelha (42C4/458A)."
+  },
+  "bank27": {
+   "label": "Locais da história",
+   "kind": "location",
+   "desc": "Onze telas de local (prisão, torre, vila toy, cidade rosa, castelo doce, deserto, ruínas, oásis…) e 1 tilesheet; todas no livro."
+  },
+  "bank28": {
+   "label": "Locais e explosões",
+   "kind": "mixed",
+   "desc": "Ilhas flutuantes com totem e torre, cavernas roxas (no livro) e dois quadros de explosão (009C fogo, 25DA branco) não usados; 2 tilesheets."
+  },
+  "bank29": {
+   "label": "Botões de menu em japonês",
+   "kind": "ui",
+   "desc": "Sprites de botões de menu em japonês (あずける, ポータブルバトル, ジョグレス, はじめから, トレード, つうしん…), cursores em losango/seta, OK e setas vermelhas; mais 65 tilesheets."
+  },
+  "bank30": {
+   "label": "Botões de menu em inglês",
+   "kind": "ui",
+   "desc": "Conjunto de botões de menu em INGLÊS (Give, Buy Item, Get Digimon, Memory Up, Shop, Deposit, Jogress, New Game, Analyzer, Use, Buy Digimental, Work Attack) misturado com os japoneses; parece resto de localização não usada."
+  },
+  "bank31": {
+   "label": "Sprites de evolução",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon/Digitama em silhueta cinza e colorida (Tokomon, planta, Patamon, brotos) usados nas cenas de evolução/nascimento."
+  },
+  "bank32": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Versão em tons de cinza (paleta mono) dos retratos do bank11/12; nenhum usado no livro."
+  },
+  "bank33": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (Kuwagamon, Greymon, Devimon, Tentomon, Piyomon…), duplicados mono do bank12/13; nenhum usado."
+  },
+  "bank34": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (MetalGreymon, Wizarmon, Garurumon, Tailmon…), duplicados mono do bank14/15; nenhum usado."
+  },
+  "bank35": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (Garbagemon, Kimeramon, Mushroomon, Tankmon…), duplicados mono do bank15/16; nenhum usado."
+  },
+  "bank36": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (Vamdemon, Etemon, Machinedramon, Wizarmon, Brachiomon…), duplicados mono do bank17/20; nenhum usado."
+  },
+  "bank37": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (Angewomon, Diablomon, MetalGarurumon, V-mon, Digmon, Fladramon…), duplicados mono do bank18/19; nenhum usado."
+  },
+  "bank38": {
+   "label": "Retratos de Digimon (mono)",
+   "kind": "portrait",
+   "desc": "Retratos em cinza (Holsmon, Andromon, Digimental, Chuumon, Pukamon, cavaleiros) mais um ícone colorido de D-3 (01B0/F9CA); nenhum usado no livro."
+  },
+  "bank39": {
+   "label": "Sprites de tamers e ícones",
+   "kind": "sprite",
+   "desc": "Sprites de crianças (Daisuke, Miyako, Iori, Takeru, Hikari, Ken…) e Digimon em cinza/cor, além de 117 tilesheets de ícones e efeitos de menu."
+  },
+  "bank40": {
+   "label": "Faces de personagens",
+   "kind": "portrait",
+   "desc": "52 faces 32x32 dos tamers (Taichi, Daisuke, Miyako, Iori, Takeru, Hikari, Ken, Yamato, Sora, Koushiro…) e de Digimon parceiros para as caixas de diálogo; 12 usadas no livro."
+  },
+  "bank41": {
+   "label": "Efeitos de transição",
+   "kind": "effect",
+   "desc": "Quadros de linha de velocidade e grade em perspectiva, texturas de fogo e névoa, sprites de cauda de ataque e 71 tilesheets de efeito de batalha."
+  },
+  "bank42": {
+   "label": "Salas e lojas",
+   "kind": "location",
+   "desc": "Ambientes internos (sala inicial, corredor, Digimon Shop, quarto com PC, sala de espera, laboratório, escadaria) mais telas verdes/magenta de posição de sprites de personagem e tilesheets; 6 das 16 no livro."
+  },
+  "bank43": {
+   "label": "Janelas e menus",
+   "kind": "ui",
+   "desc": "Janelas de mensagem, telas de status, quadros VS, lista de menus (ranking battle, ID battle, ID search, upload, TEL number) e alguns cenários (árvore na plataforma, quarto com PC, Wonder Wave); só 5 usados no livro."
+  },
+  "bank44": {
+   "label": "Lojas, quarto e título",
+   "kind": "mixed",
+   "desc": "Digimon Shop (2 versões), sala verde, quarto com cama, corredor de shop e duas versões da tela de título Digimon Adventure 02 D-1 Tamers, mais 14 tilesheets de arte de Digimon (silhuetas de ilustração)."
+  },
+  "bank45": {
+   "label": "Salas de link e conexão",
+   "kind": "ui",
+   "desc": "Salas com sinal D3/DT (Local Colosseum, quarto, D-Terminal) e as telas de conexão em Z (CONNECT) entre D-3 e computador, folha de circuito, logo Digimon Link System e 4 tilesheets de texto; 5 no livro."
+  },
+  "bank46": {
+   "label": "Abertura e ilustrações",
+   "kind": "title",
+   "desc": "Ilustrações de abertura (Imperialdramon, Digimon azul, Deramon…) em cor e em cinza, tela do PC/Windows, WELCOME DIGIMON FORTUNES, Agumon/V-mon/Wormmon, quarto, arena e mesa; 13 das 26 no livro."
+  },
+  "bank47": {
+   "label": "Sprites de personagens",
+   "kind": "sprite",
+   "desc": "Sprites coloridos e em cinza dos tamers (Daisuke, Miyako, Takeru, Hikari, Ken, Koushiro, Mimi…) e de Digimon (Agumon, Wormmon, Guardromon, engrenagens, Digitamas)."
+  },
+  "bank49": {
+   "label": "Janelas, fonte e informação",
+   "kind": "mixed",
+   "desc": "Janelas de menu (INFORMATION, ID BATTLE, RANKING, VS hexagonal, WIN!!/LOSE), tabela de fonte kana/alfabeto (71B2), telas de dados e o sprite THE END do final; nenhum no livro."
+  },
+  "bank50": {
+   "label": "Sprites de Digimon e silhuetas",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon coloridos (Monzaemon, Tentomon, Guardromon, Meramon) e silhuetas cinza de evolução; 204 quadros."
+  },
+  "bank51": {
+   "label": "Sprites de Digimon e silhuetas",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon (Digitama, Palmon, Ogremon, Devimon, fogo) com versões em silhueta cinza; 180 quadros."
+  }
+ },
+ "4": {
+  "bank00": {
+   "label": "Sprites de Digimon e texto",
+   "kind": "sprite",
+   "desc": "Sprites coloridos de Digimon (Guardromon, Terriermon, Renamon-like, Angemon, Andromon…) com fundo magenta e o texto スタートボタンおしてね!; 4 tilesheets."
+  },
+  "bank01": {
+   "label": "Salas, lojas e conexão",
+   "kind": "mixed",
+   "desc": "Digimon Shop, quarto, corredores azuis e telas de conexão com D-Ark (ランクバトル), mais telas verdes de posição de sprite e o sprite do Takato; 5 das 17 no livro."
+  },
+  "bank02": {
+   "label": "Salas e botões de menu",
+   "kind": "mixed",
+   "desc": "Salas de coliseu/D3/quarto (3 no livro), grade em perspectiva, tela ciano com sprite, botões japoneses (リロード, じょうたい, カスタマイズ, カードコンバート…), OK, seta e cursor."
+  },
+  "bank03": {
+   "label": "Faces de personagens",
+   "kind": "portrait",
+   "desc": "57 faces 32x32 dos Tamers (Takato, Ruki, Jenrya, Juri, Ryo, Hirokazu, Kenta…) e de Digimon; 42 usadas no livro."
+  },
+  "bank04": {
+   "label": "Cutscenes sépia da abertura",
+   "kind": "cutscene",
+   "desc": "Cenas em sépia da história de abertura (vila, batalhas, explosão, laboratório, torre azul) mais o cristal 08EA e o fundo 0764 não usados; 11 de 13 no livro."
+  },
+  "bank05": {
+   "label": "Cutscenes sépia e silhuetas",
+   "kind": "cutscene",
+   "desc": "Continuação das cenas sépia (dragão, sala do conselho, arena) e silhuetas (três crianças, Digitama, Impmon), praia, arena verde e cidade; todas no livro."
+  },
+  "bank06": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon compartilhados com o D-1 Tamers bank06 (Tokomon, Pumpkinmon, Gabumon, Tailmon, Angewomon…)."
+  },
+  "bank07": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon compartilhados com o D-1 Tamers bank07 (Greymon, Angemon, Piyomon, V-mon…)."
+  },
+  "bank08": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon compartilhados com o D-1 Tamers bank08 (Agumon, Gabumon, Patamon, Digimentals, alguns em cinza) e 4 tilesheets."
+  },
+  "bank09": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon bebês/crianças compartilhados com o D-1 Tamers bank09."
+  },
+  "bank10": {
+   "label": "Sprites de Digimon coloridos",
+   "kind": "sprite",
+   "desc": "Sprites de Digimon compartilhados com o D-1 Tamers bank10 (Guilmon, Terriermon, Digmon, Fladramon, Devimon…)."
+  },
+  "bank11": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos coloridos do D-1 Tamers bank11 (Adventure: Koromon, Agumon, V-mon…); 25 usados no livro."
+  },
+  "bank12": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos coloridos do D-1 Tamers bank12 (Kabuterimon, Garurumon, Tentomon…); 11 usados."
+  },
+  "bank13": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank13 (Greymon, Angemon, Birdramon…); só 1 usado no livro."
+  },
+  "bank14": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank14 (MetalGreymon, Tailmon, Meramon…); 2 usados."
+  },
+  "bank15": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank15 (WereGarurumon, Devimon, Ogremon, Garbagemon…); nenhum usado no livro."
+  },
+  "bank16": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank16 (Chuumon, Piemon, Seraphimon, Kabuterimon…); nenhum usado."
+  },
+  "bank17": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank17 (Vamdemon, Etemon, definitivos e bebês); 7 usados."
+  },
+  "bank18": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank18 (MetalGarurumon, V-dramon, Stingmon, Wormmon…); 13 usados."
+  },
+  "bank19": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank19 (Angewomon, Digimental, Holsmon…); 5 usados."
+  },
+  "bank20": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Mesmos retratos do D-1 Tamers bank20 (Machinedramon, Andromon, Monzaemon…); nenhum usado."
+  },
+  "bank21": {
+   "label": "Retratos de Digimon",
+   "kind": "portrait",
+   "desc": "Retratos do bank21 do D-1 Tamers mais os novos de Tamers (Renamon E6CE, Guilmon BFFA/CAB8, Terriermon E05E/E2EA, Impmon BC18); só Renamon usada no livro."
+  },
+  "bank22": {
+   "label": "Retratos de Digimon Tamers",
+   "kind": "portrait",
+   "desc": "Retratos coloridos da série Tamers (Taomon, Rapidmon, Culumon, Impmon, Galgomon, Growmon, Kyubimon, Dukemon…); 10 de 16 no livro."
+  },
+  "bank23": {
+   "label": "Retratos de Digimon Tamers",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de Digimon perfeitos/definitivos (Dukemon, Beelzebumon, Andromon, Cyberdramon, Sakuyamon, MegaGargomon…); só 4E6E usado."
+  },
+  "bank24": {
+   "label": "Retratos de Digimon Tamers",
+   "kind": "portrait",
+   "desc": "Retratos coloridos (Growmon, Kyubimon, Galgomon, Taomon, Rapidmon, Leomon, Guardromon, Monodramon…); nenhum no livro."
+  },
+  "bank25": {
+   "label": "Retratos de Digimon Tamers",
+   "kind": "portrait",
+   "desc": "Retratos coloridos de vilões e definitivos (Devas, Vikaralamon, Beelzebumon, Justimon, Dukemon…); nenhum no livro."
+  },
+  "bank26": {
+   "label": "Sprites de Digimon Tamers",
+   "kind": "sprite",
+   "desc": "Sprites coloridos das linhas de Guilmon, Terriermon e Renamon (Growmon, Galgomon, Kyubimon, Taomon, Dukemon, Sakuyamon, MegaGargomon) e vilões; 80 quadros."
+  },
+  "bank27": {
+   "label": "Mapas grandes",
+   "kind": "location",
+   "desc": "Três mapas maiores que a tela (496x368): cidade-torre azul em duas variantes e a cidade verde com lago; nenhum no livro."
+  },
+  "bank28": {
+   "label": "Mapas grandes",
+   "kind": "location",
+   "desc": "Três variantes do mapa 496x368 da cidade-torre azul; nenhum no livro."
+  },
+  "bank32": {
+   "label": "Mapas, arenas e ícones",
+   "kind": "mixed",
+   "desc": "Mapas grandes da cidade azul, duas arenas azuis (08DC/135E), janelas pequenas, 5 caixas de ferramentas vermelhas e ícones de portal verde; nenhum no livro."
+  },
+  "bank33": {
+   "label": "Mapas e arena dos pilares",
+   "kind": "location",
+   "desc": "Mapas da cidade verde e azul, três telas da arena de pilares amarelos (no livro), corredor verde-escuro e 3 tilesheets."
+  },
+  "bank34": {
+   "label": "Arena e mapas",
+   "kind": "location",
+   "desc": "Arena de pilares amarelos (0084/0D6C), mapas da cidade azul, plataforma de conexão azul e verde, tela verde com sprite e 1 tilesheet; 2 no livro."
+  },
+  "bank35": {
+   "label": "Arenas de batalha",
+   "kind": "location",
+   "desc": "Cinco arenas de batalha (amarela, magenta, azul, vermelha x2, todas no livro) mais mapas da cidade verde e azul."
+  },
+  "bank36": {
+   "label": "Estádio e cidade",
+   "kind": "location",
+   "desc": "Campo/estádio verde e cidade azul (ambos no livro) mais 35 tilesheets de textura e texto."
+  },
+  "bank37": {
+   "label": "Arenas, templos e silhuetas",
+   "kind": "mixed",
+   "desc": "Arenas de pilares e tapete vermelho, pirâmide/templo, deserto de blocos, campo verde, tela rosa com objetos, janela Answer, silhuetas de Digimon (28D0/4C08) e torre escura; 8 de 16 no livro."
+  },
+  "bank38": {
+   "label": "Sprites de Digimon (elenco)",
+   "kind": "sprite",
+   "desc": "Grande elenco de sprites coloridos de Digimon (Guilmon, Renamon, Terriermon, Growmon, Devas, Royal Knights…), 156 quadros; 2 tilesheets."
+  },
+  "bank40": {
+   "label": "Sprites de tamers e ovos",
+   "kind": "sprite",
+   "desc": "Sprites dos Tamers (Takato, Ruki, Jenrya, Juri, Hirokazu, Kenta, Shiuchon, Ryo…), Digitamas, blobs verdes de dados e Digimon; 101 quadros."
+  },
+  "bank41": {
+   "label": "Efeitos de transição",
+   "kind": "effect",
+   "desc": "Quadros de linha de velocidade e grade, texturas de fogo e água, molduras de janela, barras verticais 8x144, sprites de explosão e de tamers verdes com fundo magenta (versão sombra); 7 tilesheets."
+  },
+  "bank42": {
+   "label": "Efeitos de ataque",
+   "kind": "effect",
+   "desc": "Sprites de efeito de batalha (brilho, cortes, raios, explosão, esfera azul) e 6 tilesheets."
+  },
+  "bank43": {
+   "label": "Locais da história",
+   "kind": "location",
+   "desc": "Hélice de DNA, laboratório de tubos verdes, campo de grama, D-Ark, cânion desértico, silhuetas de Digimon, terra vermelha, estrada e cidade; 10 de 11 no livro."
+  },
+  "bank44": {
+   "label": "Mapas e janelas pequenas",
+   "kind": "mixed",
+   "desc": "Cidade azul, cidade verde e outros mapas, quadros pequenos 8x8, sprite do átomo e 1 tilesheet; 4 de 15 no livro."
+  },
+  "bank45": {
+   "label": "Sprites de Digimon pequenos",
+   "kind": "sprite",
+   "desc": "Sprites pequenos (16x16/16x24) de Digimon bebês e crianças (Culumon, Renamon, Terriermon, Guilmon, Lopmon…); 224 quadros e 4 tilesheets."
+  },
+  "bank49": {
+   "label": "Efeitos de batalha",
+   "kind": "effect",
+   "desc": "Sprites de escudo hexagonal, cristal, esferas de energia e explosões coloridas; 5 tilesheets."
+  },
+  "bank50": {
+   "label": "Aviso WSC e telas de status",
+   "kind": "ui",
+   "desc": "Aviso de cartucho exclusivo WonderSwan Color, moldura de timer, estrela, listas e 13 telas 80x48 de um robô verde com HP UP!!/DP UP!!/AP UP!! etc.; nenhum no livro."
+  },
+  "bank51": {
+   "label": "Título, janelas e ícones",
+   "kind": "mixed",
+   "desc": "Tela de título Brave Tamer, pirâmide do final, GAME OVER, WIN!!/LOSE, OK/NO, telas de status e VS, lista de menu, telas de link e ícones de status (HP/DP/AP/PP/SP/LP…) como sprites; 2 no livro."
+  }
+ }
+}

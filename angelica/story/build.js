@@ -250,10 +250,10 @@ for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const i
 startDoc('05', 'Vídeos, músicas, arte conceitual e imprensa');
 const G2 = D.gallery || []; const fmtDur = s => { s = Math.round(s || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 c.push(H1('Vídeos do jogo'));
-c.push(P('Os vinte vídeos que o cliente traz na pasta videos (formato MP4, H.264): a abertura em duas versões, o logotipo, a introdução "A última Guerra Santa", sete vídeos de apresentação de classe (a classe de cada um foi identificada pelos quadros do vídeo, por isso "provável") e oito lutas da história em estilo de quadrinhos. As cópias estão na pasta "Vídeos" da galeria, com o quadro mostrado abaixo tirado de cada um.'));
+c.push(P('Os vinte vídeos que o cliente traz na pasta videos (formato MP4, H.264): a abertura em duas versões, o logotipo, a introdução "A última Guerra Santa", sete vídeos de apresentação de classe (a classe de cada um foi identificada pelos quadros do vídeo, por isso "provável") e oito lutas da história em estilo de quadrinhos. As cópias estão na pasta "Saint Seiya Online" de Vídeos do Nextcloud, com o quadro mostrado abaixo tirado de cada um.'));
 for (const v of G2.filter(x => x.kind === 'video')) { c.push(P([run(v.pt, { bold: true, size: 20 }), run(`  ${v.zh ? '(' + v.zh + ')  ' : ''}${fmtDur(v.seconds)} · ${v.width}×${v.height} · ${v.source}`, { size: 16, color: '595959' })], { spacing: { before: 140, after: 40 }, keepNext: true })); const im = IMG(v.files.frame, 420, 260, false); if (im) c.push(im); }
 c.push(H1('Músicas'));
-c.push(P('As 129 faixas de trilha sonora do cliente (pasta music, Ogg Vorbis), com o nome original do arquivo, a tradução quando o nome é chinês e a duração. As cópias estão na pasta "Músicas" da galeria.'));
+c.push(P('As 129 faixas de trilha sonora do cliente (pasta music, Ogg Vorbis), com o nome original do arquivo, a tradução quando o nome é chinês e a duração. As cópias estão em "Saint Seiya Online/Músicas", na pasta Músicas do Nextcloud (as vozes, em "Saint Seiya Online/Vozes").'));
 c.push(table([3600, 2400, 900, W - 6900], [['Faixa (pt)', 'Nome original', 'Duração', 'Arquivo na galeria'], ...G2.filter(x => x.kind === 'music').map(m => [m.pt, m.zh || m.en, fmtDur(m.seconds), m.files.audio.split('/').pop()])], { size: 14 }));
 c.push(H1('Vozes'));
 c.push(P('Os gritos de técnica do herói (pasta voice: 女b, voz feminina; 男a, voz masculina) e as falas dubladas dos chefes (packages/sfx/boss配音), agrupadas pelo personagem indicado no nome do arquivo.'));

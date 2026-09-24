@@ -215,6 +215,7 @@ def main():
     ap.add_argument("--library", help="root of the Saint Seiya Cloth Schemes library (official game images listed in story_config.LIB_OFFICIAL)")
     ap.add_argument("--sites-dir", help="folder with one sub-folder per web source (web/sites) of concept art collected from other sites")
     ap.add_argument("--videos-dir", help="write the videos (and their frames) to this folder instead of <out>/Vídeos; index paths become absolute")
+    ap.add_argument("--music-dir", help="write the music tracks and voice lines to <music-dir>/Músicas and <music-dir>/Vozes instead of the gallery; index paths become absolute")
     a = ap.parse_args()
     dump = os.path.abspath(a.dump)
     out = os.path.abspath(a.out)
@@ -328,8 +329,8 @@ def main():
             pt, zh = VIDEOS.get(stem, (translate(stem, game_names)["pt"], stem if not stem.isascii() else ""))
             folder = PT_FOLDER["videos"]
             base = namer.take(folder, slug(pt), "video:" + f)
-            if args.videos_dir:  # videos live outside the gallery (e.g. the Nextcloud Videos folder): absolute paths in the index
-                vout, rel, frame = args.videos_dir, os.path.join(args.videos_dir, base + ".mp4"), os.path.join(args.videos_dir, base + "-quadro.jpg")
+            if a.videos_dir:  # videos live outside the gallery (e.g. the Nextcloud Videos folder): absolute paths in the index
+                vout, rel, frame = a.videos_dir, os.path.join(a.videos_dir, base + ".mp4"), os.path.join(a.videos_dir, base + "-quadro.jpg")
                 os.makedirs(vout, exist_ok=True)
                 copy(os.path.join(vd, f), rel)
             else:
@@ -360,8 +361,12 @@ def main():
                     pt = translate(os.path.basename(root), game_names)["pt"] + ": " + pt
                 folder = PT_FOLDER["music"]
                 base = namer.take(folder, slug(pt) or slug(stem), "music:" + relsrc)
-                rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
-                copy(os.path.join(root, f), os.path.join(out, rel))
+                if a.music_dir:  # audio lives in the Nextcloud Music folder: absolute path in the index
+                    rel = os.path.join(a.music_dir, folder, base + os.path.splitext(f)[1].lower())
+                    copy(os.path.join(root, f), rel)
+                else:
+                    rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+                    copy(os.path.join(root, f), os.path.join(out, rel))
                 r = media.get("music/" + relsrc, {})
                 index.append({"kind": "music", "zh": zh, "en": stem, "pt": pt, "folder": folder, "folder_key": "music", "base": base, "files": {"audio": rel},
                               "seconds": float(r.get("seconds") or 0), "source": relsrc})
@@ -377,8 +382,12 @@ def main():
                 pt = translate(stem, game_names)["pt"] + " (" + who + ")"
                 folder = PT_FOLDER["voice"]
                 base = namer.take(folder, slug(pt), "voice:" + sub + "/" + f)
-                rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
-                copy(os.path.join(sd, f), os.path.join(out, rel))
+                if a.music_dir:
+                    rel = os.path.join(a.music_dir, folder, base + os.path.splitext(f)[1].lower())
+                    copy(os.path.join(sd, f), rel)
+                else:
+                    rel = "%s/%s%s" % (folder, base, os.path.splitext(f)[1].lower())
+                    copy(os.path.join(sd, f), os.path.join(out, rel))
                 r = media.get("voice/%s/%s" % (sub, f), {})
                 index.append({"kind": "voice", "zh": stem, "en": "", "pt": pt, "folder": folder, "folder_key": "voice", "base": base, "files": {"audio": rel},
                               "seconds": float(r.get("seconds") or 0), "source": sub + "/" + f})

@@ -501,10 +501,13 @@ def main():
                 os.rmdir(root)
     if removed:
         print("removed %d stale files/folders" % removed)
-    with open(os.path.join(out, "index.json"), "w", encoding="utf-8") as f:
+    # the gallery folder holds only pictures: index and README go to the dump's text/ folder
+    for stale in ("index.json", "README.md"):
+        if os.path.exists(os.path.join(out, stale)):
+            os.remove(os.path.join(out, stale))
+    with open(os.path.join(dump, "text/gallery_index.json"), "w", encoding="utf-8") as f:
         json.dump({"folders": PT_FOLDER, "items": index}, f, ensure_ascii=False, indent=1)
-    shutil.copy2(os.path.join(out, "index.json"), os.path.join(dump, "text/gallery_index.json"))
-    with open(os.path.join(out, "README.md"), "w", encoding="utf-8") as f:
+    with open(os.path.join(dump, "text/gallery_README.md"), "w", encoding="utf-8") as f:
         f.write("# Saint Seiya Online - Galeria de Imagens\n\n"
                 "Organizada como a seção \"Galeria de modelos 3D\" do livro *Saint Seiya Online - Story*: uma pasta por facção ou tipo de conteúdo, "
                 "nomes em português. Renders 3D (frente, lado e costas, pose T) de todos os personagens, Armaduras, NPCs, monstros e objetos do cliente "

@@ -14,8 +14,35 @@ MT = set(json.load(open(T + "/quests_mt_fallback_ids.json")))
 SYS = [re.compile(p) for p in SYSTEM_PATTERNS]
 def is_system(q): n = q.get("name") or ""; return any(r.search(n) for r in SYS)
 def clean(s): return re.sub(r"\^[0-9A-Fa-f]{6}|\^N|\$noname\$UImid|&name&", lambda m: {"&name&": "[Herói]"}.get(m.group(0), ""), s or "").replace("\\n", "\n").strip()
+LANG_PT = json.load(open(T + "/lang/pt-BR.json", encoding="utf-8"))
+def clean_lang(t):
+    """pt-BR game string -> readable text: colour/format codes out, placeholders in brackets, &link:(..)Name& -> Name."""
+    t = t or ""
+    t = re.sub(r"\^O\d{3}", " ", t)
+    t = re.sub(r"\^[0-9A-Fa-f]{6}|\^N|\$noname|\$UImid|\$UItop|\$spec\s+\S+", "", t)
+    t = re.sub(r"\$\{dynamic_dir\(\d+,\s*\"([^\"]*)\"\)\}", r"\1", t)
+    t = re.sub(r"&name&|\$name\b|\$\{name\}", "[Herói]", t)
+    t = re.sub(r"&(?:pos|templ|npc|item|map|monster|task)[^:&]*:\([^)]*\)\s*([^&]*)&", r"\1", t)
+    t = re.sub(r"&replace:[^&]*&|&slot\d+&|&[a-z_]+&", "", t)
+    t = re.sub(r"\$\{[^}]*\}", "[valor]", t)
+    t = re.sub(r"%(?:\d+\$)?[-+ 0#]*\d*(?:\.\d+)?[sd]", lambda m: "[nome]" if m.group(0).endswith("s") else "[N]", t)
+    t = re.sub(r"%(?:\.\d+)?f", "[N]", t)
+    t = t.replace("%%", "%").replace("\\r", "").replace("\\n", "\n").replace("\r", "")
+    return re.sub(r"[ \t]+", " ", t).strip()
+QEXTRA_LABELS = {"MethodString": "Objetivo", "MethodTrace": "Acompanhamento", "OnNewPopup": "Aviso ao aceitar", "OnNewConfirm": "Confirmação ao aceitar",
+                 "OnNewTribute": "Anúncio ao aceitar", "OnCompletePopup": "Aviso ao concluir", "OnCompleteTribute": "Anúncio ao concluir",
+                 "GiveUpConfirm": "Ao desistir", "UnitProtectFailed": "Se a proteção falhar"}
+QEXTRA = collections.defaultdict(list)
+for _k, _zh, _pt in LANG_PT.get("data_quest", []):
+    _m = re.match(r"task_(\d+)\.m_wstr(\w+)$", str(_k))
+    if not _m or not _pt:
+        continue
+    _t = clean_lang(_pt)
+    if _t and _t not in [x[1] for x in QEXTRA[_m.group(1)]]:
+        QEXTRA[_m.group(1)].append((QEXTRA_LABELS.get(_m.group(2), "Texto (" + _m.group(2) + ")"), _t))
 def qrec(q):
     return {"id": q["id"], "name": clean(q.get("name")), "descript": clean(q.get("descript")), "mt": q["id"] in MT,
+            "extra": [x for x in QEXTRA.get(str(q["id"]), []) if x[1] != clean(q.get("descript"))],
             "delv": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["delv"].get("windows", [])],
             "award": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["award"].get("windows", [])],
             "unq": [{"talk": clean(w["talk"]), "options": [clean(o) for o in w["options"]]} for w in q["unq"].get("windows", [])]}
@@ -134,13 +161,17 @@ mon = collections.OrderedDict()
 for k, z, t in colkv("pt-BR", "data_monster"):
     if k.endswith("_name") and t and z: mon.setdefault(z, t)
 # 7. galeria de renders 3D (angelica/render/organize.py -> text/gallery_index.json)
-gallery, gallery_folders = [], {}
+gallery, gallery_folders, gallery_bulk = [], {}, {}
 if os.path.exists(T + "/gallery_index.json"):
     gi = json.load(open(T + "/gallery_index.json", encoding="utf-8")); gallery_folders = gi["folders"]
     for it in gi["items"]:
         it = dict(it); it["files"] = {k: ([os.path.join(GALLERY, x) for x in v] if isinstance(v, list) else os.path.join(GALLERY, v)) for k, v in it["files"].items()}  # absolute entries (videos-dir) stay as they are
         if "front" in it["files"]: it["files"]["front_thumb"] = it["files"]["front"] + "#thumb"
         if "images" in it["files"]: it["files"]["thumbs"] = [x + "#thumb" for x in it["files"]["images"]]
+        if it["kind"] in ("ui-art", "sky", "cursor"):
+            gallery_bulk[it["folder"]] = gallery_bulk.get(it["folder"], 0) + 1
+            continue
+        if it["kind"] == "aerial": it["files"]["thumb"] = it["files"]["image"] + "#thumb"
         gallery.append(it)
 # 7b. NPC/monstro -> modelo (angelica/npc_models.py -> text/npc_models.json): lista única (nome pt, zh, job)
 npc_models = []
@@ -204,6 +235,66 @@ data = {"parts": parts, "char_stories": char_stories, "side": side, "cloth_quest
         "worldmaps": {f.split(".")[0]: "images/surfaces/maps/worldmaps/" + f for f in os.listdir(OUT + "/images/surfaces/maps/worldmaps")},
         "site_root": os.environ.get("SSC_SITE", os.path.expanduser("~/Projects/saintseiyacloths/public")), "maps": maps, "cut_titles": cut_titles, "subtitles": subtitles, "instance_dialogue": inst, "titles": title_rows, "coverage": coverage, "npc_lines": npc_lines,
         "npc_count": len(npc), "mon_count": len(mon), "out": OUT}
+# 9. appendix volumes 14-17: the pt-BR strings the other volumes do not show (story_notes.LANG_APPENDIX)
+def _norm(t): return re.sub(r"\s+", " ", re.sub(r"[\[\]().,!?:;'\"“”‘’…~—-]", " ", (t or "").lower())).strip()
+_known = set()
+def _collect(o):
+    if isinstance(o, dict):
+        for v in o.values(): _collect(v)
+    elif isinstance(o, list):
+        for v in o: _collect(v)
+    elif isinstance(o, str) and len(o) >= 4:
+        _known.add(_norm(o))
+        for line in o.split("\n"):
+            if len(line) >= 4: _known.add(_norm(line))
+_collect(data)
+_CJK = re.compile(r"[\u3400-\u9fff]")
+lang_volumes = []; lang_stats = {}
+for num, vtitle, sections in NOTES.LANG_APPENDIX:
+    vol = {"num": num, "title": vtitle, "sections": []}
+    for sec, title, intro, leftovers in sections:
+        groups = collections.OrderedDict(); seen = set(); untranslated = []
+        for k, zh, pt in LANG_PT.get(sec, []):
+            t = clean_lang(pt)
+            if not t or len(re.sub(r"\W|\[[a-zA-Zé]+\]", "", t)) < 1 or t in seen:
+                continue
+            seen.add(t)
+            if leftovers and (_norm(t) in _known or _norm(t.split("\n")[0]) in _known):
+                continue
+            if _CJK.search(t) and not re.search(r"[A-Za-zÀ-ú]{3}", re.sub(r"\[[^\]]*\]", "", t)):
+                untranslated.append([t, ""]); continue
+            k = str(k)
+            if k.startswith("script."): field = "script"
+            elif re.match(r"^[a-z]+_\d+_", k): field = re.sub(r"\d+", "#", k.split("_", 2)[2])
+            else: field = ""
+            label = NOTES.LANG_FIELD_LABELS.get(field, "Campo “%s”" % field)
+            z = clean_lang(zh)
+            groups.setdefault(label, []).append([t, z if (z and z != t and len(z) <= 16) else ""])
+        if untranslated: groups["Sem tradução no cliente (texto original)"] = untranslated
+        n = sum(len(v) for v in groups.values())
+        lang_stats[sec] = n
+        if n: vol["sections"].append({"key": sec, "title": title, "intro": intro, "groups": [{"label": g, "entries": v} for g, v in groups.items()]})
+    lang_volumes.append(vol)
+    for sct in vol["sections"]:
+        data["chapter_summaries"][sct["title"]] = sct["intro"]
+data["lang_volumes"] = lang_volumes; data["gallery_bulk"] = gallery_bulk
+def _markup(t):  # leftover script markup in quest/event texts
+    if "&" not in t and "$" not in t: return t
+    t = re.sub(r"&(?:slotnum|slotmax|repu)[^&]*&", "[N]", t)
+    t = re.sub(r"&sex\d&", "[Herói]", t)
+    t = re.sub(r"\$(?:nome|name)\b(?:\s*\$)?", "[Herói]", t)
+    t = re.sub(r"\$(?:nobubble|nochat)\b\s*", "", t)
+    t = re.sub(r"&[a-zA-Z_]+\d*:?\([^)]*\)\s*([^&\n]*)&", r"\1", t)
+    t = re.sub(r"&[a-zA-Z_]+(?::[a-zA-Z_]+)?\d*h?\s?&", "", t)
+    t = re.sub(r"(?<![\w&])replace:[a-z_]+&", "", t)
+    return t
+def _sanitize(o):  # control characters (e.g. vertical tabs inside item texts) are invalid in .docx XML
+    if isinstance(o, dict): return {k: _sanitize(v) for k, v in o.items()}
+    if isinstance(o, list): return [_sanitize(v) for v in o]
+    if isinstance(o, str): return _markup(re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", o))
+    return o
+data = _sanitize(data)
+print("LANG appendix strings per section:", lang_stats)
 json.dump(data, open(os.path.join(WORK, "story.json"), "w"), ensure_ascii=False)
 def cnt(qs): return len(qs), sum(len(q["delv"]) + len(q["award"]) for q in qs)
 print("PARTS:"); tot = 0

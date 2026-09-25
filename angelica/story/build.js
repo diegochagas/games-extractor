@@ -38,6 +38,7 @@ function questBlock(q, small = false) {
   const out = []; const sz = small ? 19 : 21;
   out.push(new Paragraph({ spacing: { before: 200, after: 60 }, keepNext: true, children: [run(q.name && q.name !== 'None' ? q.name : 'Etapa', { bold: true, size: sz + 1 }), run(`  [missão ${q.id}]`, { size: 14, color: '7F7F7F' }), ...(q.mt ? [run('  · texto em tradução automática do jogo', { size: 14, color: 'C00000', italics: true })] : [])] }));
   if (q.descript) out.push(P([run(q.descript, { size: sz, italics: true })], { spacing: { after: 80 } })); else out.push(P([run('(etapa da missão)', { size: 15, italics: true, color: '7F7F7F' })], { spacing: { after: 40 } }));
+  for (const [lab, t] of (q.extra || [])) out.push(P([run(`${lab}: `, { bold: true, size: sz - 3, color: '595959' }), run(t, { size: sz - 3, color: '404040' })], { spacing: { after: 30 } }));
   const dlg = (label, wins) => { if (!wins || !wins.length) return; wins.forEach((w, i) => { if (w.talk) out.push(P([run(`${label}: `, { bold: true, size: sz - 1, color: '1F3864' }), run(w.talk, { size: sz - 1 })], { spacing: { after: 30 }, indent: { left: 360 } })); const opts = (w.options || []).filter(o => !/^(Aceitar|Recusar|Concluído|Cancelar|Confirmar|OK|Fechar|Sim|Não|\.\.\.)$/.test(o)); if (opts.length) out.push(P([run('Herói: ', { bold: true, size: sz - 1, color: '833C0B' }), run(opts.join('  /  '), { size: sz - 1 })], { spacing: { after: 30 }, indent: { left: 720 } })); }); };
   dlg('NPC', q.delv); dlg('Ao concluir', q.award); dlg('Se não estiver pronto', q.unq);
   return out;
@@ -45,7 +46,8 @@ function questBlock(q, small = false) {
 let c = []; const docs = [];
 const VOLUMES = [['01', 'O jogo e o mundo'], ['02', 'Personagens'], ['03', 'Armaduras'], ['04', 'Galeria de modelos 3D'], ['05', 'Vídeos, músicas, arte conceitual e imprensa'],
   ...D.parts.map((p, i) => [String(6 + i).padStart(2, '0'), 'A história: ' + p.title]), ['10', 'As histórias dos personagens e as histórias secundárias'], ['11', 'Apêndices A, B e C: diálogos das dungeons, cinemáticas e títulos'],
-  ['12', 'Apêndice D: outras missões, eventos e desafios'], ['13', 'Apêndices F, G, H e E: falas dos NPCs, missões de teste, duplicadas e Notas de Pesquisa']];
+  ['12', 'Apêndice D: outras missões, eventos e desafios'], ['13', 'Apêndices F, G, H e E: falas dos NPCs, missões de teste, duplicadas e Notas de Pesquisa'],
+  ...(D.lang_volumes || []).map(v => [v.num, v.title])];
 function startDoc(num, title) {
   c = []; HEADINGS = []; docs.push({ num, title, children: c, headings: HEADINGS });
   c.push(new Paragraph({ spacing: { before: 1200, after: 100 }, children: [run('Saint Seiya Online - Story', { size: 44, bold: true })] }));
@@ -76,7 +78,7 @@ startDoc('01', 'O jogo e o mundo');
 c.push(H1('Sobre este livro'));
 c.push(P('Saint Seiya Online (圣斗士星矢Online) é o MMORPG 3D da Perfect World, licenciado pela Shueisha e supervisionado por Masami Kurumada, lançado na China em 2013 e no Brasil e na América Latina em setembro de 2017 (Ongame / SEGA), em português e espanhol. A versão chinesa encerrou em 2018 e a brasileira em junho de 2020; hoje sobrevive no servidor de fãs Seiya Reborn, de onde vieram os arquivos usados neste livro.'));
 c.push(P('Este documento reúne tudo o que o cliente do jogo guarda sobre a história: as quatro sagas da missão principal (Santuário, Poseidon, Hades: Cruzada ao Submundo e Hades: Inferno) com todas as missões e diálogos, as histórias secundárias de cada região, as trinta e oito "histórias" que o Professor Kurumada pede ao herói para investigar, a enciclopédia de personagens e Armaduras do próprio jogo (o Álbum), os mapas, as cinemáticas e os títulos. Os textos são os da localização oficial em português; quando o jogo só tinha tradução automática para um trecho (conteúdo antigo que a versão brasileira nunca revisou), isso está marcado em vermelho e um resumo em português correto precede o trecho.'));
-c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na galeria de imagens "Saint Seiya Online", organizada como o volume 04. As Notas de Pesquisa e a lista de Surplices de Diego, que existiam como documentos separados, foram incorporadas a este livro: a ficha, o lançamento, os arcos e as classes estão neste volume, as classes de Sapuris com as correções no volume 03 e as fontes, as matérias e a galeria do DeviantArt no volume 05.'));
+c.push(P('Extraído em 24/09/2026 dos arquivos do cliente (element/data/lang_pt-BR.data, os pacotes .pck e o álbum surfaces/res/photobook). Os renders 3D dos personagens, NPCs e Armaduras foram feitos no Blender a partir dos modelos (.ski) do cliente, em pose T, de frente, de lado e de costas; os arquivos completos estão na galeria de imagens "Saint Seiya Online", organizada como o volume 04. As Notas de Pesquisa e a lista de Surplices de Diego, que existiam como documentos separados, foram incorporadas a este livro: a ficha, o lançamento, os arcos e as classes estão neste volume, as classes de Sapuris com as correções no volume 03 e as fontes, as matérias e a galeria do DeviantArt no volume 05. Os volumes 14 a 17 completam o livro com todos os demais textos do jogo: itens, técnicas, NPCs, monstros, falas de eventos, ajuda, conquistas e interface.'));
 c.push(IMG(D.bg.loading18, 620, 480)); c.push(cap('Tela de carregamento: o Santuário sob o céu estrelado'));
 c.push(PB());
 // ---------- o jogo em resumo (Notas de Pesquisa + Baidu Baike, story_notes.py) ----------
@@ -283,6 +285,21 @@ for (const [k, title] of [['bronze', 'Armaduras de Bronze'], ['prata', 'Armadura
 startDoc('04', 'Galeria de modelos 3D'); c.push(H1('Galeria de modelos 3D'));
 c.push(P('Todos os modelos da pasta models/npcs do cliente (personagens, NPCs, monstros, pets, relíquias, efeitos de habilidades, cenários e objetos das cinemáticas), renderizados de frente em pose T. Os arquivos completos (frente, lado e costas, 1000 px) estão na pasta "Saint Seiya Online - Galeria de Imagens", com os mesmos títulos de seção deste volume; a legenda é a tradução do nome interno em chinês (nomes entre parênteses ou em pinyin quando o jogo não dá um nome).'));
 for (const [folder, title] of Object.entries(D.gallery_folders || {})) { const items = (folder === 'cloth-objects' ? objectRenders : npcRendersAll).filter(x => (x.folder_key || x.folder) === folder); if (!items.length) continue; c.push(H2(`${title} (${items.length} modelos)`)); for (const g of chunk(items, 6)) { const r = imgRow(g.map(x => ({ file: x.files.front_thumb || x.files.front, label: x.pt + (x.zh ? ' · ' + x.zh : '') })), 110, 150); if (r) c.push(r); } }
+// ---------- arte 2D e vistas aéreas (organize.py seção 8) ----------
+{
+  const bulk = D.gallery_bulk || {}; const aerial = (D.gallery || []).filter(x => x.kind === 'aerial'); const notesCaps = (D.gallery || []).filter(x => x.kind === 'notes-capture');
+  if (Object.keys(bulk).length || aerial.length) {
+    c.push(PB()); c.push(H1('Arte 2D do jogo e vistas aéreas'));
+    c.push(P('Além dos modelos 3D, a galeria guarda todas as imagens 2D do cliente, com a estrutura de pastas do próprio jogo (nomes em chinês): a interface inteira (retratos, rostos, cartões do Álbum, telas de carregamento, mapas, ilustrações de missões, janelas e botões), os ícones recortados dos atlas, as telas de login e criação de personagem, os céus (skyboxes), os cursores e a vista aérea de cada mapa. As texturas dos modelos 3D, dos cenários, dos efeitos e dos mapas de luz não foram copiadas: são matéria-prima dos modelos, já mostrados nos renders.'));
+    c.push(H2('As pastas'));
+    c.push(table([W - 1600, 1600], [['Pasta da galeria', 'Imagens'], ...Object.entries(bulk).sort().map(([f, n]) => [f, String(n)]), ...(aerial.length ? [['Vistas aéreas dos mapas', String(aerial.length)]] : []), ...(notesCaps.length ? [['Capturas das Notas de Pesquisa', String(notesCaps.length)]] : [])], { size: 16 }));
+    if (aerial.length) {
+      c.push(H2('Vistas aéreas dos mapas'));
+      c.push(P('A vista de cima de cada mapa, de dia e de noite, que o cliente usa para desenhar o terreno ao longe; os mapas grandes vêm em várias partes.'));
+      for (const g of chunk(aerial, 4)) { const r = imgRow(g.map(a => ({ file: a.files.thumb, label: a.pt })), 150, 150); if (r) c.push(r); }
+    }
+  }
+}
 // ---------- mídia ----------
 startDoc('05', 'Vídeos, músicas, arte conceitual e imprensa');
 const G2 = D.gallery || []; const fmtDur = s => { s = Math.round(s || 0); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
@@ -370,6 +387,21 @@ c.push(PB()); c.push(H1('Apêndice E: cobertura das Notas de Pesquisa'));
 c.push(P('Confronto entre o que os documentos "Saint Seiya Online - Notas de Pesquisa" e "Surplices - Saint Seiya Online" de Diego citavam e o que existe nos arquivos do cliente (tabelas de NPCs, monstros, configurações e missões, em chinês e em português). O conteúdo desses dois documentos foi incorporado ao livro: a ficha, o lançamento, os arcos e as classes no volume 01, as 23 classes de Sapuris com as correções no volume 03 e as fontes, as matérias do CavZodiaco e a galeria do DeviantArt no volume 05.'));
 c.push(table([3000, 900, W - 3900], [['Item das notas', 'No jogo?', 'Onde aparece'], ...D.coverage.map(x => [x.item, x.found ? 'sim' : 'não', x.detail])], { size: 14 }));
 c.push(P(`Além disso: ${D.cards.length} dos 165 cartões do Álbum foram identificados; ${new Set(playerSets.map(x => x.zh)).size} conjuntos jogáveis (Armaduras, Escamas e Sapuris) e ${npcRendersAll.length} modelos de NPC foram renderizados em 3D a partir dos arquivos do cliente.`));
+// ---------- volumes 14-17: os demais textos do jogo (story_prep seção 9) ----------
+for (const v of D.lang_volumes || []) {
+  startDoc(v.num, v.title);
+  c.push(P('Os textos do cliente (arquivo element/data/lang_pt-BR.data) que os outros volumes não mostram, seção por seção, na ordem do arquivo e sem repetições. Nos textos, [N] é um número, [nome] um nome e [Herói] o nome do jogador, inseridos pelo jogo; ao lado dos nomes curtos vem o original chinês. Parte do texto só tinha tradução automática no cliente. Ficaram de fora os 125 mil rótulos internos de configuração (tabela data_config), nomes técnicos que o jogador nunca vê.', { spacing: { after: 160 } }));
+  let first = true;
+  for (const sct of v.sections) {
+    if (!first) c.push(PB()); first = false;
+    c.push(H1(sct.title)); c.push(P(sct.intro));
+    const multi = sct.groups.length > 1;
+    for (const g of sct.groups) {
+      if (multi) c.push(H2(`${g.label} (${g.entries.length})`));
+      for (const [t, z] of g.entries) c.push(P(z ? [run(t, { size: 16 }), run('  ' + z, { size: 14, color: '8C8C8C' })] : [run(t, { size: 16 })], { spacing: { after: 10 } }));
+    }
+  }
+}
 const mkDoc = (children) => new Document({ creator: 'Diego Chagas', title: 'Saint Seiya Online - Story', features: { updateFields: true }, styles: { default: { document: { run: { font: FONT, size: 21 } } }, paragraphStyles: [  // outline levels so LibreOffice's table of contents finds the headings
     { id: 'Heading1', name: 'Heading 1', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { size: 32, color: '2E74B5' }, paragraph: { outlineLevel: 0 } },
     { id: 'Heading2', name: 'Heading 2', basedOn: 'Normal', next: 'Normal', quickFormat: true, run: { size: 26, color: '2E74B5' }, paragraph: { outlineLevel: 1 } },

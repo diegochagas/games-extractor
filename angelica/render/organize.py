@@ -55,7 +55,11 @@ PT_FOLDER = {
     "cutscene-props": "Objetos das cinemáticas", "world-maps": "Mapas do mundo", "loading-screens": "Telas de carregamento",
     "videos": "Vídeos", "video-frames": "Quadros dos vídeos", "music": "Músicas", "voice": "Vozes", "concept-art": "Arte conceitual oficial", "press": "Imprensa (CavZodiaco)",
     "cloth-objects": "Armaduras em forma de objeto (totens e urnas)", "site-art": "Arte conceitual dos sites",
+    "ui-art": "Arte 2D do jogo (interface, ícones, login)", "aerial": "Vistas aéreas dos mapas", "sky": "Céus (skyboxes)",
+    "cursors": "Cursores", "notes-captures": "Capturas das Notas de Pesquisa",
 }
+# 2D art copied whole, keeping the game's own folder structure (Chinese names): source folder under images/ -> sub-folder
+UI_ART = [("surfaces", "Interface (surfaces)"), ("icons", "Ícones"), ("flash", "Login e criação de personagem (flash)")]
 # folder names used by the first version of the gallery (English); removed when found
 OLD_FOLDERS = ["athena-saints", "hades-specters", "poseidon-mariners", "odin-god-warriors", "odin-blue-warriors", "lamech-servants",
                "zeus-olympians", "others", "npcs", "pets", "monsters", "artifacts", "skill-effects", "scenery-and-props", "cutscene-props",
@@ -475,6 +479,77 @@ def main():
                 files.append(rel)
             index.append({"kind": "press", "zh": "", "en": art["title"], "pt": art["title"], "date": art["date"], "url": art["url"],
                           "folder": folder + "/" + sub, "folder_key": "press", "base": sub, "files": {"images": files}, "n": art["n"]})
+
+    # 8. every 2D picture of the client that is not a 3D texture: the whole interface art (surfaces, icons, flash
+    #    login screens) with the game's folder structure, the aerial view of each map, the sky boxes and the cursors
+    folder = PT_FOLDER["ui-art"]
+    for src_sub, dst_sub in UI_ART:
+        sd = os.path.join(dump, "images", src_sub)
+        if not os.path.isdir(sd):
+            continue
+        for root, _dirs, fs in os.walk(sd):
+            for f in sorted(fs):
+                if not f.lower().endswith(".png"):
+                    continue
+                relsrc = os.path.relpath(os.path.join(root, f), sd)
+                rel = "%s/%s/%s" % (folder, dst_sub, relsrc.replace(".dds.png", ".png").replace(".tga.png", ".png").replace(".bmp.png", ".png").replace(".jpg.png", ".png"))
+                copy(os.path.join(root, f), os.path.join(out, rel))
+                index.append({"kind": "ui-art", "folder": folder + "/" + dst_sub, "folder_key": "ui-art", "files": {"image": rel}, "source": "images/%s/%s" % (src_sub, relsrc)})
+    mapnames = {}
+    mc = os.path.join(dump, "text/maps.csv")
+    if os.path.exists(mc):
+        for r in csv.DictReader(open(mc, encoding="utf-8")):
+            if r.get("map_code") and r["map_code"] not in mapnames:
+                mapnames[r["map_code"]] = r.get("name_pt") or r.get("name_en") or r["map_code"]
+    ld = os.path.join(dump, "images/loddata")
+    folder = PT_FOLDER["aerial"]
+    if os.path.isdir(ld):
+        for code in sorted(os.listdir(ld)):
+            for tod, tod_pt in (("day", "dia"), ("night", "noite")):
+                lv = os.path.join(ld, code, "1024", tod, "level-0") if code == "birdviews" else os.path.join(ld, code, "birdviews/1024", tod, "level-0")
+                if not os.path.isdir(lv):
+                    continue
+                tiles = sorted(f for f in os.listdir(lv) if f.endswith(".png"))
+                for i, f in enumerate(tiles):
+                    name = mapnames.get(code, "mapa geral" if code == "birdviews" else code)
+                    base = "%s (%s) - %s%s" % (re.sub(r'[\\/:*?"<>|]', "-", name), code, tod_pt, " - parte %d" % (i + 1) if len(tiles) > 1 else "")
+                    rel = "%s/%s.png" % (folder, base)
+                    copy(os.path.join(lv, f), os.path.join(out, rel))
+                    index.append({"kind": "aerial", "pt": "%s (%s), %s" % (name, code, tod_pt) + (", parte %d" % (i + 1) if len(tiles) > 1 else ""),
+                                  "map": code, "folder": folder, "folder_key": "aerial", "files": {"image": rel}, "source": os.path.relpath(os.path.join(lv, f), dump)})
+    sk = os.path.join(dump, "images/textures/sky")
+    folder = PT_FOLDER["sky"]
+    if os.path.isdir(sk):
+        for root, _dirs, fs in os.walk(sk):
+            for f in sorted(fs):
+                if f.lower().endswith(".png"):
+                    relsrc = os.path.relpath(os.path.join(root, f), sk)
+                    rel = "%s/%s" % (folder, re.sub(r"\.(dds|tga|bmp)\.png$", ".png", relsrc))
+                    copy(os.path.join(root, f), os.path.join(out, rel))
+                    index.append({"kind": "sky", "folder": folder, "folder_key": "sky", "files": {"image": rel}, "source": "images/textures/sky/" + relsrc})
+    cd = os.path.join(dump, "cursors")
+    folder = PT_FOLDER["cursors"]
+    if os.path.isdir(cd):
+        from PIL import Image
+        for f in sorted(os.listdir(cd)):
+            try:
+                im = Image.open(os.path.join(cd, f))  # .cur, and the first frame of an animated .ani
+            except Exception:
+                continue
+            rel = "%s/%s.png" % (folder, f.replace(".", "-"))
+            os.makedirs(os.path.join(out, folder), exist_ok=True)
+            if not os.path.exists(os.path.join(out, rel)):
+                im.convert("RGBA").save(os.path.join(out, rel))
+            index.append({"kind": "cursor", "folder": folder, "folder_key": "cursors", "files": {"image": rel}, "source": "cursors/" + f})
+    nd = os.path.join(dump, "web/notas")
+    folder = PT_FOLDER["notes-captures"]
+    if os.path.isdir(nd):
+        for f in sorted(os.listdir(nd)):
+            if f.lower().endswith((".png", ".jpg", ".jpeg")):
+                rel = "%s/%s" % (folder, f)
+                copy(os.path.join(nd, f), os.path.join(out, rel))
+                index.append({"kind": "notes-capture", "pt": os.path.splitext(f)[0].replace("-", " "), "folder": folder, "folder_key": "notes-captures",
+                              "files": {"image": rel}, "source": "web/notas/" + f})
 
     # remove files from earlier runs that are no longer in the index (renamed or reclassified)
     keep = set()

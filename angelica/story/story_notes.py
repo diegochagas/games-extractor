@@ -176,3 +176,61 @@ DA_NOTES_EXTRA = {
     "843838056": "No jogo não há os soldados-esqueleto do anime: os soldados espectrais poderiam representar as árvores Jubokko do folclore japonês (ideia de BuraianZ).",
     "709474922": "Um Espectro de Bennu, a partir de um desenho de Shiori Teshirogi para o Lost Canvas, contado entre os Espectros do jogo.",
 }
+
+# ---------------------------------------------------------------------------------------------------------------
+# Appendix volumes 14-17: every player-facing pt-BR string of the client (element/data/lang_pt-BR.data) that the
+# other volumes do not already show, by LANG section. (section, title, intro, leftovers_only)
+# leftovers_only = the section is mostly in volumes 01-13 already; only strings not found there are listed.
+# data_config is left out on purpose: 125k internal labels of effect/config records (developer names in machine
+# translation, never shown to the player).
+LANG_APPENDIX = [
+    ("14", "Apêndice I: itens, equipamentos e tesouros", [
+        ("data_item", "Itens: nomes e textos dos registros", "Os nomes de todos os itens do jogo, com o original chinês ao lado dos nomes curtos, e os outros campos dos registros (descrições alternativas, textos da barra de progresso, nomes curtos das Almas).", False),
+        ("item", "Itens: descrições, efeitos e mensagens", "Descrições, atributos e mensagens de uso dos itens, na ordem do arquivo do jogo.", False),
+        ("data_equip", "Equipamentos", "Nomes e textos dos equipamentos (faixas, camisas, anéis, colares, amuletos, emblemas...).", False),
+        ("data_treasures", "Tesouros e baús", "Os tesouros, baús e pacotes de recompensa.", False),
+        ("data_recipe", "Receitas", "As receitas de fabricação.", False),
+        ("lottery", "Sorteios e roletas", "Os textos dos sorteios, roletas e loterias de eventos.", False),
+    ]),
+    ("15", "Apêndice J: técnicas", [
+        ("skill", "Técnicas: nomes, descrições e efeitos", "Todas as técnicas do herói, das classes, das Armaduras, dos pets e dos monstros, com nomes, descrições, efeitos por nível e mensagens, na ordem do arquivo do jogo.", False),
+    ]),
+    ("16", "Apêndice K: NPCs, monstros e falas de eventos", [
+        ("data_npc", "NPCs: nomes, títulos e textos de interação", "Os nomes dos NPCs (com o original chinês), os títulos que aparecem antes e depois do nome, os textos das barras de progresso ao interagir e as páginas das lojas.", False),
+        ("data_monster", "Monstros: nomes e textos", "Os nomes dos monstros e chefes, com o original chinês, e os outros campos dos registros.", False),
+        ("policy", "Falas e avisos dos eventos roteirizados", "As falas que NPCs e chefes dizem durante eventos, dungeons e batalhas roteirizadas, e os avisos na tela.", False),
+        ("ai", "Avisos do sistema e dos chefes", "Mensagens de sistema e das rotinas de inteligência dos chefes (anúncios de benefícios, fases de batalha).", False),
+    ]),
+    ("17", "Apêndice L: sistemas, ajuda, interface e demais textos", [
+        ("help", "Ajuda e dicas", "Os textos da ajuda do jogo e as dicas.", False),
+        ("daily", "Atividades diárias e eventos", "A agenda de atividades: nomes, descrições, horários e regras dos eventos.", False),
+        ("achievement", "Conquistas", "Os nomes e as condições das conquistas.", False),
+        ("dungeon", "Dungeons: mensagens e objetivos", "Mensagens e contadores das dungeons.", False),
+        ("title", "Títulos: textos restantes", "Os textos de títulos que não aparecem no Apêndice C (volume 11).", True),
+        ("social", "Social: amigos, grupos, exército e correio", "Os textos dos sistemas sociais.", False),
+        ("pet", "Pets", "Os textos do sistema de pets.", False),
+        ("question", "Perguntas do quiz", "As perguntas e respostas dos quizzes do jogo.", False),
+        ("questionaire", "Questionários", "Os questionários de opinião apresentados aos jogadores.", False),
+        ("age", "Avisos de tempo de jogo", "Os avisos do sistema de controle de tempo de jogo e idade.", False),
+        ("combat", "Mensagens de combate", "As mensagens exibidas durante as lutas.", False),
+        ("arena", "Arena", "Os textos da arena.", False),
+        ("countbirds", "Contagem de pássaros", "Os textos do minijogo de contar pássaros.", False),
+        ("map", "Mapas: textos restantes", "Nomes de lugares e textos de mapas que não aparecem no volume 01.", True),
+        ("photobook", "Álbum: textos restantes", "Textos do Álbum que não aparecem nos volumes 02 e 03.", True),
+        ("data_text", "Textos diversos: restantes", "Textos avulsos dos dados do jogo que não aparecem nos outros volumes.", True),
+        ("quest", "Missões: textos de interface restantes", "Mensagens do sistema de missões que não aparecem nos outros volumes.", True),
+        ("data_quest", "Missões: textos restantes", "Textos dos registros de missões que não aparecem nos volumes da história (em geral, janelas de missões duplicadas ou de teste).", True),
+        ("animation", "Cinemáticas: textos restantes", "Textos das cinemáticas que não aparecem no Apêndice B (volume 11).", True),
+        ("ui", "Interface", "Os textos da interface: botões, janelas e mensagens.", False),
+        ("interface", "Interface: janelas", "Os textos das janelas da interface.", False),
+        ("common", "Textos comuns", "Textos comuns usados em várias partes do jogo.", False),
+        ("error", "Mensagens de erro", "As mensagens de erro do cliente e do servidor.", False),
+        ("login", "Login e servidores", "Os textos da tela de login e da escolha de servidor.", False),
+        ("config", "Configurações", "Os textos da janela de configurações.", False),
+        ("miscs", "Diversos", "Outros textos do cliente.", False),
+    ]),
+]
+LANG_FIELD_LABELS = {"name": "Nomes", "物品名字": "Nomes (segunda lista)", "备选图案文字描述#": "Descrições alternativas",
+                     "进度条显示文字": "Texto da barra de progresso", "星魂简称": "Nomes curtos das Almas", "NPC职业前缀": "Títulos antes do nome",
+                     "NPC职业后缀": "Títulos depois do nome", "分页#标题": "Títulos das páginas da loja", "第#页名称": "Nomes das páginas da loja",
+                     "变身后名称": "Nome depois da transformação", "script": "Mensagens dos scripts", "": "Textos"}

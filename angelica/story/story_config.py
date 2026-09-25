@@ -422,6 +422,7 @@ CHAPTER_SUMMARIES = {
  "Personagens": "As fichas do Álbum (cartão, retrato, dados e biografia) com os modelos 3D de cada personagem; os personagens criados para o jogo; deuses e Guerreiros Deuses; e os personagens que o site Saint Seiya Cloths liga ao jogo, com o NPC e o modelo correspondentes.",
  "Armaduras": "Cada Armadura do Álbum (Bronze, Prata, Ouro, Divinas, Escamas e Sapuris) com o cartão, o totem em forma de objeto e todos os conjuntos jogáveis renderizados (masculino e feminino); as urnas; as 23 classes de Sapuris e as missões de obtenção com diálogos.",
  "Galeria de modelos 3D": "Todos os modelos do cliente renderizados de frente, por facção e tipo: Cavaleiros, Espectros, Marinas, Guerreiros Deuses, Servos de Lamech, Olimpianos, NPCs, pets, monstros, relíquias, efeitos, cenários, objetos das cinemáticas e as Armaduras em forma de objeto.",
+ "Arte 2D do jogo e vistas aéreas": "As pastas de imagens 2D do cliente copiadas para a galeria (interface, ícones, login, céus, cursores) e a vista aérea de cada mapa.",
  "Vídeos do jogo": "Os 20 vídeos do cliente (abertura, logotipo, introdução, apresentações de classe e lutas em quadrinhos), com um quadro de cada um.",
  "Músicas": "As 129 faixas da trilha sonora com nome original, tradução e duração.",
  "Vozes": "Os gritos de técnica do herói (vozes masculina e feminina) e as falas dubladas dos chefes.",

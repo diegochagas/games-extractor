@@ -73,6 +73,38 @@ class CpkTest(unittest.TestCase):
             self.assertEqual(os.listdir(tmp).count('test.cpk'), 1)            # the archive is only read
 
 
+    def test_patch_compresses_what_was_compressed(self):
+        files = {'packed.bin': bytes(range(256)) * 8, 'raw.bin': bytes(range(256)) * 8}
+        with tempfile.TemporaryDirectory() as tmp:
+            src = os.path.join(tmp, 'test.cpk')
+            write(src, fixtures.cpk(files, compress=('packed.bin',)))
+            same = bytes(range(256)) * 6
+            cpk.patch(src, {'packed.bin': same, 'raw.bin': same})
+            by = {e['name']: e for e in cpk.Cpk(src).files}
+            self.assertLess(by['packed.bin']['csize'], len(same))
+            self.assertEqual(by['raw.bin']['csize'], len(same))
+
+    def test_patch_keeps_the_storage_of_each_file(self):
+        files = {'a/raw.bin': bytes(range(256)) * 8, 'a/packed.bin': bytes(range(256)) * 8, 'b.txt': b'old'}
+        with tempfile.TemporaryDirectory() as tmp:
+            src = os.path.join(tmp, 'test.cpk')
+            write(src, fixtures.cpk(files, compress=('a/packed.bin',)))
+            # data that does not compress and is larger than the sector the old file had
+            noise = bytes((i * 197 + (i >> 3) * 31 + (i * i >> 5)) & 255 for i in range(6000))
+            new = {'a/raw.bin': b'\x07' * 2000, 'a/packed.bin': noise}
+            done = cpk.patch(src, new)
+            self.assertEqual(sorted(d[0] for d in done), ['a/packed.bin', 'a/raw.bin'])
+            self.assertEqual([d[1] for d in done if d[0] == 'a/raw.bin'], ['slot'])       # fits where it was
+            c = cpk.Cpk(src)
+            by = {e['name']: e for e in c.files}
+            self.assertEqual(by['a/raw.bin']['csize'], by['a/raw.bin']['size'])          # still stored as it is
+            self.assertLessEqual(by['a/packed.bin']['csize'], by['a/packed.bin']['size'])
+            self.assertEqual(c.read(by['a/raw.bin']), new['a/raw.bin'])
+            self.assertEqual(c.read(by['a/packed.bin']), new['a/packed.bin'])
+            self.assertEqual(c.read(by['b.txt']), b'old')
+            self.assertEqual([d[1] for d in done if d[0] == 'a/packed.bin'], ['end'])     # did not fit its slot
+
+
 class PacTest(unittest.TestCase):
     def test_nested(self):
         inner = fixtures.pac([('A.GIM', b'aaaa'), ('B.GIM', b'bb')], total_without_header=True)

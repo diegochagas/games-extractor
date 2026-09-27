@@ -8,6 +8,7 @@ goes to `~/Downloads/Saint Seiya Omega Ultimate Cosmo/`.
 ```bash
 omega/extract.sh "GAME.iso"        # disc -> files, pictures, text, models, renders, audio, video
 omega/build.sh                     # gallery folders + the story book (.odt) out of the dump
+omega/translated.sh "GAME.iso"     # the Portuguese disc image (needs the dump and its translation)
 ```
 
 ## Formats (generic tools, this folder)
@@ -22,6 +23,18 @@ omega/build.sh                     # gallery folders + the story book (.odt) out
 | `gmo2glb.py` | GMO (+ textures, + motions, + attachments) → binary **glTF 2.0**: nodes for the bones, one skin per file, unlit materials with the PNG textures inside, one animation per motion, 1 unit = 1 cm scaled to metres at the root. |
 | `media.py` | **ADX** (ffmpeg); **AHX** = MPEG-2 Layer II with short frames: each frame is padded to the size its MPEG header announces and decoded as MP2 at the sample rate of the AHX header; **PMF/PSMF** movies: H.264 copied, ATRAC3plus audio pulled out of private stream 1 (4-byte sub-header, then `0x0FD0` frames with an 8-byte header), wrapped in an OMA (`EA3`) header and encoded to AAC; **PHD/PBD** sound banks (`PPHD8`, sample table in `PPVA`, samples in PlayStation ADPCM). |
 | `render/blender_render.py`, `render/render_all.py` | Orthographic renders of `.glb` models (front, side, back, three-quarter, top) with a transparent background, in the bind pose or in a frame of an animation; `cull` makes faces seen from behind transparent so that sky domes do not hide a stage. |
+
+| `fnt.py` | **FNT** glyph caches of the game: the font only holds the characters the game's own text uses (1,215 glyphs, 64-byte entries with the fields of a sceFont glyph description, pages of 128 × 128 pixels at 4 bits, 64 cells of 16 × 16). `render` draws glyphs with a TrueType font, `build` writes the file. |
+| `psmf.py` | **PSMF** movies: packs of 2048 bytes, groups of pictures that start in a pack with the system header and a private stream 2 packet describing the group (packs where its first four pictures end, number and size of its pictures), time stamps on the first picture of a group and on every 16th after it. `replace_video` puts a new H.264 stream in the packs of the old one: same size, same clock references, sound untouched. |
+| `iso.py` | ISO 9660: lists the files and replaces one in place, or at the end of the image when it grew (directory record and volume size updated, every other file keeps its sector). |
+| `transcribe.py`, `subtitles.py` | Speech of a movie to timed segments with faster-whisper (in its own virtual environment), and segments + translation to `.srt` or to a text track of an MP4. |
+| `emu/ppsspp_run.py` | Scripted runs of PPSSPP (Flatpak) inside a nested X server (Xephyr): waits, key presses, screenshots. The desktop keeps its keyboard and focus. |
+
+Writers: `btx.write` (new strings in a table), `pac.build` (a container with some files replaced,
+nested ones too), `gim.encode` (a picture in the format of an existing file), `cpk.crilayla_pack`
+and `cpk.patch` (files replaced inside the archive: in their slot when they fit, at the end when
+they do not; **a file the archive stores without compression must stay uncompressed**, the game
+reads some of them in place: compressing `scene/adv/adv.pac` leaves the story on an empty screen).
 
 ## The game (`omega/`)
 
@@ -43,6 +56,30 @@ omega/build.sh                     # gallery folders + the story book (.odt) out
 - `story/story_prep.py`, `story/build.js` – the story book, four volumes (`.docx` in the work
   folder, delivered as `.odt` by the comic-skills `docx-odt-convert` skill).
 
+## The Portuguese image (`omega/patch.py`, `pictures.py`, `movie.py`, `translated.sh`)
+
+- Text: every BTX table is written again with the translation. Line breaks are `\r\n`. The
+  dialogue window holds 3 lines of 420 pixels; the windows of the system messages break the lines
+  by themselves (their text goes in unbroken); the help at the foot of the menus is one line. The
+  room of the other tables is measured on their Japanese text, and `text/translation/short.json`
+  (in the dump) holds shorter wordings for what does not fit. `--report` lists what is left over.
+- Font: the glyphs of the characters the new text uses are drawn with DejaVu Sans (13 pixels) and
+  take the place of Japanese glyphs that are no longer used; the font keeps its 1,215 glyphs.
+- Pictures that are only words (speaker names, menu entries, screen titles, stage names, some
+  strips of button hints) are drawn again with the colours measured on the original. The speaker
+  names get 64 × 16 pixels (the game draws them at the size of the picture). Pictures that mix
+  artwork and words are left alone.
+- Movies: only the groups of pictures that show a subtitle are encoded again (libx264, Main
+  profile, level 2.1, one reference, no B pictures), each one to the size of the group it replaces.
+  Songs are not subtitled.
+- The image: `install.cpk` and `archive.cpk` grow and go to the end of the image; the movies keep
+  their size and their place.
+
+Checked in PPSSPP 1.20.4: boot, system windows, main menu, story selection, the prologue with
+subtitles, dialogue with speaker names, a whole battle and its result screen, the character
+profile. Not checked: stages 2 to 8, the other six stories, the two final movies inside the game
+(their files decode and are consistent), network play, a real PSP.
+
 ## Tests
 
 `scripts/check` (repo root) compiles everything, lints what it can and runs `psp/tests`
@@ -51,6 +88,9 @@ in memory (`tests/fixtures.py`); no game data is committed.
 
 ## Not done
 
+- Still in Japanese in the Portuguese image: the small buttons of the story selection, the stage
+  names of the stage selection, the hint strips of the gallery, configuration and key screens,
+  the install screen, the name entry keyboard (the console's own), the title logo.
 - `EBOOT.BIN` is the encrypted executable (`~PSP`): not decrypted, so tables that live in the code
   (which title of the CG collection belongs to which picture, battle order of the Arcade mode) are
   not read. `INSTALL.DNS` is the PGD-protected copy of `install.cpk`, which the disc also has in clear.

@@ -193,3 +193,115 @@ def gmo_triangle(skinned=True):
                   command(0x8015, struct.pack('<Iffff', 3, 0, 0, 1, 1)) + root + child + drawer + part +
                   material + texture + motion)
     return b'OMG.00.1PSP\0\0\0\0\0' + chunk(2, '', model)
+
+
+def iso(files):
+    """ISO 9660 image with the files {path: bytes} (one level of folders at most)."""
+    sector = 2048
+
+    def both(v):
+        return struct.pack('<I', v) + struct.pack('>I', v)
+
+    def record(name, lba, size, folder=False):
+        ident = name if isinstance(name, bytes) else (name.upper() + ('' if folder else ';1')).encode()
+        body = bytes([0]) + both(lba) + both(size) + bytes(7) + bytes([2 if folder else 0, 0, 0]) + \
+            struct.pack('<H', 1) + struct.pack('>H', 1) + bytes([len(ident)]) + ident
+        body += b'\0' * ((len(body) + 1) % 2)
+        return bytes([len(body) + 1]) + body
+
+    folders = sorted({p.split('/')[0] for p in files if '/' in p})
+    next_lba = 18 + 1 + len(folders)
+    place = {}
+    for path, data in files.items():
+        place[path] = next_lba
+        next_lba += max(1, (len(data) + sector - 1) // sector)
+    root = record(b'\0', 18, sector, True) + record(b'\1', 18, sector, True)
+    for i, f in enumerate(folders):
+        root += record(f, 19 + i, sector, True)
+    for path, data in files.items():
+        if '/' not in path:
+            root += record(path, place[path], len(data))
+    out = bytearray(next_lba * sector)
+    pvd = bytearray(sector)
+    pvd[0:6] = b'\x01CD001'
+    pvd[80:88] = both(next_lba)
+    pvd[156:156 + 34] = record(b'\0', 18, sector, True)
+    out[16 * sector:17 * sector] = pvd
+    out[18 * sector:18 * sector + len(root)] = root
+    for i, f in enumerate(folders):
+        d = record(b'\0', 19 + i, sector, True) + record(b'\1', 18, sector, True)
+        for path, data in files.items():
+            if path.startswith(f + '/'):
+                d += record(path.split('/', 1)[1], place[path], len(data))
+        out[(19 + i) * sector:(19 + i) * sector + len(d)] = d
+    for path, data in files.items():
+        out[place[path] * sector:place[path] * sector + len(data)] = data
+    return bytes(out)
+
+
+def h264(groups, size=900, salt=0):
+    """Video stream with `groups` = pictures per group; every picture is a delimiter and one
+    slice of `size` bytes (the first of a group is an IDR slice)."""
+    out = bytearray()
+    n = 0
+    for count in groups:
+        for k in range(count):
+            out += b'\x00\x00\x00\x01\x09\x10'
+            out += b'\x00\x00\x01' + (b'\x65' if k == 0 else b'\x41')
+            out += bytes(((i * 7 + n + salt) % 250) + 3 for i in range(size))
+            n += 1
+    return bytes(out)
+
+
+def psmf(groups, size=900, packs_per_group=12, audio_every=5):
+    """PSMF movie whose video is h264(groups, size); each group gets `packs_per_group` packs,
+    every `audio_every`-th of them an audio pack."""
+    es = h264(groups, size)
+    import re
+    starts = [m.start() - 1 for m in re.finditer(b'\x00\x00\x01\x09', es)]
+    ends = starts[1:] + [len(es)]
+    header = bytearray(0x800)
+    header[0:8] = b'PSMF0015'
+    struct.pack_into('>II', header, 8, 0x800, len(groups) * packs_per_group * 2048)
+    out = bytearray(header)
+    first = 0
+    for g, count in enumerate(groups):
+        chunk = es[starts[first]:ends[first + count - 1]]
+        pos = 0
+        for p in range(packs_per_group):
+            pack = b'\x00\x00\x01\xba' + bytes([0x44, 0, 4, 0, 4, 1]) + b'\x01\x86\xa3\xf8'
+            free = 2048 - len(pack)
+            if p and p % audio_every == 0:
+                body = b'\x00\x00\x01\xbd' + struct.pack('>H', free - 6) + b'\x81\x80\x05' + \
+                    bytes([0x21, 0, 1, 0, 1]) + bytes(4) + bytes([0x0f, 0xd0, 0x28, 0x5c]) + bytes(free - 6 - 16)
+                out += pack + body
+                continue
+            extra = b''
+            if p == 0:
+                extra = b'\x00\x00\x01\xbb' + struct.pack('>H', 12) + bytes(12)
+                nav = b'\x01\xe0' + bytes(8) + bytes(4) + struct.pack('>HH', count * 4 + 2, count) + bytes(count * 4)
+                extra += b'\x00\x00\x01\xbf' + struct.pack('>H', len(nav)) + nav
+                free -= len(extra)
+            if pos >= len(chunk):
+                body = b'\x00\x00\x01\xbe' + struct.pack('>H', free - 6) + b'\xff' * (free - 6)
+            else:
+                head = b''
+                flags = 0
+                if p == 0:
+                    flags = 0xC1
+                    t = 90000 + first * 3003
+                    head = bytes([0x31 | ((t >> 30) & 7) << 1, (t >> 22) & 255, ((t >> 15) & 127) << 1 | 1,
+                                  (t >> 7) & 255, (t & 127) << 1 | 1]) * 2 + b'\x1e\x60\xeb'
+                take = min(free - 9 - len(head), len(chunk) - pos)
+                left = free - 9 - len(head) - take
+                fill = left if 0 < left < 7 else 0
+                left -= fill
+                body = b'\x00\x00\x01\xe0' + struct.pack('>H', 3 + len(head) + fill + take) + \
+                    bytes([0x81, flags, len(head) + fill]) + head + b'\xff' * fill + chunk[pos:pos + take]
+                if left:
+                    body += b'\x00\x00\x01\xbe' + struct.pack('>H', left - 6) + b'\xff' * (left - 6)
+                pos += take
+            out += pack + extra + body
+        assert pos >= len(chunk), 'the group does not fit its packs'
+        first += count
+    return bytes(out)

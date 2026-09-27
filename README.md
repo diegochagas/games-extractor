@@ -21,7 +21,8 @@ runs it before every push (`git config core.hooksPath .githooks`, once per clone
 
 Every build writes to `~/Downloads` and nowhere else; the results are checked there and moved by hand. `angelica/build.sh DUMP_DIR [--story-only]` builds the Saint Seiya Online gallery and the 13 story volumes into `~/Downloads/Saint Seiya Online/` (`Imagens`, `Vídeos`, `Música`, `Documentos`; see the script header for the environment variables).
 `psp/omega/extract.sh GAME.iso` followed by `psp/omega/build.sh` does the same for Saint Seiya Omega
-Ultimate Cosmo, into `~/Downloads/Saint Seiya Omega Ultimate Cosmo/`.
+Ultimate Cosmo, into `~/Downloads/Saint Seiya Omega Ultimate Cosmo/`, and `psp/omega/translated.sh GAME.iso`
+writes its Portuguese disc image (text, font, word pictures and subtitled movies) into `patch/` there.
 
 ## Document format
 

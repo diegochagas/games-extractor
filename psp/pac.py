@@ -8,6 +8,8 @@ another container.
 
 usage: pac.py list FILE.pac
        pac.py extract SRC_DIR_OR_FILE OUTDIR     (recursive; every *.pac becomes a folder)
+
+`build(data, {path: bytes})` makes a copy of a container with some of its files replaced.
 """
 import os
 import struct
@@ -41,6 +43,44 @@ def entries(data):
         off, size = struct.unpack_from('<II', data, p + 32)
         out.append((name, off, size))
     return out
+
+
+def build(data, replace):
+    """Copy of the PAC `data` with some files replaced. replace: {path: bytes}, the paths as
+    `walk` gives them (nested containers are rebuilt too). Order, names and flags are kept."""
+    count, flags, total = struct.unpack_from('<HHI', data, 0)
+    short = len(data) - total                    # 0, or 8 when the total leaves the header out
+    items = entries(data)
+    seen = {}
+    blobs = []
+    for name, off, size in items:
+        blob = data[off:off + size]
+        n = seen.get(name.lower(), 0)
+        seen[name.lower()] = n + 1
+        shown = name
+        if n:
+            stem, ext = os.path.splitext(name)
+            shown = '%s~%d%s' % (stem, n, ext)
+        if shown in replace:
+            blob = replace[shown]
+        else:
+            inner = {k[len(shown) + 1:]: v for k, v in replace.items() if k.startswith(shown + '/')}
+            if inner:
+                blob = build(blob, inner)
+        blobs.append(blob)
+    # the space between two files (alignment) is kept as it was in the original
+    gaps = [b[1] - (a[1] + a[2]) for a, b in zip(items, items[1:])] + [len(data) - (items[-1][1] + items[-1][2])]
+    align = 16 if all((off % 16) == 0 for _n, off, _s in items) else 4 if all((off % 4) == 0 for _n, off, _s in items) else 1
+    out = bytearray(data[:8 + count * 40])
+    for i, blob in enumerate(blobs):
+        struct.pack_into('<II', out, 8 + i * 40 + 32, len(out), len(blob))
+        out += blob
+        pad = -len(out) % align
+        if len(blob) == items[i][2]:
+            pad = max(0, gaps[i])
+        out += bytes(pad)
+    struct.pack_into('<HHI', out, 0, count, flags, len(out) - short)
+    return bytes(out)
 
 
 def walk(data, prefix=''):

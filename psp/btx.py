@@ -31,6 +31,22 @@ def read(data):
     return out
 
 
+def write(data, texts):
+    """Copy of the BTX `data` with new strings. texts: {id: text}; the other strings, the ids and
+    their order stay as they are."""
+    hsize = struct.unpack_from('<I', data, 8)[0]
+    groups, count = struct.unpack_from('<II', data, hsize)
+    old = read(data)
+    head = bytearray(data[:hsize + 8 + count * 8])
+    body = bytearray()
+    for i, (sid, text) in enumerate(old):
+        p = hsize + 8 + i * 8
+        struct.pack_into('<II', head, p, sid, len(head) + len(body) - p)
+        body += texts.get(sid, text).encode('utf-16-le') + b'\0\0\0\0'     # as the original files do
+    body += bytes(-(len(head) + len(body)) % 16)
+    return bytes(head) + bytes(body)
+
+
 def main(argv):
     if len(argv) == 2:
         for sid, text in read(Path(argv[1]).read_bytes()):

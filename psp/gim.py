@@ -4,6 +4,9 @@
 Supports the pixel formats the PSP uses: RGBA5650/5551/4444/8888, 4/8/16/32-bit indexed and
 DXT1/3/5, plain or swizzled ("fast") pixel order, every frame/level of a picture.
 
+`encode(image, like)` writes a picture back in the format of an existing file (indexed 4 or 8
+bits with its palette size, swizzled or not), optionally with another size.
+
 usage: gim.py FILE.gim [OUT.png]
        gim.py convert SRC_DIR OUT_DIR [--workers N]     every *.gim -> OUT_DIR/<same path>.png
 """
@@ -167,6 +170,88 @@ def decode(data):
                 rgba = lut[np.minimum(frame.astype(np.int64), lut.shape[0] - 1)]
             out.append(Image.fromarray(np.ascontiguousarray(rgba).astype(np.uint8), 'RGBA'))
     return out
+
+
+def swizzle(rows):
+    """rows: (height, pitch) bytes, height a multiple of 8 and pitch of 16 -> swizzled bytes."""
+    h, pitch = rows.shape
+    return rows.reshape(h // 8, 8, pitch // 16, 16).transpose(0, 2, 1, 3).tobytes()
+
+
+def quantise(image, colours):
+    """(indices (h, w), palette (colours, 4)) of an RGBA image; colour 0 is fully transparent
+    when the picture has transparent pixels."""
+    rgba = np.asarray(image.convert('RGBA')).copy()
+    rgba[rgba[:, :, 3] == 0] = 0
+    clear = bool((rgba[:, :, 3] == 0).any())
+    q = Image.fromarray(rgba, 'RGBA').quantize(colors=colours - (1 if clear else 0),
+                                                 method=Image.Quantize.FASTOCTREE, dither=Image.Dither.NONE)
+    pal = np.array(q.getpalette('RGBA'), dtype=np.uint8).reshape(-1, 4)
+    idx = np.asarray(q, dtype=np.uint8).copy()
+    used = int(idx.max()) + 1
+    pal = pal[:used]
+    if clear:
+        idx = idx + 1
+        idx[rgba[:, :, 3] == 0] = 0
+        pal = np.vstack([np.zeros((1, 4), dtype=np.uint8), pal])
+    out = np.zeros((colours, 4), dtype=np.uint8)
+    out[:len(pal)] = pal[:colours]
+    return idx, out
+
+
+def _block(fmt, order, width, height, bpp, palign, halign, level_type, pixels):
+    head = struct.pack('<HHHHHHHHHHHHIIIIHHHH', 0x30, 0, fmt, order, width, height, bpp, palign, halign, 2, 0, 0,
+                       0x30, 0x40, 0x40 + len(pixels), 0, level_type, 1, 3, 1)
+    return head + struct.pack('<IIII', 0x40, 0, 0, 0) + pixels
+
+
+def _chunk(kind, body, children=False):
+    size = 16 + len(body)
+    return struct.pack('<HHIII', kind, 0, size, 16 if children else size, 16) + body
+
+
+def encode(image, like):
+    """GIM file of `image` (PIL) in the format of the GIM file `like` (bytes): same pixel format,
+    order and palette size, the size of `image`. Only indexed pictures with one frame."""
+    start = like.find(b'MIG.00.1PSP')
+    parts = chunks(like, start + 16, len(like))
+    img = [off for typ, off, _s in parts if typ == 4]
+    pal = [off for typ, off, _s in parts if typ == 5]
+    if len(img) != 1 or len(pal) != 1:
+        raise ValueError('only pictures with one image and one palette are written')
+    ih = struct.unpack_from('<HHHHHHHHH', like, img[0])
+    ph = struct.unpack_from('<HHHHHHHHH', like, pal[0])
+    fmt, order, bpp, palign, halign = ih[2], ih[3], ih[6], ih[7], ih[8]
+    if fmt not in (INDEX4, INDEX8) or ph[2] != RGBA8888:
+        raise ValueError('pixel format %d with palette format %d is not written' % (fmt, ph[2]))
+    colours = ph[4]
+    width, height = image.size
+    idx, table = quantise(image, min(colours, 16 if fmt == INDEX4 else 256))
+    pw = (width + palign - 1) // palign * palign
+    ph_ = (height + halign - 1) // halign * halign
+    pitch = pw * bpp // 8
+    if order == 1:
+        pitch = (pitch + 15) // 16 * 16
+        ph_ = (ph_ + 7) // 8 * 8
+    full = np.zeros((ph_, pitch * 8 // bpp), dtype=np.uint8)
+    full[:height, :width] = idx
+    if fmt == INDEX4:
+        rows = (full[:, 0::2] & 15) | (full[:, 1::2] << 4)
+    else:
+        rows = full
+    rows = np.ascontiguousarray(rows, dtype=np.uint8)
+    pixels = swizzle(rows) if order == 1 else rows.tobytes()
+    colours_bytes = np.zeros((colours, 4), dtype=np.uint8)
+    colours_bytes[:len(table)] = table
+    picture = _chunk(4, _block(fmt, order, width, height, bpp, palign, halign, 1, pixels)) + \
+        _chunk(5, _block(RGBA8888, 0, colours, 1, 32, ph[7], ph[8], 2, colours_bytes.tobytes()))
+    tail = b''
+    end = [off for typ, off, _s in parts if typ == 5][0]
+    last = max(parts, key=lambda c: c[1])
+    if last[0] not in (4, 5):                                  # file information chunk, kept as it is
+        tail = like[last[1] - 16:]
+    body = _chunk(3, picture, children=True)
+    return like[start:start + 16] + _chunk(2, body + tail, children=True)
 
 
 def save(src, dest):

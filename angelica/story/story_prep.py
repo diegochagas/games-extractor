@@ -290,7 +290,7 @@ def _markup(t):  # leftover script markup in quest/event texts
     return t
 def _sanitize(o):  # control characters (e.g. vertical tabs inside item texts) are invalid in .docx XML
     if isinstance(o, dict): return {k: _sanitize(v) for k, v in o.items()}
-    if isinstance(o, list): return [_sanitize(v) for v in o]
+    if isinstance(o, (list, tuple)): return [_sanitize(v) for v in o]
     if isinstance(o, str): return _markup(re.sub(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", " ", o))
     return o
 data = _sanitize(data)

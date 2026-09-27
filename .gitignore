@@ -8,3 +8,13 @@
 dumps/
 __pycache__/
 node_modules/
+# PSP game files
+*.iso
+*.cpk
+*.pac
+*.gim
+*.gmo
+*.adx
+*.ahx
+*.pmf
+*.glb

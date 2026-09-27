@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+# One command gate: syntax of every tool, lint where the linter is installed, unit tests.
+# Used by .githooks/pre-push (enable with: git config core.hooksPath .githooks).
+set -euo pipefail
+cd "$(dirname "$0")/.."
+step() { printf '== %s\n' "$1"; }
+
+step "python syntax"
+python3 -m compileall -q -x '(node_modules|__pycache__)' angelica psp wonderswan >/dev/null
+
+if command -v ruff >/dev/null; then
+  step "ruff (psp)"
+  ruff check psp
+else
+  echo "-- ruff not installed: lint skipped"
+fi
+
+step "shell scripts"
+if command -v shellcheck >/dev/null; then
+  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh
+else
+  bash -n scripts/check .githooks/pre-push psp/omega/*.sh
+  echo "-- shellcheck not installed: syntax check only"
+fi
+
+step "javascript syntax"
+if command -v node >/dev/null; then
+  node --check psp/omega/story/build.js
+  node --check angelica/story/build.js
+else
+  echo "-- node not installed: skipped"
+fi
+
+step "unit tests (psp)"
+python3 -m unittest discover -s psp/tests -t psp -q
+
+step "no game files staged"
+if git ls-files | grep -E -i '\.(iso|cpk|pac|gim|gmo|adx|ahx|pmf|pbd|phd|btx)$'; then
+  echo "game files must not be committed"; exit 1
+fi
+echo "check passed"

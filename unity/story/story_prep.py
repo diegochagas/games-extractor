@@ -92,7 +92,7 @@ def prep(dump, work):
                                            'side': l['side'], 'zh': l['zh'], 'pt': pt(l['zh'])} for l in s['lines']]})
             levels.append({'id': lv['id'], 'name_zh': lv['name'], 'name': pt(lv['name']), 'desc_zh': lv['desc'], 'desc': pt(lv['desc']),
                            'boss': [speakers.get(b, {}).get('pt') or b for b in lv['boss']], 'stories': stories})
-        chapters.append({'id': ch['id'], 'index': ch['index'], 'name_zh': ch['name'], 'name': pt(ch['name']),
+        chapters.append({'id': ch['id'], 'index': ch['index'], 'name_zh': ch['name'], 'name': f"Capítulo {ch['index']}: {pt(ch['name'])}",
                          'desc_zh': ch['desc'], 'desc': pt(ch['desc']),
                          'icon': cached(picture(assets, ch['icon']), cache_dir, 500),
                          'bg': cached(picture(assets, f"StoryRePlay/ChapterIcon/{ch['index']}"), cache_dir, 700),

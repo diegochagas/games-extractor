@@ -42,10 +42,9 @@ def chapter_levels(levels, chapter_id):
             order.append(cur)
             seen.add(cur['id'])
             cur = mine.get(str(cur.get('nextId')))
-    for lv in sorted(mine.values(), key=lambda lv: int(lv['id']) if str(lv['id']).isdigit() else 0):
-        if lv['id'] not in seen:
-            order.append(lv)
-    return order
+    rest = [lv for lv in sorted(mine.values(), key=lambda lv: int(lv['id']) if str(lv['id']).isdigit() else 0) if lv['id'] not in seen]
+    tutorial = [lv for lv in rest if lv.get('type') == 10]   # the tutorial fight goes first
+    return tutorial + order + [lv for lv in rest if lv.get('type') != 10]
 
 
 def trigger_label(cond):
@@ -83,7 +82,8 @@ def build(dump):
     out_chapters = []
     n_lines = 0
     for ch in sorted(chapters, key=lambda c: c.get('index') or 0):
-        chapter = OrderedDict(id=str(ch['id']), index=ch.get('index'), name=ch.get('name') or '',
+        title = re.sub(r'^第[一二三四五六七八九十百\d]+章\s*', '', ch.get('name') or '')  # "第十九章 来自北欧的斗士" -> title only
+        chapter = OrderedDict(id=str(ch['id']), index=ch.get('index'), name=title,
                               desc=ch.get('desc') or '', icon=ch.get('icon') or '', show_role=str(ch.get('StoryShowRole') or ''),
                               levels=[])
         if re.fullmatch(r'第\d+章描述', chapter['desc']):

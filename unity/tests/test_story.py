@@ -21,7 +21,7 @@ class StoryDumpTest(unittest.TestCase):
     def make_dump(self, tmp):
         t = os.path.join(tmp, 'tables')
         write_json(os.path.join(t, 'ChapterConfig.json'), [
-            {'id': '1', 'index': 1, 'style': 'PT', 'name': '第一章', 'desc': '第1章描述', 'icon': 'levelIcon/1', 'StoryShowRole': '1008'},
+            {'id': '1', 'index': 1, 'style': 'PT', 'name': '第一章 开始', 'desc': '第1章描述', 'icon': 'levelIcon/1', 'StoryShowRole': '1008'},
             {'id': '10001', 'index': 1, 'style': 'JY', 'name': '第一章', 'desc': ''}])
         write_json(os.path.join(t, 'LevelConfig.json'), [
             {'id': '30001', 'chapterId': '1', 'type': 1, 'name': '1-1 开始', 'desc': '描述', 'nextId': '30002', 'showBoss': ['1027']},
@@ -52,7 +52,7 @@ class StoryDumpTest(unittest.TestCase):
             self.assertEqual(story['speakers']['1027']['model'], 'Hades')
             keys = story_dump.strings(story)
             self.assertIn('line:3:0', keys)
-            self.assertEqual(keys['chapter:1:name'], '第一章')
+            self.assertEqual(keys['chapter:1:name'], '开始')   # the 第N章 prefix is dropped
             self.assertEqual(keys['speaker:1000'], '星矢')
             self.assertEqual(story_dump.trigger_label(['2']), 'after')
             self.assertEqual(story_dump.trigger_label(['3', '1']), 'during')
@@ -73,16 +73,16 @@ class TranslateTest(unittest.TestCase):
 
     def test_pending_uses_cache(self):
         with tempfile.TemporaryDirectory() as tmp:
-            story = {'chapters': [{'id': '1', 'name': '第一章', 'desc': '', 'levels': [
+            story = {'chapters': [{'id': '1', 'name': '开始', 'desc': '', 'levels': [
                 {'id': '30001', 'name': '1-1', 'desc': '', 'stories': [{'id': '3', 'title': '', 'lines': [
                     {'key': 'line:3:0', 'speaker': '星矢', 'zh': '你好'}, {'key': 'line:3:1', 'speaker': '星矢', 'zh': '你好'}]}]}]}],
                      'speakers': {'1000': {'sid': '1000', 'name': '星矢'}}}
             write_json(os.path.join(tmp, 'text', 'story.json'), story)
             _s, todo = translate.pending(tmp, {})
-            self.assertEqual([(sp, zh) for _h, sp, zh in todo], [('', '第一章'), ('星矢', '你好'), ('', '星矢')])   # repeated line once
+            self.assertEqual([(sp, zh) for _h, sp, zh in todo], [('', '开始'), ('星矢', '你好'), ('', '星矢')])   # repeated line once
             cache = {translate.key_of('你好'): 'Olá'}
             _s, todo = translate.pending(tmp, cache)
-            self.assertEqual([zh for _h, _sp, zh in todo], ['第一章', '星矢'])
+            self.assertEqual([zh for _h, _sp, zh in todo], ['开始', '星矢'])
 
 
 if __name__ == '__main__':

@@ -15,6 +15,8 @@ usage: cdn.py server                                   prints the CDN root, the 
              path as the APK: OUTDIR/role/hilda.fassets.abws); --only role/ limits to a prefix;
              a bundle already present with the same per-bundle manifest hash is skipped
        cdn.py probe NAME [NAME...]                     HEAD only: which of these exist on the CDN
+       cdn.py roles OUTDIR TABLES_DIR [MORE_DIR...]    fetch the role bundles named by RoleConfig.modelResName
+             that are in none of the given folders (new characters of a game update)
 Environment: SSR_CENTER, SSR_PID, SSR_GID override the center host and ids; SSR_TAG forces a tag.
 """
 import json
@@ -148,11 +150,44 @@ def sync(outdir, names, root, tag, workers=4, force=False):
     return counts, missing
 
 
+def models_on_disk(folders):
+    """Lower-case model names of the role bundles found under the given folders (role/NAME.fassets[.abws])."""
+    have = set()
+    for folder in folders:
+        role_dir = os.path.join(folder, 'role')
+        if os.path.isdir(role_dir):
+            for f in os.listdir(role_dir):
+                if '.fassets' in f and '.manifest' not in f:
+                    have.add(f.split('.fassets')[0].lower())
+    return have
+
+
+def missing_roles(tables_dir, folders):
+    """['role/<model>.fassets'] for every RoleConfig.modelResName with no bundle on disk."""
+    with open(os.path.join(tables_dir, 'RoleConfig.json'), encoding='utf-8') as f:
+        rows = json.load(f)
+    models = sorted({(r.get('modelResName') or '').strip().lower() for r in rows} - {''})
+    have = models_on_disk(folders)
+    return [f'role/{m}.fassets' for m in models if m not in have]
+
+
 def main(argv):
     if not argv:
         print(__doc__)
         return 2
     cmd = argv[0]
+    if cmd == 'roles':
+        outdir, tables_dir = argv[1], argv[2]
+        names = missing_roles(tables_dir, [outdir] + argv[3:])
+        print(f'{len(names)} characters of RoleConfig without a bundle on disk')
+        if not names:
+            return 0
+        info = server_info()
+        counts, missing = sync(outdir, names, info['root'], info['tag'], workers=8)
+        print(counts)
+        if missing:
+            print('not on the CDN yet:', ', '.join(missing))
+        return 0
     if cmd == 'server':
         info = server_info()
         print(f"root        {info['root']}")

@@ -46,11 +46,34 @@ venv/bin/python dump.py DUMP/cdn DUMP/assets                    # same tree, CDN
 python3 tables.py DUMP/assets/config/config.fassets DUMP/tables # every table as JSON (+ _columns.json)
 venv/bin/python puppet.py --all DUMP/cdn/role DUMP/puppets      # one PNG per character, idle pose
 venv/bin/python roles.py DUMP "GALLERY DIR"                     # characters by faction with icons, cards, CG + index
+python3 story/story_dump.py DUMP && python3 story/translate.py run DUMP   # story.json + pt-BR cache (Ollama)
+python3 story/story_prep.py DUMP WORK && node story/build.js WORK/story_book.json WORK/docx   # the book
+build.sh                                                        # everything above, incrementally
 ```
 
 `abws.py list|extract|manifest|strip`, `cdn.py server|probe|fetch|sync`, `dump.py` (`--only PREFIX`,
 `--types`), `puppet.py BUNDLE OUT.png [--parts DIR] [--json OUT.json]` (or `--all DIR OUT`) and
 `tables.py` are also usable one file at a time; every tool prints its usage without arguments.
+
+## Story book and the update loop
+
+`story/story_dump.py DUMP` reads the tables into `text/story.json`: the 32 campaign chapters
+(ChapterConfig style PT), their stages in `nextId` order (LevelConfig type 1), and the scripted
+dialogues (`GameStoryConfig` → `GameStoryItemConfig` `ShowChat` items: text, speaker id, side).
+Chapters 1–14 retell Sanctuary, Poseidon and Hades, 19–20 the Asgard anime, 23–24 Eris, 25–26 Abel,
+27–28 Legend of Sanctuary, 31–32 a second Asgard; 15–18 and 21–22 are the game's own "nightmare
+dimension" and only have stage blurbs. `story/translate.py run DUMP` translates every Chinese
+string with the local Ollama model (`qwen3-instruct-32k`, 20–40 strings per request, glossary of
+names and techniques in `story/glossary.json`) into `text/translation/pt-BR.json`, cached by the
+text itself, so a rerun only translates new lines. `story/story_prep.py` + `story/build.js` make one
+.docx per volume (speakers' puppets, chapter art, pt-BR with the Chinese in grey) and
+`docx-odt-convert` turns them into .odt.
+
+`build.sh` chains all of it and is idempotent: `build.sh` (full), `build.sh --cdn` (just fetch what
+the CDN changed: config, characters named in the new `RoleConfig`, icons) or
+`build.sh --story-only`. When the game updates (new `res_version` tag on the server list), run
+`build.sh`: it downloads the new config and role bundles, re-dumps only those, renders the new
+characters, rebuilds the gallery and translates only the new lines.
 
 ## Not done
 

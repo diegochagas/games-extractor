@@ -81,5 +81,20 @@ class CdnTest(unittest.TestCase):
             cdn.http = real
 
 
+class RolesTest(unittest.TestCase):
+    def test_missing_roles(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            os.makedirs(os.path.join(tmp, 'cdn', 'role'))
+            os.makedirs(os.path.join(tmp, 'apk', 'role'))
+            os.makedirs(os.path.join(tmp, 'tables'))
+            for name in ('cdn/role/hilda.fassets.abws', 'cdn/role/hilda.fassets.manifest.abws', 'apk/role/seiya.fassets'):
+                with open(os.path.join(tmp, name), 'wb') as f:
+                    f.write(b'')
+            with open(os.path.join(tmp, 'tables', 'RoleConfig.json'), 'w', encoding='utf-8') as f:
+                json.dump([{'modelResName': 'Hilda'}, {'modelResName': 'Seiya'}, {'modelResName': 'Freya'}, {'modelResName': ''}], f)
+            self.assertEqual(cdn.models_on_disk([os.path.join(tmp, 'cdn'), os.path.join(tmp, 'apk')]), {'hilda', 'seiya'})
+            self.assertEqual(cdn.missing_roles(os.path.join(tmp, 'tables'), [os.path.join(tmp, 'cdn'), os.path.join(tmp, 'apk')]), ['role/freya.fassets'])
+
+
 if __name__ == '__main__':
     unittest.main()

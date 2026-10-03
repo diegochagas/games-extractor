@@ -17,9 +17,9 @@ fi
 
 step "shell scripts"
 if command -v shellcheck >/dev/null; then
-  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh
+  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh
 else
-  bash -n scripts/check .githooks/pre-push psp/omega/*.sh
+  bash -n scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh
   echo "-- shellcheck not installed: syntax check only"
 fi
 
@@ -27,6 +27,7 @@ step "javascript syntax"
 if command -v node >/dev/null; then
   node --check psp/omega/story/build.js
   node --check angelica/story/build.js
+  node --check unity/story/build.js
 else
   echo "-- node not installed: skipped"
 fi

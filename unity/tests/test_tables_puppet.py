@@ -126,6 +126,50 @@ class SpritesTest(unittest.TestCase):
         self.assertEqual(sprites.with_alpha_texture(colour, alpha).getpixel((0, 0)), (0, 255, 0, 128))
 
 
+class FakeObj:
+    def __init__(self, pid, kind, name=None, tree=None, image=None):
+        self.path_id, self.kind, self._name, self._tree, self._image = pid, kind, name, tree, image
+        self.type = type('T', (), {'name': kind})()
+
+    def read(self):
+        return type('D', (), {'m_Name': self._name, 'image': self._image})()
+
+    def read_typetree(self):
+        return self._tree
+
+
+class FakeEnv:
+    def __init__(self, objects):
+        self.objects = objects
+
+
+def material(pid, name, alpha_tex=0, offset=None):
+    colors = [('_alphaTexUVOffset', {'r': offset[0], 'g': offset[1], 'b': 0, 'a': 0})] if offset else []
+    return FakeObj(pid, 'Material', tree={'m_Name': name, 'm_SavedProperties': {
+        'm_TexEnvs': [('_MainTex', {'m_Texture': {'m_PathID': 0}}), ('_alphaTex', {'m_Texture': {'m_PathID': alpha_tex}})],
+        'm_Colors': colors}})
+
+
+class AlphaPlanTest(unittest.TestCase):
+    def test_pairs_and_layout(self):
+        from PIL import Image
+        opaque = Image.new('RGBA', (4, 4), (200, 30, 30, 255))
+        rgba = Image.new('RGBA', (4, 4), (0, 0, 0, 0))
+        env = FakeEnv([FakeObj(1, 'Texture2D', 'DeathMask', image=opaque), FakeObj(2, 'Texture2D', 'DeathMask_alp', image=opaque),
+                       FakeObj(3, 'Texture2D', 'LegendShun_pro', image=rgba), FakeObj(4, 'Texture2D', 'Hilda', image=opaque),
+                       material(10, 'DeathMask_AutoMaterial', alpha_tex=2), material(11, 'Sprites-Default'),
+                       material(12, 'Hilda_AutoMaterial', offset=(0.5, 0))])
+        plan = sprites.alpha_plan(env)
+        self.assertEqual({k: v.path_id for k, v in plan['alpha_of'].items()}, {1: 2})   # no pairing by elimination with a used mask
+        self.assertEqual(plan['offset'], (0.5, 0))
+        cache = sprites.TextureCache()
+        self.assertEqual(sprites.layout_for(plan, env.objects[0], opaque, 10)[0], 'texture')
+        self.assertEqual(sprites.layout_for(plan, env.objects[2], rgba, 11), ('plain', None))   # RGBA stays plain
+        self.assertEqual(sprites.layout_for(plan, env.objects[3], opaque, 12), ('offset', (0.5, 0)))
+        self.assertEqual(sprites.layout_for(plan, env.objects[3], opaque, None), ('offset', (0.5, 0)))
+        self.assertIsNotNone(cache)
+
+
 class DumpHelpersTest(unittest.TestCase):
     def test_names_and_bundles(self):
         self.assertEqual(dump.safe_name(' a/b\\c ', 'x'), 'a_b_c')

@@ -84,9 +84,10 @@ def alpha_plan(env):
     materials = material_info(env)
     # materials with an _alphaTex and a single colour texture left: pair by elimination
     alpha_ids = {m['alpha_tex'] for m in materials.values() if m['alpha_tex'] in textures}
+    free_alpha = alpha_ids - {a.path_id for a in alpha_of.values()}
     colours = [pid for pid in textures if pid not in alpha_ids and pid not in alpha_of]
-    if len(colours) == 1 and len(alpha_ids) == 1:
-        alpha_of[colours[0]] = objs[next(iter(alpha_ids))]
+    if len(colours) == 1 and len(free_alpha) == 1:
+        alpha_of[colours[0]] = objs[next(iter(free_alpha))]
     offset = next((m['offset'] for m in materials.values() if m['offset']), None)
     return {'offset': offset, 'alpha_of': alpha_of, 'materials': materials, 'textures': textures, 'has_alpha': {}}
 
@@ -163,13 +164,13 @@ def layout_for(plan, tex_obj, atlas, material_id=None):
         return 'texture', plan['textures'][mat['alpha_tex']]
     if mat and mat['offset']:
         return 'offset', mat['offset']
-    if tex_obj.path_id in plan['alpha_of']:
-        return 'texture', plan['alpha_of'][tex_obj.path_id]
     has_alpha = plan['has_alpha'].get(tex_obj.path_id)
     if has_alpha is None:
         has_alpha = plan['has_alpha'][tex_obj.path_id] = texture_has_alpha(atlas)
-    if has_alpha:
+    if has_alpha:  # a real RGBA texture never needs a mask, whatever its name suggests
         return 'plain', None
+    if tex_obj.path_id in plan['alpha_of']:
+        return 'texture', plan['alpha_of'][tex_obj.path_id]
     if plan['offset']:
         return 'offset', plan['offset']
     guessed = guess_offset(atlas)

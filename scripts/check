@@ -6,7 +6,7 @@ cd "$(dirname "$0")/.."
 step() { printf '== %s\n' "$1"; }
 
 step "python syntax"
-python3 -m compileall -q -x '(node_modules|__pycache__)' angelica psp wonderswan >/dev/null
+python3 -m compileall -q -x '(node_modules|__pycache__)' angelica psp wonderswan unity >/dev/null
 
 if command -v ruff >/dev/null; then
   step "ruff (psp)"
@@ -34,8 +34,11 @@ fi
 step "unit tests (psp)"
 python3 -m unittest discover -s psp/tests -t psp -q
 
+step "unit tests (unity)"
+python3 -m unittest discover -s unity/tests -t unity -q
+
 step "no game files staged"
-if git ls-files | grep -E -i '\.(iso|cpk|pac|gim|gmo|adx|ahx|pmf|pbd|phd|btx)$'; then
+if git ls-files | grep -E -i '\.(iso|cpk|pac|gim|gmo|adx|ahx|pmf|pbd|phd|btx|apk|abws|fassets)$'; then
   echo "game files must not be committed"; exit 1
 fi
 echo "check passed"

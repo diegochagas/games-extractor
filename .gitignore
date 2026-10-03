@@ -18,3 +18,7 @@ node_modules/
 *.ahx
 *.pmf
 *.glb
+# Unity game files (Saint Seiya Rebirth)
+*.apk
+*.abws
+*.fassets

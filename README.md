@@ -9,12 +9,13 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 | `wonderswan/` | Bandai Digimon games for WonderSwan / WonderSwan Color (shared engine) | Dumps fonts, texts and graphics of the ROM, drives the JP→EN translation workflow and builds patched ROMs (+ IPS). See `wonderswan/README.md`. |
 | `psp/` | PSP games on CRI + Sony middleware (written for **Saint Seiya Omega Ultimate Cosmo**) | Unpacks the ISO, the CRI `.cpk` archives and the game's `.pac` containers, converts GIM pictures to PNG, GMO models to `.glb` (skeleton, skin, animations) and renders them with Blender, converts ADX/AHX/PMF/sound banks to `.ogg`/`.mp4`, dumps every text and the story scripts with their speakers, drives the JP→pt-BR translation and builds the gallery and the illustrated story book. See `psp/README.md`. |
 | `angelica/` | Perfect World "Angelica" engine clients (built for **Saint Seiya Online**, the Seiya Reborn client) | Unpacks the `.pck` archives, converts every texture to PNG, dumps all in-game text (LANG files, quests, NPCs), builds an HTML/CSV image index, a Word image index and the Word story book, and renders every 3D character (front/side/back T pose) with Blender into a faction-organised gallery. See `angelica/README.md`. |
+| `unity/` | Unity 2022 IL2CPP mobile games (built for **Saint Seiya Rebirth**, 圣斗士星矢：重生, the DeNA China / Wapu game with the Legend of Asgard arc) | Lists and unwraps the `.abws` asset bundles of the APK, finds the public resource CDN from the launcher's server list and fetches the character bundles and icons without a login, dumps textures, sprites (split-alpha atlases rebuilt), texts, audio and meshes with UnityPy, converts the TSV game tables to JSON, renders every 2D puppet character in its idle pose and builds a gallery by faction. See `unity/README.md`. |
 
 All were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
 
 ## Checks
 
-`scripts/check` is the gate (syntax of every tool, shellcheck, unit tests of `psp/`); `.githooks/pre-push`
+`scripts/check` is the gate (syntax of every tool, shellcheck, unit tests of `psp/` and `unity/`); `.githooks/pre-push`
 runs it before every push (`git config core.hooksPath .githooks`, once per clone).
 
 ## Builds
@@ -23,6 +24,8 @@ Every build writes to `~/Downloads` and nowhere else; the results are checked th
 `psp/omega/extract.sh GAME.iso` followed by `psp/omega/build.sh` does the same for Saint Seiya Omega
 Ultimate Cosmo, into `~/Downloads/Saint Seiya Omega Ultimate Cosmo/`, and `psp/omega/translated.sh GAME.iso`
 writes its Portuguese disc image (text, font, word pictures and subtitled movies) into `patch/` there.
+The `unity/` pipeline (see its README) writes the Saint Seiya Rebirth dump and the character gallery into
+`~/Downloads/Saint Seiya Rebirth/`.
 
 ## Document format
 

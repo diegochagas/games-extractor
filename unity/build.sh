@@ -9,7 +9,7 @@
 #
 # env:
 #   REBIRTH_OUT   dump folder (default ~/Downloads/Saint Seiya Rebirth): client/, cdn/, dump/, Personagens/, Documentos/
-#   REBIRTH_APK   the APK (default: the only .apk under $REBIRTH_OUT/client)
+#   REBIRTH_APK   the APK, only needed while dump/apk does not exist yet (default: the .apk under $REBIRTH_OUT/client)
 #   REBIRTH_VENV  python with UnityPy (default ~/.cache/rebirth-venv, created with pip if missing)
 #   REBIRTH_WORK  work folder with node_modules (docx@8) and the picture cache (default ~/.cache/rebirth-story)
 #   DOCX_ODT      comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
@@ -28,9 +28,9 @@ step() { printf '\n== %s\n' "$1"; }
 PY="$VENV/bin/python"
 
 if [ "$MODE" != "--story-only" ]; then
-  APK="${REBIRTH_APK:-$(find "$OUT/client" -maxdepth 1 -name '*.apk' 2>/dev/null | head -1 || true)}"
-  [ -f "$APK" ] || { echo "APK not found: put it in $OUT/client/ or set REBIRTH_APK"; exit 2; }
   if [ ! -f "$DUMP/apk/GameRes.manifest" ]; then
+    APK="${REBIRTH_APK:-$(find "$OUT/client" -maxdepth 1 -name '*.apk' 2>/dev/null | head -1 || true)}"
+    [ -f "$APK" ] || { echo "APK not found: put it in $OUT/client/ or set REBIRTH_APK (only needed until dump/apk exists)"; exit 2; }
     step "APK bundles -> $DUMP/apk"; python3 "$HERE/abws.py" extract "$APK" "$DUMP/apk"
   fi
   step "CDN: config, characters, icons"

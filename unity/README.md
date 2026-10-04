@@ -69,7 +69,9 @@ text itself, so a rerun only translates new lines. `story/story_prep.py` + `stor
 .docx per volume (speakers' puppets, chapter art, pt-BR with the Chinese in grey) and
 `docx-odt-convert` turns them into .odt.
 
-`build.sh` chains all of it and is idempotent: `build.sh` (full), `build.sh --cdn` (just fetch what
+`check_update.sh` asks the CDN whether `config/config.fassets` changed since the last run (exit 0 and
+"UPDATED", or "NO CHANGE"); a Claude Desktop scheduled task runs it every morning and launches
+`build.sh` when it says UPDATED. `build.sh` chains all of it and is idempotent: `build.sh` (full), `build.sh --cdn` (just fetch what
 the CDN changed: config, characters named in the new `RoleConfig`, icons) or
 `build.sh --story-only`. When the game updates (new `res_version` tag on the server list), run
 `build.sh`: it downloads the new config and role bundles, re-dumps only those, renders the new

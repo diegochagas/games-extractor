@@ -17,9 +17,9 @@ fi
 
 step "shell scripts"
 if command -v shellcheck >/dev/null; then
-  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh
+  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh
 else
-  bash -n scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh
+  bash -n scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh
   echo "-- shellcheck not installed: syntax check only"
 fi
 

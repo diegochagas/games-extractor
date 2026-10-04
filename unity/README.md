@@ -46,12 +46,16 @@ venv/bin/python dump.py DUMP/cdn DUMP/assets                    # same tree, CDN
 python3 tables.py DUMP/assets/config/config.fassets DUMP/tables # every table as JSON (+ _columns.json)
 venv/bin/python puppet.py --all DUMP/cdn/role DUMP/puppets      # one PNG per character, idle pose
 venv/bin/python roles.py DUMP "GALLERY DIR"                     # characters by faction with icons, cards, CG + index
+python3 art.py DUMP "PICTURES DIR"                               # the other 2D art by category (cloths, CG, scenery, items...), incremental
 python3 story/story_dump.py DUMP && python3 story/translate.py run DUMP   # story.json + pt-BR cache (Ollama)
 python3 story/story_prep.py DUMP WORK && node story/build.js WORK/story_book.json WORK/docx   # the book
 build.sh                                                        # everything above, incrementally
 ```
 
-`abws.py list|extract|manifest|strip`, `cdn.py server|probe|fetch|sync`, `dump.py` (`--only PREFIX`,
+`art.py` files the Texture2D exports of `texture/`, `otherres/`, `scene/`, `modulesview/` and the
+`atlas/` cut-outs into Portuguese category folders (Vestimentas, Artes dos personagens, Cenários,
+Capítulos e história, Golpes, Itens, Interface e eventos), naming cloths and items from the tables;
+`effect/`, `uieffect/` and the `role/` atlases are left out. `abws.py list|extract|manifest|strip`, `cdn.py server|probe|fetch|sync|roles`, `dump.py` (`--only PREFIX`,
 `--types`), `puppet.py BUNDLE OUT.png [--parts DIR] [--json OUT.json]` (or `--all DIR OUT`) and
 `tables.py` are also usable one file at a time; every tool prints its usage without arguments.
 

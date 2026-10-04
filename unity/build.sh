@@ -11,6 +11,7 @@
 #   REBIRTH_OUT   dump folder (default ~/Downloads/Saint Seiya Rebirth): client/, cdn/, dump/, Personagens/, Documentos/
 #   REBIRTH_APK   the APK, only needed while dump/apk does not exist yet (default: the .apk under $REBIRTH_OUT/client)
 #   REBIRTH_VENV  python with UnityPy (default ~/.cache/rebirth-venv, created with pip if missing)
+#   REBIRTH_ART   where art.py files the 2D art (default $REBIRTH_OUT/Imagens; the Nextcloud Pictures folder in the scheduled task)
 #   REBIRTH_WORK  work folder with node_modules (docx@8) and the picture cache (default ~/.cache/rebirth-story)
 #   DOCX_ODT      comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
 #   OLLAMA_MODEL  translation model (default qwen3-instruct-32k)
@@ -56,6 +57,9 @@ if [ "$MODE" != "--story-only" ]; then
   done
   step "gallery -> $OUT/Personagens"
   rm -rf "$OUT/Personagens"; python3 "$HERE/roles.py" "$DUMP" "$OUT/Personagens"
+  ART="${REBIRTH_ART:-$OUT/Imagens}"
+  step "2D art library -> $ART (only new pictures)"
+  python3 "$HERE/art.py" "$DUMP" "$ART"
 fi
 
 step "story dump"

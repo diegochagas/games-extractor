@@ -62,12 +62,14 @@ DEMOS_PT = ['Uma nova Guerra Santa', 'O antigo guerreiro', 'Momento de hesitaç�
 
 def speaker(voice_file):
     """(code, name) of the character who speaks a story voice file (story_NN_... / story_eNN_...)."""
-    m = re.match(r'(?i)story_(e?\d+)_', voice_file or '')
+    m = re.match(r'(?i)story_([ev]?\d+)_', voice_file or '')
     if not m:
         return '', ''
     code = m.group(1).lower()
     if code in BY_NUMBER:
         return code, BY_NUMBER[code][1]
+    if code.startswith('v'):
+        return code, 'Vários'
     return code, EXTRA.get(code) or ('Personagem %s' % code)
 
 

@@ -27,7 +27,8 @@ def parse(name, data, texts):
     scene = {'script': name, 'chapter': chapter.group(1) if chapter else name, 'part': chapter.group(2) if chapter else None,
              'pages': [], 'text_table': None, 'bgm': [], 'cast': {}, 'lines': []}
     page = None
-    pending = None
+    last_text = None            # the last text line shown (a voice command 62 that follows belongs to it)
+    pending_voice = None        # a timeline voice (command 21) waiting for the text shown at the same second
     for cid, _layer, vals in sc.commands(data):
         if cid == 0 and len(vals) >= 2:
             page = {'index': vals[0], 'file': os.path.basename(vals[1].replace('\\', '/'))}
@@ -39,20 +40,29 @@ def parse(name, data, texts):
         elif cid in (24, 58) and vals and isinstance(vals[-3] if cid == 58 else vals[1], str):
             scene['bgm'].append(os.path.basename((vals[0] if cid == 58 else vals[1]).replace('\\', '/')))
         elif cid == 17 and len(vals) >= 2 and not (len(vals) >= 4 and isinstance(vals[3], str) and vals[3] != '.'):
-            pending = {'line': int(vals[1]), 'page': page['index'] if page else None, 'voice': None}
-            scene['lines'].append(pending)
+            t = vals[0] if isinstance(vals[0], (int, float)) else 0
+            last_text = {'line': int(vals[1]), 'page': page['index'] if page else None, 'voice': None, 't': t}
+            if pending_voice and abs(pending_voice[0] - t) < 0.05:
+                last_text['voice'] = pending_voice[1]
+                pending_voice = None
+            scene['lines'].append(last_text)
         elif cid == 62 and vals and isinstance(vals[0], str):
             voice = os.path.basename(vals[0].replace('\\', '/'))
-            if pending is not None and pending['voice'] is None:
-                pending['voice'] = voice
+            if last_text is not None and last_text['voice'] is None:
+                last_text['voice'] = voice
             else:
-                scene['lines'].append({'line': None, 'page': page['index'] if page else None, 'voice': voice})
+                scene['lines'].append({'line': None, 'page': page['index'] if page else None, 'voice': voice, 't': None})
         elif cid == 21 and len(vals) >= 2 and isinstance(vals[1], str):
             voice = os.path.basename(vals[1].replace('\\', '/'))
-            if pending is not None and pending['voice'] is None:
-                pending['voice'] = voice
+            t = vals[0]
+            if last_text is not None and last_text['voice'] is None and abs((last_text['t'] or 0) - t) < 0.05:
+                last_text['voice'] = voice
             else:
-                scene['lines'].append({'line': None, 'page': page['index'] if page else None, 'voice': voice})
+                if pending_voice:
+                    scene['lines'].append({'line': None, 'page': page['index'] if page else None, 'voice': pending_voice[1], 't': pending_voice[0]})
+                pending_voice = (t, voice)
+    if pending_voice:
+        scene['lines'].append({'line': None, 'page': page['index'] if page else None, 'voice': pending_voice[1], 't': pending_voice[0]})
     table = texts.get((scene['chapter'], scene['part']))
     for ln in scene['lines']:
         if ln['line'] is not None and table:

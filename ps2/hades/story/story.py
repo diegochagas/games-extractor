@@ -26,7 +26,8 @@ JUDGES = {'0r': 'Radamanthys', '0a': 'Aiacos', '0m': 'Minos'}
 
 
 def clean(text):
-    return re.sub(r'\s+', ' ', (text or '').replace('\x01', ' ')).strip()
+    text = re.sub(r'[\x00-\x08\x0b-\x1f]', ' ', (text or ''))        # the game's line-break and page codes
+    return re.sub(r'\s+', ' ', text).strip()
 
 
 # word order and gender slips the model makes with the English name forms ("Aries Mu", "Pegasus Seiya")
@@ -36,12 +37,18 @@ POLISH = [
     (r'\bSenhor Hades\b', 'Senhor Hades'), (r'\bMephisto\b', 'Máscara da Morte'), (r'\bRhadamanthys\b', 'Radamanthys'), (r'\bOrpheus\b', 'Orfeu'),
     (r'\bShaina\b', 'Shina'), (r'\bAphrodite\b', 'Afrodite'), (r'\bMiro\b', 'Milo'), (r'\bSpecters?\b', 'Espectros'), (r'\bSurplice\b', 'Sapuri'),
     (r'\bAthena\b', 'Atena'), (r'\bSanctuary\b', 'Santuário'), (r'\bCosmos\b', 'Cosmo'), (r'\bAgora, agora,', 'Calma, calma,'),
+    (r'\bAries\b', 'Áries'), (r'\bCancer\b', 'Câncer'), (r'\bPisces\b', 'Peixes'), (r'\bAndromeda\b', 'Andrômeda'), (r'\bPegasus\b', 'Pégaso'),
+    (r'\bno Batalha\b', 'na Batalha'), (r'\bStarlight Extinction\b', 'Extinção da Luz das Estrelas'), (r'\b[Bb]aka na[!…]*', 'Impossível!'),
+    (r'\bBaka\b', 'Tolo'), (r'\bNã… nani i!!', 'O… o quê?!'), (r'\bnani i\b', 'o quê'), (r'\bMinha [Ll]ady\b', 'Senhora'), (r'\b[Ll]ady Pandora\b', 'Senhora Pandora'),
+    (r'\bLord Radamanthys\b', 'Senhor Radamanthys'), (r'\bCaçador de Demônios\b', 'Rendição Divina'), (r'\bTesouro Celestial da Dança do Céu\b', 'Tesouro do Céu'),
+    (r'\bGold Saint\b', 'Cavaleiro de Ouro'), (r'\bCavaleiro de OuroGold Saint\b', 'Cavaleiro de Ouro'), (r'\bvocê está OK\b', 'você está bem'), (r'\bOK\b', 'Certo'),
 ]
 
 
 def polish(text):
-    for pat, rep in POLISH:
-        text = re.sub(pat, rep, text)
+    for _ in range(2):                      # twice: the accent fixes feed the name-order rule
+        for pat, rep in POLISH:
+            text = re.sub(pat, rep, text)
     return text
 
 
@@ -83,6 +90,7 @@ def main(argv):
             lines = []
             for i, ln in enumerate(s['lines']):
                 en, jp = clean(ln.get('text_uk')), clean(ln.get('text_jp'))
+                raw_en = (ln.get('text_uk') or '').replace('\x01', '').strip()      # the form the translation cache is keyed on
                 code, speaker = names.speaker(ln['voice'])
                 key = (ln['voice'] or '')[:-4].lower()
                 fix = fixes.get(key) or fixes.get('%s:%s' % (s['script'][:-4].lower(), ln['line']))
@@ -91,8 +99,8 @@ def main(argv):
                     speaker = fix.get('speaker') or speaker
                 elif isinstance(fix, str):
                     pt, source = fix, 'fixed'
-                elif en and translate.key_of(en) in cache:
-                    pt, source = polish(cache[translate.key_of(en)].replace('\n', ' ')), 'ollama'
+                elif en and translate.key_of(raw_en) in cache:
+                    pt, source = polish(re.sub(r'\s+', ' ', cache[translate.key_of(raw_en)])), 'ollama'
                 else:
                     pt, source = '', 'untranslated' if en else 'voice-only'
                 stats['lines'] += 1

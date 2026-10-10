@@ -6,20 +6,20 @@ cd "$(dirname "$0")/.."
 step() { printf '== %s\n' "$1"; }
 
 step "python syntax"
-python3 -m compileall -q -x '(node_modules|__pycache__)' angelica psp wonderswan unity >/dev/null
+python3 -m compileall -q -x '(node_modules|__pycache__)' angelica psp wonderswan unity ps2 >/dev/null
 
 if command -v ruff >/dev/null; then
-  step "ruff (psp)"
-  ruff check psp
+  step "ruff (psp, ps2)"
+  ruff check psp ps2
 else
   echo "-- ruff not installed: lint skipped"
 fi
 
 step "shell scripts"
 if command -v shellcheck >/dev/null; then
-  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh
+  shellcheck scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh ps2/sanctuary/*.sh
 else
-  bash -n scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh
+  bash -n scripts/check .githooks/pre-push psp/omega/*.sh unity/build.sh unity/check_update.sh ps2/sanctuary/*.sh
   echo "-- shellcheck not installed: syntax check only"
 fi
 
@@ -28,6 +28,7 @@ if command -v node >/dev/null; then
   node --check psp/omega/story/build.js
   node --check angelica/story/build.js
   node --check unity/story/build.js
+  node --check ps2/sanctuary/story/build.js
 else
   echo "-- node not installed: skipped"
 fi
@@ -38,8 +39,11 @@ python3 -m unittest discover -s psp/tests -t psp -q
 step "unit tests (unity)"
 python3 -m unittest discover -s unity/tests -t unity -q
 
+step "unit tests (ps2)"
+python3 -m unittest discover -s ps2/tests -t ps2 -q
+
 step "no game files staged"
-if git ls-files | grep -E -i '\.(iso|cpk|pac|gim|gmo|adx|ahx|pmf|pbd|phd|btx|apk|abws|fassets)$'; then
+if git ls-files | grep -E -i '\.(iso|cpk|pac|gim|gmo|adx|ahx|pmf|pbd|phd|btx|apk|abws|fassets|afs|sfd|tm2|tpl)$'; then
   echo "game files must not be committed"; exit 1
 fi
 echo "check passed"

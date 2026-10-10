@@ -22,3 +22,8 @@ node_modules/
 *.apk
 *.abws
 *.fassets
+# PS2 game files (Saint Seiya: The Sanctuary)
+*.afs
+*.sfd
+*.tm2
+*.tpl

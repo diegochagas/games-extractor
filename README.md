@@ -11,11 +11,13 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 | `angelica/` | Perfect World "Angelica" engine clients (built for **Saint Seiya Online**, the Seiya Reborn client) | Unpacks the `.pck` archives, converts every texture to PNG, dumps all in-game text (LANG files, quests, NPCs), builds an HTML/CSV image index, a Word image index and the Word story book, and renders every 3D character (front/side/back T pose) with Blender into a faction-organised gallery. See `angelica/README.md`. |
 | `unity/` | Unity 2022 IL2CPP mobile games (built for **Saint Seiya Rebirth**, 圣斗士星矢：重生, the DeNA China / Wapu game with the Legend of Asgard arc) | Lists and unwraps the `.abws` asset bundles of the APK, finds the public resource CDN from the launcher's server list and fetches the character bundles and icons without a login, dumps textures, sprites (split-alpha atlases rebuilt), texts, audio and meshes with UnityPy, converts the TSV game tables to JSON, renders every 2D puppet character in its idle pose and builds a gallery by faction. See `unity/README.md`. |
 
+| `ps2/` | PlayStation 2 games on CRI middleware (written for **Saint Seiya: The Sanctuary**, the Brazilian disc with the Portuguese dub) | Unpacks the ISO and the CRI `AFS` archive, the game's `FJF` containers and `CMPS` (LZSS) files, converts TIM2/TIM3 pictures to PNG, ADX sounds and Sofdec movies to `.ogg`/`.mp4`, dumps every text table (Portuguese and the other six languages where intact) and the cutscene scripts, transcribes the dubbed voices with faster-whisper, builds the gallery and the three-volume story book. See `ps2/README.md`. |
+
 All were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
 
 ## Checks
 
-`scripts/check` is the gate (syntax of every tool, shellcheck, unit tests of `psp/` and `unity/`); `.githooks/pre-push`
+`scripts/check` is the gate (syntax of every tool, shellcheck, unit tests of `psp/`, `unity/` and `ps2/`); `.githooks/pre-push`
 runs it before every push (`git config core.hooksPath .githooks`, once per clone).
 
 ## Builds
@@ -25,7 +27,8 @@ Every build writes to `~/Downloads` and nowhere else; the results are checked th
 Ultimate Cosmo, into `~/Downloads/Saint Seiya Omega Ultimate Cosmo/`, and `psp/omega/translated.sh GAME.iso`
 writes its Portuguese disc image (text, font, word pictures and subtitled movies) into `patch/` there.
 The `unity/` pipeline (see its README) writes the Saint Seiya Rebirth dump and the character gallery into
-`~/Downloads/Saint Seiya Rebirth/`.
+`~/Downloads/Saint Seiya Rebirth/`. `ps2/sanctuary/extract.sh GAME.iso` followed by `ps2/sanctuary/build.sh` does the
+same for Saint Seiya: The Sanctuary, into `~/Downloads/Saint Seiya - The Sanctuary (PS2)/`.
 
 ## Document format
 

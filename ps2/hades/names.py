@@ -59,6 +59,21 @@ DEMOS = ['A New Holy War', 'The Ancient Warrior', 'Moment of Vacillation', 'Shak
 DEMOS_PT = ['Uma nova Guerra Santa', 'O antigo guerreiro', 'Momento de hesitação', 'O Santuário abalado',
             'A Armadura de Atena', 'A manhã da decisão', 'O triste réquiem de Orfeu', 'O caminho para Judeca']
 
+# Stages (`<id>.gli`, see ../stage.py): hkNN are the arenas (the game names nine of them when it unlocks
+# them; the match below is by what the renders show), dmNN the sets of the cutscenes.
+STAGES = {
+    'hk00': 'Templo de Atena', 'hk01': 'Templo de Áries', 'hk02': 'Templo de Gêmeos', 'hk03': 'Templo de Virgem',
+    'hk04': 'Jardim das Salas Gêmeas', 'hk05': 'Penhasco do Santuário', 'hk06': 'Castelo de Hades',
+    'hk07': 'Mundo de Hades', 'hk08': 'Giudecca', 'hk09': 'Muro das Lamentações',
+    'dm00': 'Coluna das cenas (1)', 'dm01': 'Coluna das cenas (2)', 'dm02': 'Ruínas no Santuário',
+    'dm03': 'Pátio das tochas', 'dm04': 'Corredor de pedra', 'dm05': 'Templo sobre a rocha',
+    'dm06': 'Cânion com a rotunda', 'dm07': 'Salão de Giudecca', 'dm08': 'Salão do Grande Mestre',
+    'dm09': 'Pátio das tochas (2)', 'dm10': 'Jardim das Salas Gêmeas (cenas)', 'dm11': 'Templo de Atena (cenas)',
+    'dm12': 'Céu estrelado (1)', 'dm13': 'Céu estrelado (2)', 'dm14': 'Salão de Giudecca (2)',
+    'dm15': 'Templo de Atena (cenas, 2)', 'dm16': 'Céu estrelado (3)', 'dm17': 'Coluna das cenas (3)',
+    'test': 'Cenário de teste',
+}
+
 
 def speaker(voice_file):
     """(code, name) of the character who speaks a story voice file (story_NN_... / story_eNN_...)."""

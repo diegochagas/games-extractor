@@ -82,6 +82,14 @@ def main(argv):
     book['extra_models'] = [{'name': m['name'], 'file': m['file'], 'triangles': m['triangles'],
                              'front': img('renders/%s/front.png' % m['id'], 300, 400, crop=True)}
                             for m in models_info if m['name'].startswith('extra') and not m['simple'] and m['colour'] == 1 and not m.get('variant')]
+    spath = os.path.join(text, 'stages.json')
+    stages_info = json.load(open(spath, encoding='utf-8')) if os.path.exists(spath) else []
+    book['stages'] = [{'id': st['id'].split('/')[-1], 'name': st['name'], 'tiles': st['tiles'], 'objects': st['objects'],
+                       'triangles': st['triangles'], 'far': st['far'],
+                       'aerial': img('renders/%s/aerial.png' % st['id'], 560, 420, crop=True),
+                       'top': img('renders/%s/top.png' % st['id'], 300, 300, crop=True),
+                       'completo': img('renders/%s_completo/aerial.png' % st['id'], 560, 420, crop=True) if st['far'] else None}
+                      for st in stages_info]
     # chapters
     stats = {'lines': 0, 'translated': 0, 'fixed': 0, 'untranslated': 0}
     chapters = []

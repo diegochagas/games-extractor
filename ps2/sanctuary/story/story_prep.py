@@ -286,6 +286,14 @@ def main(argv):
                              'front': img('renders/%s/front.png' % m['id'], 300, 400, crop=True),
                              'three_quarter': img('renders/%s/three_quarter.png' % m['id'], 300, 400, crop=True)}
                             for m in models_info if m['name'].startswith('outros') and not m['simple'] and m['colour'] == 1]
+    spath = os.path.join(text, 'stages.json')
+    stages_info = json.load(open(spath, encoding='utf-8')) if os.path.exists(spath) else []
+    book['stages'] = [{'id': st['id'].split('/')[-1], 'name': st['name'], 'tiles': st['tiles'], 'objects': st['objects'],
+                       'triangles': st['triangles'], 'far': st['far'],
+                       'aerial': img('renders/%s/aerial.png' % st['id'], 560, 420, crop=True),
+                       'top': img('renders/%s/top.png' % st['id'], 300, 300, crop=True),
+                       'completo': img('renders/%s_completo/aerial.png' % st['id'], 560, 420, crop=True) if st['far'] else None}
+                      for st in stages_info]
     bdir = os.path.join(dump, 'audio', 'banks')
     book['bank_count'] = len(os.listdir(bdir)) if os.path.isdir(bdir) else 0
     book['bank_samples'] = sum(len(os.listdir(os.path.join(bdir, b))) for b in os.listdir(bdir)) if os.path.isdir(bdir) else 0

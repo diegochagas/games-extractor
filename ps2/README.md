@@ -22,7 +22,8 @@ sanctuary/build.sh                  # gallery folders + the three volumes of the
 | `tim2.py` | Sony **TIM2** pictures; the game also writes the magic `TIM3` with the same layout. 4/8-bit indexed (CSM1 CLUT: blocks of 32 colours with the two middle groups of 8 swapped), 16, 24 and 32-bit; PS2 alpha (0x80 = opaque) scaled to 8 bits. `convert` walks a tree and opens the containers on the way. |
 | `msg.py` | Text tables: a block is u16 count, u16 offset per string (16-bit units from the block start), UTF-16LE text where 0x0000 is a line break and 0x00FF ends the string. Controls: `0000 0001` line, `0000 0004`/`0006` page, `C8 0001 xx` button icon, `C9 0002 ..` speaker/face (Pope mode), `0016 0001` colour, `0013 0001 xx` column. FJF files hold one block per language (seven slots: the Japanese one carries Portuguese on this disc, then US/UK English, Italian, German, French, Spanish). The Brazilian text was written over the Japanese block without fixing the FJF offsets, so the Portuguese block is read from where it starts and the other languages only where the stale offsets still point at a sane block (several are overwritten). The Brazilian text uses hiragana code points for accented letters the font had no slot for (`ぇ` = á, `げ` = ã, `く` = q...): `ACCENTS` maps them back. |
 | `media.py` | **ADX** sound and **Sofdec** movies (`.sfd` = MPEG-1 video + ADX audio), both decoded by ffmpeg to `.ogg` / `.mp4`. |
-| `gmi.py` | **GMI** character models (`NN.gmi`, CMPS-compressed; `NNs.gmi` the simple model): header `19 03 04 20`, a bone table (112-byte bones: 4x4 row-major matrix relative to the parent, parent index, name) and 48-byte parts: vertex count, triangle count, flags, offsets of the positions (4 floats, the 4th a strip flag: 1 = the vertex kicks a triangle with the two before it, strips restart with two flag-0 vertices), normals (4 s16 / 4096), UVs (2 floats), skin bytes (palette index, second index or 255) and, for blended parts, two float weights; a 12-byte bone palette. A vertex bound to one bone is stored in that bone's local frame (the bind pose is rebuilt by chaining the matrices); a blended vertex is in model space. `glb` writes a binary glTF with the body and face textures (unlit, PS2 half alpha made opaque), Y up, facing the front. The stage backdrops (`*_far.gmi`, `*_sky.gmi`) are bone-less models in the same format. |
+| `gmi.py` | **GMI** character models (`NN.gmi`, CMPS-compressed; `NNs.gmi` the simple model): header `19 03 04 20`, a bone table (112-byte bones: 4x4 row-major matrix relative to the parent, parent index, name) and 48-byte parts: vertex count, triangle count, flags, offsets of the positions (4 floats, the 4th a strip flag: 1 = the vertex kicks a triangle with the two before it, strips restart with two flag-0 vertices), normals (4 s16 / 4096), UVs (2 floats), skin bytes (palette index, second index or 255) and, for blended parts, two float weights; a 12-byte bone palette. A vertex bound to one bone is stored in that bone's local frame (the bind pose is rebuilt by chaining the matrices); a blended vertex is in model space. `glb` writes a binary glTF with the body and face textures (unlit, PS2 half alpha made opaque), Y up, facing the front. `--env` bakes the reflection map (second picture of `NN.tpl`, sphere-mapped by the normals) into the vertex colours of the parts flagged 8, which is what makes the Gold Cloths gold. The stage pieces are bone-less models in the same format with a colour stream instead of normals and the texture index in the low half of the triangle count. |
+| `stage.py` | **Stages** (`NN.gli` + `NN.jnt` + `NN.bin` + `NN_tex.bin`, optional `NN_obj.bin`, `NN_spe.bin`, `NN_far.gmi`, `NN_sky.gmi`): the `.gli` list (`03 02 05 20`) holds the tile grid (tile size, corner, columns x rows of present cells), the placement of the objects of `NN_obj.bin` and of the billboards of `NN_spe.bin` (112-byte records: 4x4 matrix, name) and the particle effects; `NN.bin` is one chunk per tile wrapping a GMI piece centred on the tile (offsets in `NN.jnt`); every piece picks its texture in `NN_tex.bin` by index and carries vertex colours. `glb` writes the whole stage as one glTF (nodes `tile_C_R`, `obj_*`, `spe_*`, `far`, `sky`, unlit, blended pieces kept translucent). |
 | `sebank.py` | **SE banks** (`SE_*.BIN`): FJF with a `seds` chunk (sound sequences, not decoded) and a `swdm` chunk: 32-byte sample records (offset, loop, volume, pitch in 1/256 semitone with 0xF0D9 = 20 kHz, Shift-JIS source name) and PlayStation ADPCM samples, written as `.wav`. |
 
 ## The game (`sanctuary/`)
@@ -63,8 +64,10 @@ sanctuary/build.sh                  # gallery folders + the three volumes of the
 The story is told in real-time 3D cutscenes, not pictures: the scene files carry cameras, models and
 textures, so the book illustrates each chapter with the title plate and the still the game itself uses
 in the scene selection, and the two scenes recorded on video with frames of the videos. The character
-models are decoded and rendered in the bind pose; the Gold Cloths come out grey because the game paints
-the gold as a reflection effect at run time, which is not in the texture. The cutscene
+models are decoded and rendered in the bind pose, with the reflection map of each Cloth baked in (the
+gold of the Gold Cloths is a reflection effect, not in the texture). The stages are rebuilt from their
+tiles, objects and far scenery (`sanctuary/stages.py`, rendered from the air, from above and from the
+front, with and without the far scenery). The cutscene
 text tables (`msgDM*`, `msgIF*`, `msgPope*`) are blank in the Brazilian disc: the story is dubbed and
 not subtitled, so the dialogue comes from the voices. The movies `GX_JP.SFD` / `GX_US.SFD` are the
 Japanese and international openings.
@@ -73,15 +76,15 @@ Japanese and international openings.
 
 `scripts/check` (repo root) compiles everything, lints what it can and runs `ps2/tests`
 (`python3 -m unittest discover -s ps2/tests -t ps2`). The tests build tiny files in every format
-(AFS, CMPS, FJF, TIM2/TIM3, text tables, SC scripts) in memory (`tests/fixtures.py`); no game data is
+(AFS, CMPS, FJF, TIM2/TIM3, text tables, SC scripts, GMI, stages, SE banks) in memory (`tests/fixtures.py`); no game data is
 committed.
 
 ## Not done
 
-- The stage geometry (`dNN.bin`, `kNN.bin`, `zNN.bin` with `03 02 05 20` chunks, their `.gli` material
-  lists and `.jnt` index tables) is not decoded; only the far backdrop and sky models (`*_far.gmi`,
-  `*_sky.gmi`) export through `gmi.py`, without textures. Animations (`.mpl`, `.cmb`, `.glc`) are not
-  played: the renders are the bind pose. The reflection maps that make the Gold Cloths gold are not reproduced.
+- Animations (`.mpl`, `.cmb`, `.glc`) are not played: the renders are the bind pose. The stage
+  effects (particles: smoke, waterfalls, rainbows) are listed but have no model; the `_flr`/`_ugd`
+  (floor / underground) variants of some stages and the Hades `_16`/`_19` files are not opened. The
+  reflection is baked as seen from the front, so it does not move with the camera.
 - The sound sequences of the banks (`seds` chunk: which sample plays when) are not decoded; every
   sample is extracted. Sample names are the 16-character Shift-JIS source names, some cut short.
 - The transcription was proof-read by reading, with two recognition passes, not by listening: lines
@@ -105,7 +108,8 @@ Japanese, no Portuguese. The same engine and formats; what differs:
 - `hades/story/translate.py` translates the English lines to pt-BR with a local Ollama model (cache
   per line, `glossary.json` with the Brazilian names; `story.py` fixes the model's name-order slips),
   `story_prep.py` + `build.js` make three volumes with the English and Japanese under each line.
-- `hades/extract.sh`, `hades/build.sh`, `hades/organize.py`: the same pipeline and gallery layout.
+- `hades/extract.sh`, `hades/build.sh`, `hades/organize.py`: the same pipeline and gallery layout;
+  the stages are `dmNN` (the story scenes) and `hkNN` (the arenas), 2x2 grids of 2048-unit tiles.
 - There is no Sagittarius Specter Seiya in the disc: Seiya exists in his Pegasus Cloths (three),
   the Sagittarius Gold Cloth and the golden Bronze Cloth; Surplices only for Mephisto, Aphrodite,
   Shura, Camus and Saga, plus the three Judges.

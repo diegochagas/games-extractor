@@ -32,12 +32,14 @@ echo "== movies";                python3 "$PS2/media.py" video "$OUT/iso/DATA" "
 echo "== music and voices";      python3 "$PS2/media.py" audio "$OUT/afs" "$OUT/audio" --workers 6
 echo "== sound banks";           python3 "$PS2/sebank.py" extract "$OUT/afs" "$OUT/audio/banks"
 echo "== 3D models";             python3 "$PS2/sanctuary/models.py" "$OUT/afs" "$OUT" --names hades
+echo "== stages";                python3 "$PS2/sanctuary/stages.py" "$OUT/afs" "$OUT" --names hades
 if [ "$MODE" != "--no-render" ]; then
   if [ -z "$BLENDER" ] || [ ! -x "$BLENDER" ]; then
     echo "-- Blender not found: set BLENDER or use --no-render"
   else
     echo "== renders"
     python3 "$PSP/render/render_all.py" "$OUT/text/render_jobs.json" "$OUT/renders" --blender "$BLENDER" --workers 2
+    python3 "$PSP/render/render_all.py" "$OUT/text/stage_render_jobs.json" "$OUT/renders" --blender "$BLENDER" --workers 2
   fi
 fi
 echo "== done: $OUT"

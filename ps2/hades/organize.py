@@ -147,6 +147,21 @@ def main(argv):
                 os.makedirs(os.path.dirname(dest), exist_ok=True)
                 (im.crop(box) if box else im).save(dest)
                 c.index.append({'file': dest, 'source': src, 'kind': 'render'})
+    sdir = os.path.join(dump, 'renders', 'stages')
+    spath = os.path.join(dump, 'text', 'stages.json')
+    stage_names = {st['id'].split('/')[-1]: st['slug'] for st in json.load(open(spath, encoding='utf-8'))} if os.path.exists(spath) else {}
+    for ident in sorted(os.listdir(sdir)) if os.path.isdir(sdir) else []:
+        base = ident.replace('_completo', '')
+        slug_ = stage_names.get(base, base)
+        for view, label in {'aerial': 'aerea', 'top': 'de-cima', 'front': 'frente'}.items():
+            src = os.path.join(sdir, ident, view + '.png')
+            if os.path.exists(src):
+                im = Image.open(src).convert('RGBA')
+                box = im.getbbox()
+                dest = os.path.join(out, '%s/Cenários/%s' % (PICS, slug_), '%s-%s%s.png' % (slug_, label, '-com-cenario-distante' if ident.endswith('_completo') else ''))
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                (im.crop(box) if box else im).save(dest)
+                c.index.append({'file': dest, 'source': src, 'kind': 'render'})
     mdir = os.path.join(dump, 'models')
     for root, _dirs, files in os.walk(mdir):
         for n in sorted(files):

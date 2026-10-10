@@ -19,6 +19,7 @@ import msg  # noqa: E402
 import tim2  # noqa: E402
 import gmi  # noqa: E402
 import sebank  # noqa: E402
+import stage  # noqa: E402
 from sanctuary import names  # noqa: E402
 from sanctuary import scenes  # noqa: E402
 from hades import names as hnames  # noqa: E402
@@ -202,6 +203,37 @@ class GmiTest(unittest.TestCase):
         doc = json.loads(glb[20:20 + n])
         pos_acc = doc['accessors'][0]
         self.assertAlmostEqual(pos_acc['max'][0], 0.0, places=5)
+
+
+class StageTest(unittest.TestCase):
+    def test_list_tiles_and_glb(self):
+        gli, tiles, jnt = fixtures.stage([(0, 0), (1, 0), (1, 1)], [('hasira1', (10.0, -5.0, 20.0))])
+        info = stage.parse_list(gli)
+        self.assertEqual((info['columns'], info['rows'], info['tile']), (2, 2, 256.0))
+        self.assertEqual(info['cells'], [(0, 0), (1, 0), (1, 1)])
+        self.assertEqual([r['name'] for r in info['objects']], ['hasira1'])
+        self.assertEqual(info['objects'][0]['matrix'][3][:3], [10.0, -5.0, 20.0])
+        pieces = stage.tiles(tiles)
+        self.assertEqual(len(pieces), 3)
+        part = pieces[0]['parts'][0]
+        self.assertEqual((part['texture'], part['colours'][0], part['normals']), (3, (64, 64, 64, 128), None))
+        with tempfile.TemporaryDirectory() as tmp:
+            for name, blob in (('t.gli', gli), ('t.bin', tiles), ('t.jnt', jnt)):
+                with open(os.path.join(tmp, name), 'wb') as f:
+                    f.write(blob)
+            with open(os.path.join(tmp, 't_obj.bin'), 'wb') as f:
+                f.write(fixtures.fjf([(0, fixtures.stage_piece(texture=1))]))
+            st = stage.load(tmp, 't')
+            self.assertEqual(len(st['tiles']), 3)
+            self.assertEqual(st['objects'][0][0]['name'], 'hasira1')
+            glb = stage.to_glb(st, {})
+        n = struct.unpack_from('<I', glb, 12)[0]
+        doc = json.loads(glb[20:20 + n])
+        self.assertEqual([nd['name'] for nd in doc['nodes']], ['tile_0_0', 'tile_1_0', 'tile_1_1', 'obj_hasira1'])
+        first = doc['accessors'][doc['meshes'][0]['primitives'][0]['attributes']['POSITION']]
+        self.assertAlmostEqual(first['max'][0], 129.0, places=4)      # tile (0,0) centred at x = -128, mirrored
+        self.assertIn('COLOR_0', doc['meshes'][0]['primitives'][0]['attributes'])
+        self.assertEqual([m['name'] for m in doc['materials']], ['tex3', 'tex1'])
 
 
 class SebankTest(unittest.TestCase):

@@ -8,7 +8,8 @@ each fighter as a separate model on the same skeleton: it is merged into the bod
 exported alone as `_h`).
 
 `NN.gmi` (00-23 the fighters, 30-34 and 60-67 the people of the scenes) with the body texture
-`NN.tpl` (first picture; `NNa.tpl` = the second colour) and the first face of `NN_face.tpl`.
+`NN.tpl` (first picture; `NNa.tpl` = the second colour), the reflection map of the Cloth (second
+picture of `NN.tpl`, baked into the vertex colours of the armour parts) and the first face of `NN_face.tpl`.
 `NNs.gmi` is the simplified model (shadows / far away) and is exported next to it.
 """
 import json
@@ -22,14 +23,18 @@ sys.path.insert(0, os.path.dirname(HERE))
 import gmi  # noqa: E402
 
 
-def first_png(folder):
+def nth_png(folder, index=0):
     if not os.path.isdir(folder):
         return None
+    found = []
     for root, _dirs, files in os.walk(folder):
         for n in sorted(files):
             if n.lower().endswith('.png'):
-                return os.path.join(root, n)
-    return None
+                found.append(os.path.join(root, n))
+    return found[index] if index < len(found) else None
+
+
+first_png = nth_png
 
 
 def main(argv):
@@ -70,6 +75,7 @@ def main(argv):
                 pass
         label = names.BY_NUMBER[num][3] if num in names.BY_NUMBER else ('extra-%s' % num if num.startswith('e') else 'outros-%s' % num)
         face = first_png(os.path.join(images, '%s_face.tpl' % num))
+        env = nth_png(os.path.join(images, '%s.tpl' % num), 1)
         variants = [('', first_png(os.path.join(images, '%s.tpl' % num)))]
         if not simple and os.path.isdir(os.path.join(images, '%sa.tpl' % num)):
             variants.append(('_cor2', first_png(os.path.join(images, '%sa.tpl' % num))))
@@ -77,11 +83,12 @@ def main(argv):
             ident = '%s%s%s%s' % (label, variant, '_simples' if simple else '', suffix)
             path = os.path.join(out, ident + '.glb')
             with open(path, 'wb') as f:
-                f.write(gmi.to_glb(model, (body, face)))
+                f.write(gmi.to_glb(model, (body, face), env=env))
             info = {'id': 'characters/' + ident, 'file': name, 'number': num, 'name': label, 'simple': simple,
                     'colour': 2 if suffix else 1, 'variant': variant.strip('_'), 'bones': len(model['bones']),
                     'triangles': sum(len(p['faces']) for p in model['parts']), 'parts': len(model['parts']),
-                    'texture': os.path.relpath(body, dump) if body else None, 'glb': os.path.relpath(path, dump)}
+                    'texture': os.path.relpath(body, dump) if body else None,
+                    'reflection': os.path.relpath(env, dump) if env else None, 'glb': os.path.relpath(path, dump)}
             models.append(info)
             if not simple:
                 jobs.append({'id': info['id'], 'glb': path, 'views': ['front', 'side', 'back', 'three_quarter']})

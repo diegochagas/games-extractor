@@ -29,6 +29,7 @@ VIEWS = {
     "left": ((-1, 0, 0), (math.pi / 2, 0, -math.pi / 2)),
     "top": ((0, 0, 1), (0, 0, 0)),
     "three_quarter": ((0.6, -1, 0.35), None),
+    "aerial": ((0.7, -1, 0.9), None),
 }
 
 

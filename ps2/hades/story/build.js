@@ -95,6 +95,17 @@ for (const k of D.fighters) {
 }
 if (D.extra_models.length) { c.push(H2('Os outros modelos 3D do disco')); for (const g of grid(D.extra_models.filter(m => m.front).map(m => ({ file: m.front, label: `${m.file} (${m.triangles} triângulos)` })), 4, 150, 260)) c.push(g); }
 
+if (D.stages && D.stages.length) {
+  c.push(H1('Os cenários'));
+  SUMMARIES['Os cenários'] = `os ${D.stages.length} cenários do disco, renderizados a partir dos modelos 3D.`;
+  c.push(P('Os cenários das lutas, montados a partir das peças do disco: o chão em ladrilhos, os objetos colocados sobre ele (colunas, tochas, pedaços que quebram) e, na segunda imagem de cada um, o cenário distante ao redor.'));
+  for (const st of D.stages) {
+    c.push(H2(`${st.name} (${st.id})`));
+    const row = imgRow([st.aerial ? { file: st.aerial, label: 'Arena' } : null, st.completo ? { file: st.completo, label: 'Com o cenário distante' } : null], 300, 260); if (row) c.push(row);
+    c.push(P([run(`${st.tiles} ladrilhos, ${st.objects} objetos, ${st.triangles} triângulos no chão.`, { size: 16, color: '595959' })]));
+  }
+}
+
 // ===== VOLUME 02
 function chapterBlock(ch) {
   c.push(H2(`${ch.title}${ch.speakers.length ? ' — ' + ch.speakers.slice(0, 4).join(', ') : ''}`));

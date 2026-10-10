@@ -50,6 +50,27 @@ TITLES_JP = {'demo06': '決戦！黄金十二宮', 'demo08': '黄金の野牛！
 TEMPLES = ['Áries', 'Touro', 'Gêmeos', 'Câncer', 'Leão', 'Virgem', 'Libra', 'Escorpião', 'Sagitário',
            'Capricórnio', 'Aquário', 'Peixes']
 
+# Stages (`<id>.gli`, see ../stage.py): kNN follow the order of the Twelve Houses and the places after
+# them, zNN are the Saint Legend / Master mode grounds, dNN the sets of the cutscenes. The names of the
+# d and z sets describe what the renders show (the disc names them only by number).
+STAGES = {
+    'k00': 'Casa de Áries', 'k01': 'Casa de Touro', 'k02': 'Casa de Gêmeos', 'k03': 'Casa de Câncer',
+    'k04': 'Casa de Leão', 'k05': 'Casa de Virgem', 'k06': 'Casa de Libra', 'k07': 'Casa de Escorpião',
+    'k08': 'Casa de Sagitário', 'k09': 'Casa de Capricórnio', 'k10': 'Casa de Aquário', 'k11': 'Casa de Peixes',
+    'k12': 'Salão do Grande Mestre', 'k13': 'Estátua de Atena', 'k14': 'Grande Coliseu', 'k15': 'Casa de Aquário (variante)',
+    'z15': 'Colina do Santuário', 'z16': 'Caminho das Doze Casas', 'z17': 'Ruínas do Santuário',
+    'z18': 'Campo de treino (luta com Cássius)', 'z19': 'Colina com arcos', 'z20': 'Caminho rochoso com templo',
+    'z21': 'Templo no penhasco', 'z22': 'Cânion com a rotunda', 'z23': 'Montanha rochosa', 'z24': 'Cânion do tapete vermelho',
+    'd40': 'Cratera', 'd45': 'Torre do Relógio de Fogo', 'd52': 'Penhasco com o templo sobre a ponte',
+    'd54': 'Caminho entre as Casas à noite', 'd62': 'Salão de colunas', 'd65': 'Muro com a porta',
+    'd66': 'Templo com colunata', 'd68': 'Céu estrelado', 'd72': 'Templo ao entardecer',
+    'd73': 'Escadaria entre as Casas', 'd74': 'Caverna', 'd85': 'Relógio de Fogo (de perto)',
+    'd86': 'Torre do Relógio de Fogo (2)', 'd87': 'Torre do Relógio de Fogo (3)', 'd88': 'Torre do Relógio de Fogo (4)',
+    'd89': 'Torre do Relógio de Fogo (5)', 'menu_map': 'Mapa do menu (as Doze Casas)', 'op_hashira': 'Colunas da abertura',
+    'sele_st_colosseum': 'Seleção de cenário: Coliseu', 'sele_st_hell': 'Seleção de cenário: Inferno',
+    'select_st': 'Seleção de cenário: fundo estrelado', 'test': 'Cenário de teste',
+}
+
 
 def speaker(voice_file):
     """(code, name) of the character who speaks a story voice file (story_NN_... / story_eNN_...)."""

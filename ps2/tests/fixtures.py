@@ -146,3 +146,42 @@ def sebank(samples):
     data_off = 0x60 + len(recs)
     swdm = b'swdm' + b'\0' * 60 + struct.pack('<IIII', 0x8000, 0x40, len(data), data_off) + b'\0' * 16 + recs + data
     return fjf([(0, b'seds' + b'\0' * 28), (0, swdm)], flags=0xC000)
+
+
+def stage_piece(texture=3, colour=(64, 64, 64, 128)):
+    """A bone-less GMI piece like the stage tiles: one quad, no normals, vertex colours, texture index."""
+    quad = [(-1, 0, -1, 0.0), (-1, 0, 1, 0.0), (1, 0, -1, 1.0), (1, 0, 1, 1.0)]
+    pos = b''.join(struct.pack('<4f', *v) for v in quad)
+    col = bytes(colour) * len(quad)
+    uv = b''.join(struct.pack('<2f', v[0], v[2]) for v in quad)
+    poff = 32
+    opos = poff + 48
+    ocol = opos + len(pos)
+    ouv = ocol + len(col)
+    part = struct.pack('<HHIIIIIIII', 2, 4, (2 << 16) | texture, 0, opos, 0, ocol, ouv, 0, 0) + b'\xff' * 12
+    body = part + pos + col + uv
+    return b'\x19\x03\x04 ' + struct.pack('<IIIHHIIHH', 32 + len(body), 16, 0, 0, 1, 0, poff, 1, 4) + body
+
+
+def stage(cells, objects=(), tile=256.0, origin=(-256.0, -256.0)):
+    """The three files of a stage: (list .gli, tile .bin, index .jnt). cells = [(x, y)], objects = [(name, (tx, ty, tz))]."""
+    cols = max(x for x, _y in cells) + 1
+    rows = max(y for _x, y in cells) + 1
+    grid = b''.join(struct.pack('<HBB', 1 if (x, y) in cells else 0, x, y) for y in range(rows) for x in range(cols))
+    o_obj = 0x44 + len(grid)
+    o_obj += (-o_obj) % 16
+    recs = b''
+    for name, t in objects:
+        m = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, t[0], t[1], t[2], 1]
+        recs += struct.pack('<16f', *m) + name.encode().ljust(32, b'\0') + struct.pack('<hH', -1, 0) + b'\xdd' * 12
+    o_fx = o_obj + len(recs)
+    end = o_fx
+    head = b'\x03\x02\x05 ' + struct.pack('<III3f6HHH3IIII', end, 16, 0, tile, origin[0], origin[1], cols, rows, 4, len(objects), 0, 0, 0, 1,
+                                              o_obj, o_fx, o_fx, 0, end, 0x44)
+    gli = head + grid + b'\xdd' * (o_obj - 0x44 - len(grid)) + recs
+    piece = stage_piece()
+    chunk = b'\x03\x02\x05 ' + struct.pack('<5I', 0x60 + len(piece), 16, 0, 0x24, 0x44) + struct.pack('<I', 0x60) + b'\0' * (0x60 - 28) + piece
+    chunk += b'\0' * ((-len(chunk)) % 0x800)
+    tiles = chunk * len(cells)
+    jnt = fjf([(i, b'') for i in range(len(cells))])
+    return gli, tiles, jnt

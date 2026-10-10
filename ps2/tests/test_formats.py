@@ -22,6 +22,7 @@ import sebank  # noqa: E402
 import stage  # noqa: E402
 from sanctuary import names  # noqa: E402
 from sanctuary import scenes  # noqa: E402
+from sanctuary import models as smodels  # noqa: E402
 from hades import names as hnames  # noqa: E402
 from hades import scenes as hscenes  # noqa: E402
 from tests import fixtures  # noqa: E402
@@ -195,6 +196,19 @@ class GmiTest(unittest.TestCase):
         pos_acc = doc['accessors'][doc['meshes'][0]['primitives'][0]['attributes']['POSITION']]
         self.assertAlmostEqual(pos_acc['min'][0], -2.0, places=5)      # child bone at +1 on x, then mirrored to face the front
         self.assertAlmostEqual(pos_acc['max'][0], -1.0, places=5)
+
+    def test_face_placed_on_head_bone(self):
+        body = gmi.parse(fixtures.gmi())
+        with tempfile.TemporaryDirectory() as tmp:
+            path = os.path.join(tmp, 'x_face.bin')
+            with open(path, 'wb') as f:
+                f.write(cmps.pack(fixtures.fjf([(0, fixtures.stage_piece())])))
+            parts = smodels.face_parts(path, smodels.head_position(body, bone='child'))     # child bone sits at +1 on x
+            self.assertEqual(smodels.add_parts(path), ([], None))        # bone-less entries are accessories: left out
+        self.assertEqual(len(parts), 1)
+        self.assertEqual(parts[0]['palette'], [])
+        self.assertAlmostEqual(min(p[0] for p in parts[0]['positions']), 0.0, places=5)
+        self.assertAlmostEqual(max(p[0] for p in parts[0]['positions']), 2.0, places=5)
 
     def test_raw_keeps_coordinates(self):
         model = gmi.parse(fixtures.gmi())

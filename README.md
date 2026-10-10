@@ -12,8 +12,6 @@ read-only review dump elsewhere (by default `~/Downloads/<game name>/`).
 | `unity/` | Unity 2022 IL2CPP mobile games (built for **Saint Seiya Rebirth**, 圣斗士星矢：重生, the DeNA China / Wapu game with the Legend of Asgard arc) | Lists and unwraps the `.abws` asset bundles of the APK, finds the public resource CDN from the launcher's server list and fetches the character bundles and icons without a login, dumps textures, sprites (split-alpha atlases rebuilt), texts, audio and meshes with UnityPy, converts the TSV game tables to JSON, renders every 2D puppet character in its idle pose and builds a gallery by faction. See `unity/README.md`. |
 | `ps2/` | PlayStation 2 games on CRI middleware (written for **Saint Seiya: The Sanctuary**, the Brazilian disc with the Portuguese dub, and reused for **Saint Seiya: The Hades**, the European disc) | Unpacks the ISO and the CRI `AFS` archive, the game's `FJF` containers and `CMPS` (LZSS) files, converts TIM2/TIM3 pictures to PNG, ADX sounds and Sofdec movies to `.ogg`/`.mp4`, dumps every text table (Portuguese and the other six languages where intact) and the cutscene scripts, decodes the character models (with the reflection maps of the Cloths) and the stages to glTF and renders them with Blender, extracts the sound banks, transcribes the dubbed voices with faster-whisper (two passes + a hand review), builds the gallery and the three-volume story book. See `ps2/README.md`. |
 
-All were written with Claude Code; the WonderSwan part started as the `wonderswan-romhack` repo.
-
 ## Checks
 
 `scripts/check` is the gate (syntax of every tool, shellcheck, unit tests of `psp/`, `unity/` and `ps2/`); `.githooks/pre-push`

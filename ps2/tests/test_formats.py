@@ -101,6 +101,12 @@ class Tim2Test(unittest.TestCase):
         self.check(fixtures.tim2(im))
         self.check(fixtures.tim2(im, magic=b'TIM3', indexed=False))
 
+    def test_index_table_does_not_recurse(self):
+        data = b'FJF\0' + (4).to_bytes(2, 'little') + (0x4000).to_bytes(2, 'little') + \
+            b''.join(x.to_bytes(4, 'little') for x in (0, 0x18800, 0x31000, 0x95000, 0xea000)) + b'\0' * 40
+        with tempfile.TemporaryDirectory() as tmp:
+            self.assertEqual(tim2.convert_file(data, os.path.join(tmp, 'x.jnt')), 0)
+
     def test_convert_inside_container(self):
         im = fixtures.sample_image()
         data = fixtures.fjf([(1, fixtures.tim2(im)), (2, b'not a picture')])

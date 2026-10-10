@@ -112,7 +112,7 @@ def convert_file(data, dest_stem):
             os.makedirs(os.path.dirname(path), exist_ok=True)
             im.save(path)
             n += 1
-    elif fjf.is_fjf(data):
+    elif fjf.is_fjf(data) and fjf.inside(data):
         _flags, ents = fjf.entries(data)
         for i, (eid, off, size) in enumerate(ents):
             n += convert_file(data[off:off + size], os.path.join(dest_stem, '%02d_%d' % (i, eid)))

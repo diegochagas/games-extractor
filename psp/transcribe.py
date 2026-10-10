@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 """Speech of a video or audio file -> timed segments (JSON), with faster-whisper.
 
-usage: transcribe.py OUT_DIR FILE [FILE ...] [--language ja] [--model large-v3] [--device cuda]
+usage: transcribe.py OUT_DIR FILE [FILE ...] [--language ja] [--model large-v3] [--device cuda] [--prompt TEXT] [--suffix NAME]
 
 Writes OUT_DIR/<name>.<language>.json: [{"start", "end", "text", "no_speech", "words": [...]}].
 Runs in its own environment (faster-whisper is not needed by the other tools):
     python3 -m venv VENV && VENV/bin/pip install faster-whisper nvidia-cublas-cu12 nvidia-cudnn-cu12
+`--prompt` seeds the recogniser with names and terms it should expect (a sentence in the language of
+the speech); `--suffix` names the output files <name>.<suffix>.json instead of <name>.<language>.json.
 Songs are not meant to be subtitled: segments are kept as recognised and the choice of what
 becomes a subtitle is made when the translation is written.
 """
@@ -32,7 +34,7 @@ def gpu_libraries():
 
 
 def main(argv):
-    opts = {'--language': 'ja', '--model': 'large-v3', '--device': 'cuda'}
+    opts = {'--language': 'ja', '--model': 'large-v3', '--device': 'cuda', '--prompt': '', '--suffix': ''}
     pos = []
     i = 1
     while i < len(argv):
@@ -55,13 +57,14 @@ def main(argv):
     for path in pos[1:]:
         segments, info = model.transcribe(path, language=opts['--language'], beam_size=5, word_timestamps=True,
                                           vad_filter=True, vad_parameters={'min_silence_duration_ms': 400},
-                                          condition_on_previous_text=False)
+                                          condition_on_previous_text=False,
+                                          initial_prompt=opts['--prompt'] or None)
         rows = [{'start': round(s.start, 2), 'end': round(s.end, 2), 'text': s.text.strip(),
                  'no_speech': round(s.no_speech_prob, 3),
                  'words': [{'start': round(w.start, 2), 'end': round(w.end, 2), 'word': w.word}
                            for w in (s.words or [])]} for s in segments]
         name = os.path.splitext(os.path.basename(path))[0]
-        dest = os.path.join(out, '%s.%s.json' % (name, opts['--language']))
+        dest = os.path.join(out, '%s.%s.json' % (name, opts['--suffix'] or opts['--language']))
         with open(dest, 'w', encoding='utf-8') as f:
             json.dump(rows, f, ensure_ascii=False, indent=1)
         print('%s: %d segments, %.0f s -> %s' % (name, len(rows), info.duration, dest))

@@ -5,8 +5,10 @@ folders with Portuguese names, ready for a media library.
 usage: organize.py DUMP_DIR OUT_DIR
   OUT_DIR/Imagens   pictures only, one folder per subject (character art, encyclopedia, cards,
                     toys, chapter titles, name plates, textures, scenes, effects, interface)
+                    and the renders of the 3D models (Modelos 3D dos personagens)
   OUT_DIR/Vídeos    the three Sofdec movies
-  OUT_DIR/Música    Músicas/, Vozes/ (story voices by chapter, battle voices by fighter)
+  OUT_DIR/Música    Músicas/, Vozes/ (story voices by chapter, battle voices by fighter), Efeitos/ (the sound banks)
+  OUT_DIR/Modelos 3D  the .glb models
 The index of what was copied goes to DUMP_DIR/text/gallery_index.json.
 """
 import hashlib
@@ -15,6 +17,8 @@ import os
 import re
 import shutil
 import sys
+
+from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from sanctuary import names  # noqa: E402
@@ -186,6 +190,24 @@ def main(argv):
         elif low.endswith('.png'):
             c.copy(take(name), '%s/Interface' % PICS, low, kind='interface')
 
+    # renders of the 3D models
+    VIEW = {'front': 'frente', 'side': 'lado', 'back': 'costas', 'three_quarter': 'tres-quartos', 'top': 'de-cima'}
+    rdir = os.path.join(dump, 'renders', 'characters')
+    for ident in sorted(os.listdir(rdir)) if os.path.isdir(rdir) else []:
+        for view, label in VIEW.items():
+            src = os.path.join(rdir, ident, view + '.png')
+            if os.path.exists(src):
+                im = Image.open(src).convert('RGBA')
+                box = im.getbbox()
+                dest = os.path.join(out, '%s/Modelos 3D dos personagens/%s' % (PICS, ident.split('_')[0]), '%s-%s.png' % (ident.replace('_', '-'), label))
+                os.makedirs(os.path.dirname(dest), exist_ok=True)
+                (im.crop(box) if box else im).save(dest)
+                c.index.append({'file': dest, 'source': src, 'kind': 'render'})
+    mdir = os.path.join(dump, 'models')
+    for root, _dirs, files in os.walk(mdir):
+        for n in sorted(files):
+            c.copy(os.path.join(root, n), os.path.join('Modelos 3D', os.path.relpath(root, mdir)), n, kind='model')
+
     # movies
     vdir = os.path.join(dump, 'video')
     for n in sorted(os.listdir(vdir)) if os.path.isdir(vdir) else []:
@@ -204,6 +226,10 @@ def main(argv):
         for ln in s['lines']:
             if ln['voice']:
                 chapter_of.setdefault(ln['voice'][:-4].lower(), re.sub(r'd$', '', s['script'][:-4]))
+    bdir = os.path.join(adir, 'banks')
+    for bank in sorted(os.listdir(bdir)) if os.path.isdir(bdir) else []:
+        for n in sorted(os.listdir(os.path.join(bdir, bank))):
+            c.copy(os.path.join(bdir, bank, n), 'Música/Efeitos/' + bank, n, kind='effect')
     seen = {}
     for n in sorted(os.listdir(adir)) if os.path.isdir(adir) else []:
         if not n.endswith('.ogg'):

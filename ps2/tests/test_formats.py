@@ -2,6 +2,7 @@ import io
 import json
 import os
 import sys
+import struct
 import tempfile
 import unittest
 
@@ -16,6 +17,8 @@ import cmps  # noqa: E402
 import fjf  # noqa: E402
 import msg  # noqa: E402
 import tim2  # noqa: E402
+import gmi  # noqa: E402
+import sebank  # noqa: E402
 from sanctuary import names  # noqa: E402
 from sanctuary import scenes  # noqa: E402
 from tests import fixtures  # noqa: E402
@@ -161,9 +164,50 @@ class TranscriptTest(unittest.TestCase):
         sys.path.insert(0, os.path.join(os.path.dirname(HERE), 'sanctuary', 'story'))
         import transcript
         self.assertEqual(transcript.clean(' A casa de Arias , disse China ao Iolos.'), 'A casa de Áries, disse Shina ao Aiolos.')
-        self.assertEqual(json.load(open(os.path.join(os.path.dirname(HERE), 'sanctuary', 'story', 'fixes.json')))['story_00_if09_00500'],
-                         'Shiryu, deixe esta comigo.')
+        with open(os.path.join(os.path.dirname(HERE), 'sanctuary', 'story', 'fixes.json'), encoding='utf-8') as f:
+            self.assertEqual(json.load(f)['story_00_if09_00500'], 'Shiryu, deixe esta comigo.')
 
 
 if __name__ == '__main__':
     unittest.main()
+
+
+class GmiTest(unittest.TestCase):
+    def test_parse_and_bind_pose(self):
+        model = gmi.parse(fixtures.gmi())
+        self.assertEqual([b['name'] for b in model['bones']], ['root', 'child'])
+        part = model['parts'][0]
+        self.assertEqual(part['palette'], [0, 1])
+        self.assertEqual(part['faces'], [(0, 1, 2), (1, 3, 2)])
+        glb = gmi.to_glb(model)
+        self.assertEqual(glb[:4], b'glTF')
+        n = struct.unpack_from('<I', glb, 12)[0]
+        doc = json.loads(glb[20:20 + n])
+        pos_acc = doc['accessors'][doc['meshes'][0]['primitives'][0]['attributes']['POSITION']]
+        self.assertAlmostEqual(pos_acc['min'][0], -2.0, places=5)      # child bone at +1 on x, then mirrored to face the front
+        self.assertAlmostEqual(pos_acc['max'][0], -1.0, places=5)
+
+    def test_raw_keeps_coordinates(self):
+        model = gmi.parse(fixtures.gmi())
+        glb = gmi.to_glb(model, raw=True)
+        n = struct.unpack_from('<I', glb, 12)[0]
+        doc = json.loads(glb[20:20 + n])
+        pos_acc = doc['accessors'][0]
+        self.assertAlmostEqual(pos_acc['max'][0], 0.0, places=5)
+
+
+class SebankTest(unittest.TestCase):
+    def test_samples_and_rate(self):
+        silence = bytes([0x00, 0x00] + [0] * 14) * 4 + bytes([0x00, 0x01] + [0] * 14)
+        bank = fixtures.sebank([('星矢_20.aif', 0xF0D9, silence), ('b_22.aif', 0xF289, silence)])
+        items = sebank.samples(bank)
+        self.assertEqual([(n, r) for n, r, _ in items], [('星矢_20.aif', 20000), ('b_22.aif', 22050)])
+        self.assertEqual(len(items[0][2]), len(silence))
+        pcm = sebank.vag_decode(items[0][2])
+        self.assertEqual(len(pcm), 28 * 5)
+        self.assertTrue(all(v == 0 for v in pcm))
+
+    def test_decode_tone(self):
+        block = bytes([0x00, 0x00]) + bytes([0x11] * 14)                  # nibbles of +1 at shift 0
+        pcm = sebank.vag_decode(block * 2)
+        self.assertEqual(pcm[0], 4096)

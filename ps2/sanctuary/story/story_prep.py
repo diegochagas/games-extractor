@@ -252,6 +252,8 @@ def main(argv):
     book['cards'] = cards
 
     # ---- the 24 fighters
+    mpath = os.path.join(text, 'models.json')
+    models_info = json.loads(Path(mpath).read_text(encoding='utf-8')) if os.path.exists(mpath) else []
     fighters = []
     name_plates = pngs(os.path.join(dump, 'images', 'name_us.tpl'))
     for num, short, full, slug_ in names.ROSTER:
@@ -265,7 +267,14 @@ def main(argv):
             i += 2
         enc = by_name.get(full) or by_name.get(full.replace('Seiya com a Armadura de Sagitário', 'Seiya de Pégaso'))
         toy = next((t for t in toys if t['name'] == full), None)
-        fighters.append({'number': num, 'name': short, 'full': full,
+        renders = {}
+        for suffix, label in (('', 'Cor 1'), ('_cor2', 'Cor 2')):
+            views = {v: img('renders/characters/%s%s/%s.png' % (slug_, suffix, v), 330, 420, crop=True) for v in ('front', 'side', 'back', 'three_quarter')}
+            if views['front']:
+                renders[suffix or 'cor1'] = {'label': label, 'views': views}
+        minfo = next((m for m in models_info if m['name'] == slug_ and not m['simple'] and m['colour'] == 1), None)
+        fighters.append({'number': num, 'name': short, 'full': full, 'renders': renders,
+                         'model': {'bones': minfo['bones'], 'triangles': minfo['triangles'], 'parts': minfo['parts']} if minfo else None,
                          'art': img('images/charstand%sa.png' % num, 300, 420, crop=True),
                          'plate': img(name_plates[int(num)], 200, 60, crop=True) if int(num) < len(name_plates) else None,
                          'encyclopedia': enc, 'skills': skills, 'toy': toy,
@@ -273,6 +282,13 @@ def main(argv):
     book['fighters'] = fighters
     book['extra_art'] = [{'file': img('images/charstande%d.png' % i, 240, 330, crop=True), 'label': lbl}
                          for i, lbl in ((0, 'Mestre Ares'), (1, 'Saori Kido'))]
+    book['extra_models'] = [{'name': m['name'], 'file': m['file'], 'triangles': m['triangles'],
+                             'front': img('renders/%s/front.png' % m['id'], 300, 400, crop=True),
+                             'three_quarter': img('renders/%s/three_quarter.png' % m['id'], 300, 400, crop=True)}
+                            for m in models_info if m['name'].startswith('outros') and not m['simple'] and m['colour'] == 1]
+    bdir = os.path.join(dump, 'audio', 'banks')
+    book['bank_count'] = len(os.listdir(bdir)) if os.path.isdir(bdir) else 0
+    book['bank_samples'] = sum(len(os.listdir(os.path.join(bdir, b))) for b in os.listdir(bdir)) if os.path.isdir(bdir) else 0
 
     # ---- chapters
     def chapter_pictures(cid):

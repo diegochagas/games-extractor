@@ -79,7 +79,7 @@ const story = D.chapters.filter(ch => ch.kind === 'story'), ifs = D.chapters.fil
 startDoc('01');
 c.push(H1('Sobre este livro'));
 SUMMARIES['Sobre este livro'] = 'o que é o jogo, de onde veio cada coisa deste livro e como ele está organizado.';
-c.push(P(`Saint Seiya: The Sanctuary (聖闘士星矢 聖域十二宮編, "Saint Seiya: capítulo das Doze Casas do Santuário") é o jogo de luta de Os Cavaleiros do Zodíaco para PlayStation 2 feito pela Dimps e lançado pela Bandai em 2005. No Brasil ele saiu com dublagem em português feita pelo elenco clássico da série e com todos os textos traduzidos. Este livro foi montado a partir do disco brasileiro: as falas são a transcrição das vozes dubladas (o disco brasileiro não guarda legendas para as cenas: os arquivos de texto das cenas estão em branco), feita por reconhecimento de voz e revisada onde indicado; os demais textos são os do próprio jogo.`));
+c.push(P(`Saint Seiya: The Sanctuary (聖闘士星矢 聖域十二宮編, "Saint Seiya: capítulo das Doze Casas do Santuário") é o jogo de luta de Os Cavaleiros do Zodíaco para PlayStation 2 feito pela Dimps e lançado pela Bandai em 2005. No Brasil ele saiu com dublagem em português feita pelo elenco clássico da série e com todos os textos traduzidos. Este livro foi montado a partir do disco brasileiro: as falas são a transcrição das vozes dubladas (o disco brasileiro não guarda legendas para as cenas: os arquivos de texto das cenas estão em branco), feita por reconhecimento de voz em duas passagens e revisada linha a linha; os demais textos são os do próprio jogo. Os modelos 3D dos personagens foram decodificados e renderizados a partir dos arquivos do disco.`));
 c.push(P(`O livro reúne os ${S.fighters} lutadores com a ficha da enciclopédia do jogo e a lista de golpes, as ${S.encyclopedia} fichas de personagens, as coleções de bonecos Die Cast (${S.toys}) e de cards (${D.cards.length}), a história do modo História fala por fala (${S.lines} falas em ${S.scenes} cenas), as dez histórias alternativas, o Modo Mestre, os filmes e as músicas, e todos os outros textos do disco.`));
 c.push(table([2600, W - 2600], [['Executável do disco', F.boot || ''], ['Versão', `${F.version || ''} (${F.vmode || ''})`], ['Arquivos no AFSDATA.AFS', String(F.afs_files)], ['Imagens extraídas', String(F.pictures)], ['Sons ADX', String(F.adx)], ['Linhas de texto em português', String(F.strings)]], { head: false }));
 c.push(P(''));
@@ -92,17 +92,24 @@ for (const m of D.menus) { if (!m.rows.length) continue; c.push(H3(`${m.label} (
 
 c.push(H1('Os 24 lutadores'));
 SUMMARIES['Os 24 lutadores'] = 'cada personagem jogável com a arte de seleção, a ficha da enciclopédia, os golpes e o boneco Die Cast.';
-c.push(P('Os lutadores na ordem em que o disco os numera. A ficha é a da enciclopédia do Modo Coleção; a lista de golpes é a do menu de pausa do jogo.'));
+c.push(P('Os lutadores na ordem em que o disco os numera. A ficha é a da enciclopédia do Modo Coleção; a lista de golpes é a do menu de pausa do jogo. Os modelos 3D são os do próprio disco, na pose de repouso do esqueleto (braços abertos), vistos de frente, de lado, de costas e em três quartos, nas duas cores de cada lutador.'));
 for (const k of D.fighters) {
   c.push(H2(`${k.number} · ${k.full}`));
   const head = [k.art ? { file: k.art, label: 'Arte de seleção' } : null, k.encyclopedia && k.encyclopedia.picture ? { file: k.encyclopedia.picture, label: 'Enciclopédia' } : null, k.toy && k.toy.picture ? { file: k.toy.picture, label: 'Boneco Die Cast' } : null];
   const r = imgRow(head, 220, 320); if (r) c.push(r);
   if (k.plate) { c.push(IMG(k.plate, 200, 60)); }
+  for (const key of ['cor1', '_cor2']) {
+    const rd = k.renders && k.renders[key]; if (!rd) continue;
+    const row = imgRow([{ file: rd.views.front, label: 'Frente' }, { file: rd.views.side, label: 'Lado' }, { file: rd.views.back, label: 'Costas' }, { file: rd.views.three_quarter, label: 'Três quartos' }], 170, 330);
+    if (row) { c.push(P([run(`Modelo 3D do jogo, ${rd.label.toLowerCase()}`, { bold: true, size: 18 })], { keepNext: true, spacing: { before: 100, after: 40 } })); c.push(row); }
+  }
+  if (k.model) c.push(P([run(`Modelo: ${k.model.triangles} triângulos, ${k.model.bones} ossos, ${k.model.parts} partes.`, { size: 16, color: '595959' })]));
   if (k.encyclopedia && k.encyclopedia.lines.length) c.push(P([run(k.encyclopedia.lines.join('  ·  '), { size: 18 })]));
   if (k.skills.length) c.push(table([3200, W - 3200], [['Golpe', 'Comando'], ...k.skills.map(s => [s.name, s.command])], { size: 16 }));
   if (k.toy && k.toy.text) c.push(P([run('Boneco Die Cast: ', { bold: true, size: 18 }), run(k.toy.text, { size: 18 })], { spacing: { before: 80 } }));
 }
 { const r = imgRow(D.extra_art, 240, 330); if (r) { c.push(H2('Outros personagens com arte própria')); c.push(r); } }
+if (D.extra_models && D.extra_models.length) { c.push(H2('Os outros modelos 3D do disco')); c.push(P('Modelos que só aparecem nas cenas (as pessoas do Santuário, Saori, o Mestre e os combatentes sem ficha), renderizados na pose de repouso.')); for (const g of grid(D.extra_models.filter(m => m.front).map(m => ({ file: m.front, label: `${m.file} (${m.triangles} triângulos)` })), 4, 150, 260)) c.push(g); }
 
 c.push(H1('Enciclopédia: as fichas dos personagens'));
 SUMMARIES['Enciclopédia: as fichas dos personagens'] = `as ${S.encyclopedia} fichas do Modo Coleção, com idade, altura, peso, aniversário, sangue, origem, treinamento e técnicas.`;
@@ -173,6 +180,7 @@ c.push(H1('Músicas e vozes'));
 SUMMARIES['Músicas e vozes'] = 'a lista das músicas com as cenas que as usam e o que há nas pastas de vozes.';
 c.push(table([3400, 1100, W - 4500], [['Arquivo', 'Duração', 'Cenas que usam'], ...D.music.map(m => [m.file, m.duration, m.used])], { size: 16 }));
 c.push(P(''));
+c.push(P(`Efeitos sonoros: ${D.bank_samples} amostras em ${D.bank_count} bancos (pasta Música/Efeitos, um banco por cena e por lutador, com o nome original de cada amostra em japonês).`));
 c.push(P(`Vozes: ${D.voices.story} vozes das cenas da história (pasta Vozes/História, uma pasta por cena, o nome de quem fala no nome do arquivo) e ${D.voices.all - D.voices.story} vozes e sons de batalha, dos menus e do Modo Mestre (Vozes/Batalha por lutador, Vozes/Modo Mestre, Vozes/Outras). A lista de vozes do Modo Coleção cobre estes personagens: ${D.voice_index.join(', ')}.`));
 if (D.voices.without_scene.length) { c.push(H2('Vozes gravadas que nenhuma cena chama')); c.push(P('Arquivos de voz da história que nenhum roteiro usa:')); for (const d of dialogue(D.voices.without_scene.map(v => ({ speaker: v.speaker, text: v.text, voice: v.voice, source: 'whisper' })))) c.push(d); }
 

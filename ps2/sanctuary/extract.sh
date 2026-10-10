@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Full dump of Saint Seiya: The Sanctuary (PS2, Brazilian disc) from its ISO. The ISO is only read.
 #
-# usage: extract.sh GAME.iso [--no-transcribe]
+# usage: extract.sh GAME.iso [--no-transcribe] [--no-render]
 # env:
 #   SANCTUARY_OUT  dump folder (default ~/Downloads/Saint Seiya - The Sanctuary (PS2))
+#   BLENDER        Blender 4.2 executable for the renders of the 3D models (default: `blender` in PATH)
+#   RENDER_DEVICE=GPU  renders with the graphics card
 #   WHISPER_PY     python of a virtual environment with faster-whisper, for the transcription of the
 #                  Portuguese voices (default /mnt/data/venvs/whisper/bin/python; skipped when absent)
 #
@@ -11,15 +13,18 @@
 #   iso/      the files of the disc            afs/     DATA/AFSDATA.AFS unpacked (+ afs_index.json)
 #   files/    every CMPS file unpacked and every FJF container opened, recursively
 #   images/   every TIM2 picture as PNG         text/    messages.json/.txt, scenes.json, voices/*.pt.json
-#   audio/    every ADX as .ogg                 video/   the three Sofdec movies as .mp4
+#   audio/    every ADX as .ogg, banks/ the sound banks as .wav     video/   the three Sofdec movies as .mp4
+#   models/   the character models as .glb      renders/ front/side/back/three-quarter pictures of them
 set -euo pipefail
-ISO="${1:?usage: extract.sh GAME.iso [--no-transcribe]}"
-MODE="${2:-}"
+ISO="${1:?usage: extract.sh GAME.iso [--no-transcribe] [--no-render]}"
+shift
+MODES="$*"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PS2="$(dirname "$HERE")"
 PSP="$(dirname "$PS2")/psp"
 OUT="${SANCTUARY_OUT:-$HOME/Downloads/Saint Seiya - The Sanctuary (PS2)}"
 WHISPER_PY="${WHISPER_PY:-/mnt/data/venvs/whisper/bin/python}"
+BLENDER="${BLENDER:-$(command -v blender || true)}"
 for tool in 7z ffmpeg ffprobe python3; do
   command -v "$tool" >/dev/null || { echo "missing tool: $tool"; exit 2; }
 done
@@ -33,7 +38,17 @@ echo "== text";                  python3 "$PS2/msg.py" dump "$OUT/afs" "$OUT/tex
                                  python3 "$HERE/scenes.py" dump "$OUT/afs" "$OUT/text"
 echo "== movies";                python3 "$PS2/media.py" video "$OUT/iso/DATA" "$OUT/video"
 echo "== music and voices";      python3 "$PS2/media.py" audio "$OUT/afs" "$OUT/audio" --workers 6
-if [ "$MODE" != "--no-transcribe" ]; then
+echo "== sound banks";           python3 "$PS2/sebank.py" extract "$OUT/afs" "$OUT/audio/banks"
+echo "== 3D models";             python3 "$HERE/models.py" "$OUT/afs" "$OUT"
+case " $MODES " in *" --no-render "*) ;; *)
+  if [ -z "$BLENDER" ] || [ ! -x "$BLENDER" ]; then
+    echo "-- Blender not found: set BLENDER or use --no-render"
+  else
+    echo "== renders"
+    python3 "$PSP/render/render_all.py" "$OUT/text/render_jobs.json" "$OUT/renders" --blender "$BLENDER" --workers 2
+  fi;;
+esac
+case " $MODES " in *" --no-transcribe "*) ;; *)
   if [ -x "$WHISPER_PY" ]; then
     echo "== transcription of the story voices (faster-whisper, pt)"
     mapfile -t VOICES < <(python3 -c "import json,sys; s=json.load(open(sys.argv[1])); print('\\n'.join(sorted({l['voice'] for x in s for l in x['lines'] if l['voice']})))" "$OUT/text/scenes.json")
@@ -45,6 +60,6 @@ if [ "$MODE" != "--no-transcribe" ]; then
     [ "${#TODO[@]}" -eq 0 ] || "$WHISPER_PY" "$PSP/transcribe.py" "$OUT/text/voices" "${TODO[@]}" --language pt
   else
     echo "-- faster-whisper not found ($WHISPER_PY): voices not transcribed"
-  fi
-fi
+  fi;;
+esac
 echo "== done: $OUT"

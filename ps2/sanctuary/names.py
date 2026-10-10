@@ -53,7 +53,7 @@ TEMPLES = ['Áries', 'Touro', 'Gêmeos', 'Câncer', 'Leão', 'Virgem', 'Libra', 
 
 def speaker(voice_file):
     """(code, name) of the character who speaks a story voice file (story_NN_... / story_eNN_...)."""
-    m = re.match(r'(?i)story_(e?\d+)_', voice_file or '')
+    m = re.match(r'(?i)(?:story|pope)_?(e?\d+)_', voice_file or '')
     if not m:
         return '', ''
     code = m.group(1).lower()

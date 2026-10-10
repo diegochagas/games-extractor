@@ -5,6 +5,8 @@ psp/transcribe.py with faster-whisper), the speaker taken from the voice file na
 recogniser's usual slips fixed (GLOSSARY) and the lines corrected by hand in fixes.json.
 
 usage: transcript.py DUMP_DIR [--report]     -> DUMP_DIR/text/story.json
+(text/voices2, when present, is a second pass seeded with the names of the game; it fills the
+lines the first pass left empty, and review.py lists where the two disagree)
 """
 import json
 import os
@@ -24,6 +26,11 @@ GLOSSARY = [
     (r'\bCássio\b', 'Cássius'), (r'\b(Chaca|Chaka|Xaca)\b', 'Shaka'), (r'\bCamos\b', 'Camus'), (r'\b(Ioros|Iorus)\b', 'Aiolos'),
     (r'\b(Cheia|Céia|Zeia|Seia)\b', 'Seiya'), (r'\b(Nick|Rick|Rikki)\b', 'Ikki'), (r'\bXungri\b', 'Shunrei'),
     (r'\b(Ayoria|Aeoria)\b', 'Aiolia'), (r'\bTchiriu\b', 'Shiryu'), (r'\bMitsuma\b', 'Mitsumasa'), (r'\bSakido\b', 'Saori Kido'),
+    (r'\b(Ic|Icky|Iggy|Ike|Eki)\b', 'Ikki'), (r'\bAyoros\b', 'Aiolos'), (r'\b(do|o) [Yy]og[ai]\b', r'\1 Hyoga'),
+    (r'\bchaca\b', 'Shaka'), (r'\bShunhei\b', 'Shunrei'), (r'\b(Xírio|Xiriu)\b', 'Shiryu'), (r'\bCéa\b', 'Seiya'),
+    (r'\bAdéus\b', 'Adeus'), (r'\bYannis\b', 'Ares'), (r'\bA (Aiolia|Aiolos|Hyoga)\b', r'\1'), (r'\bA Iória\b', 'Aiolia'),
+    (r'\bGamos\b', 'Camus'), (r'\bMyoga\b', 'Hyoga'), (r'\bNiki\b', 'Nike'), (r'\bSagittário\b', 'Sagitário'),
+    (r'\bSaora\b', 'Saori'), (r'\bcosmoenergia\b', 'cosmoenergia'),
     (r'\b[Ii]olos\b', 'Aiolos'), (r'\bAiolos\b', 'Aiolos'), (r'\bAioros\b', 'Aiolos'), (r'\b[Ii]olia\b', 'Aiolia'),
     (r'\bAiória\b', 'Aiolia'), (r'\bShiriu\b', 'Shiryu'), (r'\bShirou\b', 'Shiryu'), (r'\bShiryú\b', 'Shiryu'),
     (r'\bHioga\b', 'Hyoga'), (r'\bYoga\b', 'Hyoga'), (r'\bIki\b', 'Ikki'), (r'\bIkky\b', 'Ikki'),
@@ -93,6 +100,8 @@ def main(argv):
     titles = messages.get('msg_holiday_demo.bin', {}).get('pt', [])
     vdir = os.path.join(text, 'voices')
     files = {n.lower(): n for n in os.listdir(vdir)} if os.path.isdir(vdir) else {}
+    vdir2 = os.path.join(text, 'voices2')                 # the pass seeded with the names (psp/transcribe.py --prompt)
+    files2 = {n.lower(): n for n in os.listdir(vdir2)} if os.path.isdir(vdir2) else {}
     missing, used = [], set()
 
     def line_of(ln):
@@ -116,11 +125,15 @@ def main(argv):
             entry['text'], entry['source'] = fix, 'fixed'
             return entry
         path = os.path.join(vdir, files.get(stem.lower() + '.pt.json', stem + '.pt.json'))
+        path2 = os.path.join(vdir2, files2.get(stem.lower() + '.pt2.json', stem + '.pt2.json'))
         if os.path.exists(path):
             with open(path, encoding='utf-8') as f:
                 segs = json.load(f)
             entry['text'] = clean(' '.join(s['text'] for s in segs))
             entry['source'] = 'whisper'
+            if not entry['text'] and os.path.exists(path2):          # the plain pass heard nothing: take the seeded one
+                with open(path2, encoding='utf-8') as f:
+                    entry['text'] = clean(' '.join(s['text'] for s in json.load(f)))
         else:
             entry['text'], entry['source'] = '', 'missing'
             missing.append(stem)

@@ -5,7 +5,7 @@ usage: story_prep.py DUMP_DIR WORK_DIR [--videos FOLDER]   -> WORK_DIR/story_boo
 
 DUMP_DIR is the dump made by ../extract.sh (images/, text/, audio/, video/) after transcript.py
 wrote text/story.json. `--videos` is a folder with the two recorded cutscenes of the game
-(file names containing "Dark" = IF05 and "Palace" = IF09): frames of them illustrate those chapters.
+(file names containing "Dark" or "aiolos" = IF05, "Palace" or "nova-casa" = IF09): frames of them illustrate those chapters.
 """
 import hashlib
 import json
@@ -24,7 +24,7 @@ BUTTONS = {'\r': '□', '\x0e': '△', '\x0f': '○', '\x11': '×', '\x10': 'R1'
            '\x08': '□', '\x12': 'L1', '\x0c': 'R2', '\x0b': 'L2'}
 MOVIES = [('gx_jp', 'Abertura (versão japonesa)'), ('gx_us', 'Abertura (versão internacional)'),
           ('atari', 'Logotipo da Atari')]
-VIDEO_OF = {'if05': 'Dark', 'if09': 'Palace'}
+VIDEO_OF = {'if05': ('Dark', 'aiolos'), 'if09': ('Palace', 'nova-casa')}
 
 
 def render(text, keep_lines=False):
@@ -302,7 +302,7 @@ def main(argv):
         video = None
         if videos and ch['id'] in VIDEO_OF and os.path.isdir(videos):
             for n in sorted(os.listdir(videos)):
-                if VIDEO_OF[ch['id']] in n and n.lower().endswith(('.mp4', '.mkv', '.webm')):
+                if any(k in n for k in VIDEO_OF[ch['id']]) and n.lower().endswith(('.mp4', '.mkv', '.webm')):
                     src = os.path.join(videos, n)
                     video = {'file': n, 'duration': duration(src),
                              'frames': [img(f, 300, 170) for f in frames(src, work, ch['id'], 8)]}

@@ -78,7 +78,10 @@ def pictures(data):
             im = Image.new('RGBA', (width, height))
             im.putdata(px)
         elif image_type in (4, 5):
-            colours = clut_colours(clut, clut_type, clut_colours_n or (16 if image_type == 4 else 256))
+            if clut_size:
+                colours = clut_colours(clut, clut_type, clut_colours_n or (16 if image_type == 4 else 256))
+            else:                                         # no palette in the file: shown as grey levels
+                colours = [(v, v, v, 255) for v in (range(0, 256, 17) if image_type == 4 else range(256))]
             if image_type == 4:
                 idx = []
                 for b in image[:(width * height + 1) // 2]:

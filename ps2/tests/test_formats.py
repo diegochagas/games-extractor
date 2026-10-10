@@ -21,6 +21,8 @@ import gmi  # noqa: E402
 import sebank  # noqa: E402
 from sanctuary import names  # noqa: E402
 from sanctuary import scenes  # noqa: E402
+from hades import names as hnames  # noqa: E402
+from hades import scenes as hscenes  # noqa: E402
 from tests import fixtures  # noqa: E402
 
 
@@ -217,3 +219,27 @@ class SebankTest(unittest.TestCase):
         block = bytes([0x00, 0x00]) + bytes([0x11] * 14)                  # nibbles of +1 at shift 0
         pcm = sebank.vag_decode(block * 2)
         self.assertEqual(pcm[0], 4096)
+
+
+class HadesTest(unittest.TestCase):
+    def test_roster_and_speaker(self):
+        self.assertEqual(len(hnames.ROSTER), 49)
+        self.assertEqual(hnames.speaker('story_15_t05_00000.adx')[1], 'Seiya (Sagitário)')
+        self.assertEqual(hnames.speaker('story_e01_t07_00000.adx')[1], 'Pandora')
+        self.assertFalse(any('Sapuri' in r[2] and 'Seiya' in r[2] for r in hnames.ROSTER))
+
+    def test_parse_gsb(self):
+        data = fixtures.script([
+            (15, 8, ['script\\text\\story_0005_uk']),
+            (63, 19, [0, 18, 'script\\motion\\story_0005_18.fjf']),
+            (0, 0, [1, 'script\\scene\\05_1_1.bin', 'FILENAME_NULL', 1, 1, 1]),
+            (17, 10, [0, 0, -1, '.']), (62, 19, ['script\\voice\\0005\\story_18_t05_00000.adx', 0]),
+            (17, 10, [0, 1, -1, '.']), (62, 19, ['script\\voice\\0005\\story_35_t05_00000.adx', 1]),
+            (58, 19, ['bgm\\b106.adx', 0, 0.0])])
+        texts = {('0005', None): {'uk': ['Kuh... uwah...', 'Saga, enough!'], 'jp': ['くっ', 'サガ']}}
+        scene = hscenes.parse('story_0005_uk.gsb', data, texts)
+        self.assertEqual(scene['chapter'], '0005')
+        self.assertEqual(scene['cast'], {'0': 18})
+        self.assertEqual(scene['bgm'], ['b106.adx'])
+        self.assertEqual([(ln['line'], ln['voice'], ln['text_uk']) for ln in scene['lines']],
+                         [(0, 'story_18_t05_00000.adx', 'Kuh... uwah...'), (1, 'story_35_t05_00000.adx', 'Saga, enough!')])

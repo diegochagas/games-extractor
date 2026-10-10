@@ -45,6 +45,8 @@ def vag_decode(data):
 def samples(data):
     """[(name, rate, adpcm bytes)] of a bank file."""
     data = fjf.unwrap(data)
+    if not fjf.is_fjf(data):
+        return []
     _flags, ents = fjf.entries(data)
     chunk = None
     for _eid, off, size in ents:
@@ -52,9 +54,13 @@ def samples(data):
             chunk = data[off:off + size]
     if chunk is None:
         return []
+    if len(chunk) < 0x60:
+        return []
     _a, _b, data_size, data_off = struct.unpack_from('<IIII', chunk, 0x40)
+    if data_off > len(chunk):
+        return []
     recs = []
-    for o in range(0x60, data_off, 32):
+    for o in range(0x60, data_off - 31, 32):
         off, loop, vol, pitch = struct.unpack_from('<IIHH', chunk, o)
         name = chunk[o + 16:o + 32].split(b'\0')[0].decode('shift_jis', 'replace')
         if not name:

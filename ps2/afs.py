@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """CRI AFS archives (PS2 / Dreamcast era): `AFS\\0`, u32 count, (u32 offset, u32 size) per file,
 then the pointer to the name table (right after the entries, or at 0x7FFF8 in older archives);
-the name table has 48-byte records: name[32], six u16 of a date (y, m, d, h, min, s), u32 size.
+the name table has 48-byte records: name[32], six u16 of a date (y, m, d, h, min, s), u32 size (the
+size of the offset table is the one used: The Hades fills the name-table field with other numbers).
 
 usage: afs.py list ARCHIVE.afs
        afs.py extract ARCHIVE.afs OUT_DIR [--index OUT.json]
@@ -32,7 +33,7 @@ def read_table(f):
             rec = f.read(48)
             name = rec[:32].split(b'\0')[0].decode('latin-1')
             y, mo, d, h, mi, s, size = struct.unpack('<6HI', rec[32:48])
-            names.append({'name': name, 'date': '%04d-%02d-%02d %02d:%02d:%02d' % (y, mo, d, h, mi, s), 'size': size})
+            names.append({'name': name, 'date': '%04d-%02d-%02d %02d:%02d:%02d' % (y, mo, d, h, mi, s), 'name_size': size})
     rows = []
     for i, (off, size) in enumerate(entries):
         row = {'index': i, 'offset': off, 'size': size}

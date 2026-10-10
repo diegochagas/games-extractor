@@ -1,6 +1,6 @@
 # ps2 — PlayStation 2 games on CRI middleware (Dimps)
 
-Written for **Saint Seiya: The Sanctuary** (聖闘士星矢 聖域十二宮編, Dimps / Bandai, 2005), from the
+Written for **Saint Seiya: The Sanctuary** and reused for **Saint Seiya: The Hades** (see the end). The Sanctuary (聖闘士星矢 聖域十二宮編, Dimps / Bandai, 2005), from the
 **Brazilian disc** (`SLPS_254.76` v1.02, NTSC): the one with the Portuguese dub by the classic cast and
 every text in Portuguese. Everything runs on Linux with Python 3 (Pillow), `7z`, `ffmpeg` and Node +
 `docx@8` for the book; the transcription of the voices uses faster-whisper in its own virtual
@@ -87,3 +87,25 @@ committed.
 - The transcription was proof-read by reading, with two recognition passes, not by listening: lines
   where both passes failed are marked "(grito)" or "(inaudível)", and a few names were chosen from context.
 - `EBOOT`/`SLPS_254.76` tables (which voice of the collection is which file, card names) are not read.
+
+
+## The Hades (`hades/`)
+
+**Saint Seiya: The Hades** (聖闘士星矢 冥王ハーデス十二宮編, Dimps / Bandai, 2006), from the **European
+disc** (`SLES_541.62`, PAL): Japanese voices, text in English, French, Italian, Spanish, German and
+Japanese, no Portuguese. The same engine and formats; what differs:
+
+- The first text block of the FJF tables is Japanese (`msg.py --slot0 jp`), per-language tables
+  are separate files (`msg_*_uk.bin`, `skill_NN_uk.msg`); the 49 fighters have `NN.gmi` + `NNh.gmi`
+  (the hair, merged into the body by `models.py --names hades`) + `NNs.gmi`; the story is in
+  `story_<chapter>_<lang>.gsb` scripts (`hades/scenes.py`) with the text in `story_<chapter>_<lang>.bin`:
+  44 main chapters (0000-0043), the three Judges (0r/0a/0m), the Saint Legend mode (1000-1010), the
+  narrated digests (2000-2006). The voice file carries the speaker number (`story_NN_t05_...`;
+  `eNN` = Saori, Pandora, the Old Master, Hades). `GX_MAIN.SFD` (1.8 GB) is all zeros: DVD padding.
+- `hades/story/translate.py` translates the English lines to pt-BR with a local Ollama model (cache
+  per line, `glossary.json` with the Brazilian names; `story.py` fixes the model's name-order slips),
+  `story_prep.py` + `build.js` make three volumes with the English and Japanese under each line.
+- `hades/extract.sh`, `hades/build.sh`, `hades/organize.py`: the same pipeline and gallery layout.
+- There is no Sagittarius Specter Seiya in the disc: Seiya exists in his Pegasus Cloths (three),
+  the Sagittarius Gold Cloth and the golden Bronze Cloth; Surplices only for Mephisto, Aphrodite,
+  Shura, Camus and Saga, plus the three Judges.

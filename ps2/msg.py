@@ -12,9 +12,11 @@ starts and the other languages only when their offset still points at a sane blo
 The Brazilian text uses hiragana code points for the accented letters the font had no slot for
 (`ぇ` = á, `げ` = ã...): ACCENTS maps them back.
 
-usage: msg.py dump SRC_DIR OUT_DIR    -> OUT_DIR/messages.json (every table, every language),
-                                         OUT_DIR/messages.txt (the Portuguese, readable)
-       msg.py show FILE [LANG]
+usage: msg.py dump SRC_DIR OUT_DIR [--slot0 pt|jp]   -> OUT_DIR/messages.json (every table, every
+                                         language), OUT_DIR/messages.txt (the first language, readable)
+       msg.py show FILE [LANG] [--slot0 pt|jp]
+`--slot0` names the language of the first block: `pt` (the Brazilian disc, default) or `jp` (the
+Japanese and European discs, whose first block is Japanese and gets no accent mapping).
 """
 import json
 import os
@@ -58,8 +60,9 @@ def block(data, pos):
     return out, end
 
 
-def read(data):
+def read(data, slot0='pt'):
     """{language: [strings]} of a table file."""
+    languages = [slot0] + LANGUAGES[1:]
     data = fjf.unwrap(data)
     out = {}
     if fjf.is_fjf(data):
@@ -69,10 +72,10 @@ def read(data):
         strings, end = block(data, ents[0][1])
         if strings is None:
             return out
-        out[LANGUAGES[0]] = strings
+        out[languages[0]] = strings
         pos = (end + 15) & ~15
         for i, (eid, off, _size) in enumerate(ents[1:], 1):
-            lang = LANGUAGES[eid] if eid < len(LANGUAGES) else 'lang%d' % eid
+            lang = languages[eid] if eid < len(languages) else 'lang%d' % eid
             strings = None
             if off >= end and off < len(data):            # offset still beyond the Portuguese block
                 strings, nxt = block(data, off)
@@ -87,16 +90,18 @@ def read(data):
     else:
         strings, _end = block(data, 0)
         if strings is not None:
-            out[LANGUAGES[0]] = strings
+            out[languages[0]] = strings
     if 'pt' in out:
         out['pt'] = [fix_accents(s) for s in out['pt']]
     return out
 
 
 def main(argv):
+    slot0 = argv[argv.index('--slot0') + 1] if '--slot0' in argv else 'pt'
+    argv = [a for i, a in enumerate(argv) if a != '--slot0' and (i == 0 or argv[i - 1] != '--slot0')]
     if len(argv) >= 3 and argv[1] == 'show':
         with open(argv[2], 'rb') as f:
-            tables = read(f.read())
+            tables = read(f.read(), slot0)
         for lang, strings in tables.items():
             if len(argv) > 3 and lang != argv[3]:
                 continue
@@ -110,15 +115,15 @@ def main(argv):
         result, kana, lines = {}, {}, []
         for name in sorted(os.listdir(src)):
             low = name.lower()
-            if not (low.startswith(('msg', 'skilllist')) and low.endswith('.bin')):
+            if not ((low.startswith(('msg', 'skilllist', 'skill_')) and low.endswith('.bin')) or low.endswith('.msg')):
                 continue
             with open(os.path.join(src, name), 'rb') as f:
-                tables = read(f.read())
+                tables = read(f.read(), slot0)
             if not tables:
                 continue
             result[name] = tables
             lines.append('== %s (%s)' % (name, ', '.join('%s %d' % (k, len(v)) for k, v in tables.items())))
-            for i, s in enumerate(tables.get('pt', [])):
+            for i, s in enumerate(tables.get(slot0, [])):
                 for ch in KANA.findall(s):
                     kana.setdefault(ch, []).append(s[:40])
                 if s.strip():

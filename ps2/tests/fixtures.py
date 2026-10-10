@@ -104,6 +104,8 @@ def script(commands):
                 out += b'\xc3' + v.encode('latin-1') + b'\0'
             elif isinstance(v, float):
                 out += b'\xc2' + struct.pack('>ii', int(round(v * 1000)), 1000)
+            elif v < 0:
+                out += b'\xc4' + struct.pack('>i', v)
             else:
                 out += b'\xc1' + struct.pack('>i', v)
         out += b'\xef'

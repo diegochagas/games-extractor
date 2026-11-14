@@ -13,7 +13,7 @@
 #   REBIRTH_VENV  python with UnityPy (default ~/.cache/rebirth-venv, created with pip if missing)
 #   REBIRTH_ART   where art.py files the 2D art (default $REBIRTH_OUT/Imagens; the Nextcloud Pictures folder in the scheduled task)
 #   REBIRTH_WORK  work folder with node_modules (docx@8) and the picture cache (default ~/.cache/rebirth-story)
-#   DOCX_ODT      comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
+#   DOCX_ODT      image-skills docx-odt-convert script (default: a image-skills checkout next to this repo)
 #   OLLAMA_MODEL  translation model (default qwen3-instruct-32k)
 set -euo pipefail
 MODE="${1:-}"
@@ -21,7 +21,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${REBIRTH_OUT:-$HOME/Downloads/Saint Seiya Rebirth}"
 VENV="${REBIRTH_VENV:-$HOME/.cache/rebirth-venv}"
 W="${REBIRTH_WORK:-$HOME/.cache/rebirth-story}"
-DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$HERE")")/comic-skills/docx-odt-convert/scripts/convert.py}"
+DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$HERE")")/image-skills/docx-odt-convert/scripts/convert.py}"
 DUMP="$OUT/dump"
 step() { printf '\n== %s\n' "$1"; }
 

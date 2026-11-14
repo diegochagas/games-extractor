@@ -29,4 +29,4 @@ same for Saint Seiya: The Sanctuary, into `~/Downloads/Saint Seiya - The Sanctua
 
 ## Document format
 
-The books and image indexes are delivered as LibreOffice `.odt`: the generators write `.docx`, and the `docx-odt-convert` skill of the [comic-skills](https://github.com/diegochagas/comic-skills) repo converts them (`python3 docx-odt-convert/scripts/convert.py <folder> --to odt --output <dest>`), updating the table of contents so it shows page numbers.
+The books and image indexes are delivered as LibreOffice `.odt`: the generators write `.docx`, and the `docx-odt-convert` skill of the [image-skills](https://github.com/diegochagas/image-skills) repo converts them (`python3 docx-odt-convert/scripts/convert.py <folder> --to odt --output <dest>`), updating the table of contents so it shows page numbers.

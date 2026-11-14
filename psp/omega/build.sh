@@ -12,7 +12,7 @@
 # env:
 #   OMEGA_OUT    dump folder (default ~/Downloads/Saint Seiya Omega Ultimate Cosmo)
 #   OMEGA_WORK   work folder with node_modules (docx@8) and the image cache (default ~/.cache/omega-story)
-#   DOCX_ODT     the comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
+#   DOCX_ODT     the image-skills docx-odt-convert script (default: a image-skills checkout next to this repo)
 #
 # The pt-BR text comes from $OMEGA_OUT/text/translation (translate.py export, the translation
 # itself following docs/TRANSLATE_INSTRUCTIONS.md, translate.py merge).
@@ -21,7 +21,7 @@ MODE="${1:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${OMEGA_OUT:-$HOME/Downloads/Saint Seiya Omega Ultimate Cosmo}"
 W="${OMEGA_WORK:-$HOME/.cache/omega-story}"
-DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/comic-skills/docx-odt-convert/scripts/convert.py}"
+DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/image-skills/docx-odt-convert/scripts/convert.py}"
 [ -f "$OUT/text/story.json" ] || { echo "dump not found in $OUT: run extract.sh first"; exit 2; }
 [ -f "$DOCX_ODT" ] || { echo "docx-odt-convert not found: set DOCX_ODT"; exit 2; }
 mkdir -p "$W"

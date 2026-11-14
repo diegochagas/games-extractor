@@ -7,14 +7,14 @@
 # env:
 #   HADES_OUT    dump folder (default ~/Downloads/Saint Seiya - The Hades (PS2))
 #   HADES_WORK   work folder with node_modules (docx@8) and the image cache (default ~/.cache/hades-story)
-#   DOCX_ODT     the comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
+#   DOCX_ODT     the image-skills docx-odt-convert script (default: a image-skills checkout next to this repo)
 #   OLLAMA_MODEL translation model (default qwen3-instruct-32k)
 set -euo pipefail
 MODE="${1:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${HADES_OUT:-$HOME/Downloads/Saint Seiya - The Hades (PS2)}"
 W="${HADES_WORK:-$HOME/.cache/hades-story}"
-DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/comic-skills/docx-odt-convert/scripts/convert.py}"
+DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/image-skills/docx-odt-convert/scripts/convert.py}"
 [ -f "$OUT/text/scenes.json" ] || { echo "dump not found in $OUT: run extract.sh first"; exit 2; }
 [ -f "$DOCX_ODT" ] || { echo "docx-odt-convert not found: set DOCX_ODT"; exit 2; }
 mkdir -p "$W"

@@ -13,13 +13,13 @@
 #   SANCTUARY_WORK   work folder with node_modules (docx@8) and the image cache (default ~/.cache/sanctuary-story)
 #   SANCTUARY_VIDEOS folder with the two recorded cutscene videos (IF05 and IF09), whose frames
 #                    illustrate those chapters (default: the Nextcloud Videos folder of the game)
-#   DOCX_ODT         the comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
+#   DOCX_ODT         the image-skills docx-odt-convert script (default: a image-skills checkout next to this repo)
 set -euo pipefail
 MODE="${1:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT="${SANCTUARY_OUT:-$HOME/Downloads/Saint Seiya - The Sanctuary (PS2)}"
 W="${SANCTUARY_WORK:-$HOME/.cache/sanctuary-story}"
-DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/comic-skills/docx-odt-convert/scripts/convert.py}"
+DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$(dirname "$HERE")")")/image-skills/docx-odt-convert/scripts/convert.py}"
 [ -f "$OUT/text/scenes.json" ] || { echo "dump not found in $OUT: run extract.sh first"; exit 2; }
 [ -f "$DOCX_ODT" ] || { echo "docx-odt-convert not found: set DOCX_ODT"; exit 2; }
 mkdir -p "$W"

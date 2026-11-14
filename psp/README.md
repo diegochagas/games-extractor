@@ -54,7 +54,7 @@ reads some of them in place: compressing `scene/adv/adv.pac` leaves the story on
   instructions, `check` finds missing keys / leftover markup / leftover Japanese, `merge` joins them.
 - `organize.py` – the gallery: `Imagens` (pictures only), `Vídeos`, `Música`, `Modelos 3D`.
 - `story/story_prep.py`, `story/build.js` – the story book, four volumes (`.docx` in the work
-  folder, delivered as `.odt` by the comic-skills `docx-odt-convert` skill).
+  folder, delivered as `.odt` by the image-skills `docx-odt-convert` skill).
 
 ## The Portuguese image (`omega/patch.py`, `pictures.py`, `movie.py`, `translated.sh`)
 

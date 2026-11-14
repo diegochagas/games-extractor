@@ -13,14 +13,14 @@
 #   SSO_OUT       output root (default ~/Downloads/Saint Seiya Online)
 #   SSO_LIBRARY   Diego's "Cloth Schemes" library, for the official art kept there (optional)
 #   SSO_WORK      work folder with node_modules (docx@8) and the image cache (default ~/.cache/sso-story)
-#   DOCX_ODT      the comic-skills docx-odt-convert script (default: a comic-skills checkout next to this repo)
+#   DOCX_ODT      the image-skills docx-odt-convert script (default: a image-skills checkout next to this repo)
 set -euo pipefail
 DUMP="$(cd "${1:?usage: build.sh DUMP_DIR [--story-only]}" && pwd)"
 MODE="${2:-}"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 OUT_ROOT="${SSO_OUT:-$HOME/Downloads/Saint Seiya Online}"
 W="${SSO_WORK:-$HOME/.cache/sso-story}"
-DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$HERE")")/comic-skills/docx-odt-convert/scripts/convert.py}"
+DOCX_ODT="${DOCX_ODT:-$(dirname "$(dirname "$HERE")")/image-skills/docx-odt-convert/scripts/convert.py}"
 GAL="${SSO_GALLERY:-$OUT_ROOT/Imagens}"
 [ -f "$DOCX_ODT" ] || { echo "docx-odt-convert not found: set DOCX_ODT"; exit 2; }
 mkdir -p "$W"

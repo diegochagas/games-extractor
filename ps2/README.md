@@ -54,7 +54,7 @@ sanctuary/build.sh                  # gallery folders + the three volumes of the
   exist as recorded videos — the trial of Aiolos, IF05/06, and the new temple with Shina, IF09/10 —
   were checked against the videos; shouts and inaudible lines are marked as such).
 - `story/story_prep.py`, `story/build.js` – the book, three volumes (`.docx` in the work folder,
-  delivered as `.odt` by the comic-skills `docx-odt-convert` skill): the game, the 24 fighters with
+  delivered as `.odt` by the image-skills `docx-odt-convert` skill): the game, the 24 fighters with
   encyclopedia card, moves and Die Cast toy, the 56 encyclopedia entries, the toy and card collections
   and the tutorial; the twelve-temple story scene by scene; the ten alternative scenes (with frames
   of the recorded videos), the Pope mode and its texts, movies, music, voices and every other text.
